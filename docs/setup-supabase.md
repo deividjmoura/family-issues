@@ -26,17 +26,23 @@ Rode **nesta ordem** no SQL Editor do Supabase:
 3. `supabase/migrations/20260924000003_notifications.sql`
 4. `supabase/migrations/20260924000004_negotiations.sql`
 5. `supabase/migrations/20260924000005_profiles.sql`
+6. `supabase/migrations/20260924000006_task_proof.sql` — coluna `proof_image_url` + bucket Storage `task-proofs`
 
 ## 4. Realtime
 
 **Database → Replication** (ou Publication): habilite a tabela `notifications`.
 
-## 5. Auth
+## 5. Storage
+
+A migration `00006` cria o bucket `task-proofs` (público para leitura, upload só no prefixo do próprio user).  
+Se o insert do bucket falhar (permissões), crie manualmente em **Storage** com os mesmos limites (5 MB, jpeg/png/webp/heic) e aplique as policies do SQL.
+
+## 6. Auth
 
 Em **Authentication → Providers**, deixe Email habilitado.  
 Para dev, em **Auth → Settings**, pode desativar “Confirm email” para testar sem inbox.
 
-## 6. Rodar
+## 7. Rodar
 
 ```bash
 cd apps/web
@@ -45,3 +51,12 @@ npm run dev
 ```
 
 Abra http://localhost:3000 → criar conta → criar família → convidar executor com o código.
+
+### Fluxo de teste rápido
+
+1. Responsável cria tarefa (valor + executor)
+2. Executor: **Concluí!** ou **📷 + prova**
+3. Responsável: ver foto → **Aprovar**
+4. (Opcional) Executor: **Negociar**
+5. Responsável: **Paguei** (unitário ou lote)
+6. Executor: **Confirmei recebimento**

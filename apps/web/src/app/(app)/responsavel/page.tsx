@@ -70,9 +70,12 @@ export default async function ResponsavelHomePage() {
     }
   }
 
-  const pendingVerify = taskList.filter(
+  const toVerify = taskList.filter(
     (t) => t.status === "aguardando_verificacao",
-  ).length;
+  );
+  const others = taskList.filter(
+    (t) => t.status !== "aguardando_verificacao",
+  );
   const openTasks = taskList.filter(
     (t) =>
       t.status === "atribuida" ||
@@ -106,8 +109,8 @@ export default async function ResponsavelHomePage() {
         <Stat label="Em aberto" value={String(openTasks)} />
         <Stat
           label="A verificar"
-          value={String(pendingVerify)}
-          accent={pendingVerify > 0 ? "warning" : undefined}
+          value={String(toVerify.length)}
+          accent={toVerify.length > 0 ? "warning" : undefined}
         />
         <Stat label="A pagar" value={formatBRL(totalDue)} />
       </div>
@@ -148,18 +151,37 @@ export default async function ResponsavelHomePage() {
 
       <CreateTaskForm familyId={familyId} executors={executors} />
 
+      {toVerify.length > 0 && (
+        <section className="space-y-3">
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-semibold">Aguardando verificação</h2>
+            <span className="rounded-full bg-warning/15 px-2 py-0.5 text-xs font-semibold text-warning">
+              {toVerify.length}
+            </span>
+          </div>
+          <TaskList
+            tasks={toVerify}
+            role="responsavel"
+            userId={user.id}
+            pendingNegotiationTaskIds={pendingIds}
+            nameByUserId={names}
+          />
+        </section>
+      )}
+
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Tarefas da família</h2>
+          <h2 className="text-lg font-semibold">Todas as tarefas</h2>
           <span className="text-xs text-muted-foreground">
             {taskList.length} no total
           </span>
         </div>
         <TaskList
-          tasks={taskList}
+          tasks={toVerify.length > 0 ? others : taskList}
           role="responsavel"
           userId={user.id}
           pendingNegotiationTaskIds={pendingIds}
+          nameByUserId={names}
         />
       </section>
     </main>

@@ -70,7 +70,14 @@ export function TaskList({
 
   if (tasks.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground">Nenhuma tarefa ainda.</p>
+      <div className="rounded-xl border border-dashed border-border bg-muted/30 px-6 py-10 text-center">
+        <p className="text-sm font-medium text-foreground">Nenhuma tarefa ainda</p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          {role === "responsavel"
+            ? "Crie a primeira tarefa acima e atribua a um executor."
+            : "Quando o responsável atribuir missões, elas aparecem aqui."}
+        </p>
+      </div>
     );
   }
 
@@ -96,11 +103,14 @@ export function TaskList({
                 )}
                 {assigneeName && role === "responsavel" && (
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Executor: <span className="font-medium">{assigneeName}</span>
+                    Executor:{" "}
+                    <span className="font-medium text-foreground">
+                      {assigneeName}
+                    </span>
                   </p>
                 )}
                 {task.swapped && task.swapped_reward && (
-                  <p className="mt-1 text-sm text-amber-600">
+                  <p className="mt-1 text-sm text-amber-600 dark:text-amber-400">
                     Trocado por: {task.swapped_reward}
                   </p>
                 )}
@@ -126,19 +136,19 @@ export function TaskList({
                 </a>
               )}
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-sm font-semibold">
+                <span className="text-sm font-semibold tabular-nums">
                   {task.swapped ? "—" : formatBRL(task.value_cents)}
                 </span>
                 {task.payment_due_date && (
                   <span className="text-xs text-muted-foreground">
                     Pagar até{" "}
-                    {new Date(task.payment_due_date + "T12:00:00").toLocaleDateString(
-                      "pt-BR",
-                    )}
+                    {new Date(
+                      task.payment_due_date + "T12:00:00",
+                    ).toLocaleDateString("pt-BR")}
                   </span>
                 )}
                 {task.rejection_reason && (
-                  <span className="text-sm text-red-600">
+                  <span className="text-sm text-destructive">
                     Motivo: {task.rejection_reason}
                   </span>
                 )}
@@ -157,7 +167,8 @@ export function TaskList({
                   )}
                   {actions.includes("reject") && (
                     <Button
-                      size="sm"	aught                      variant="destructive"
+                      size="sm"
+                      variant="destructive"
                       disabled={pending}
                       onClick={() => {
                         const reason =

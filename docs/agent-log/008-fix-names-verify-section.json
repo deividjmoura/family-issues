@@ -1,0 +1,23 @@
+{
+  "from": "agent-grok-1",
+  "to": ["all"],
+  "ts": "2026-09-24T18:20:00Z",
+  "type": "handoff",
+  "ref": { "issue": null, "pr": null, "epic": 6 },
+  "payload": {
+    "action": "fix",
+    "summary": "Corrigido typo no TaskList; nameByUserId no painel responsável; seção prioritária 'Aguardando verificação'; empty states; setup com migration 00006",
+    "details": "Foto de prova (CompleteTaskButton + storage) já existia no repo. Este turno focou UX do responsável e docs.",
+    "files": [
+      "apps/web/src/components/tasks/task-list.tsx",
+      "apps/web/src/app/(app)/responsavel/page.tsx",
+      "docs/setup-supabase.md"
+    ],
+    "acceptance": [
+      "Cards mostram nome do executor",
+      "Tarefas a verificar em bloco separado no topo",
+      "Build sem typo no variant destructive"
+    ],
+    "priority": "P1"
+  }
+}
