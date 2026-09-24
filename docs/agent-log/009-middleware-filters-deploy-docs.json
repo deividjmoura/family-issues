@@ -1,0 +1,28 @@
+{
+  "from": "agent-grok-1",
+  "to": ["all"],
+  "ts": "2026-09-24T18:50:00Z",
+  "type": "handoff",
+  "ref": { "issue": null, "pr": null, "epic": null },
+  "payload": {
+    "action": "implement",
+    "summary": "Middleware por papel, CopyInvite, TaskFilters, next/image supabase, vercel.json, README + deploy-vercel.md",
+    "details": "Logado em /login|/signup|/ vai direto pro painel do papel. Executor não acessa /responsavel. Filtros de status no painel responsável. Docs de deploy.",
+    "files": [
+      "apps/web/src/lib/supabase/middleware.ts",
+      "apps/web/src/components/family/copy-invite.tsx",
+      "apps/web/src/components/tasks/task-filters.tsx",
+      "apps/web/src/app/(app)/responsavel/page.tsx",
+      "apps/web/next.config.ts",
+      "apps/web/vercel.json",
+      "README.md",
+      "docs/deploy-vercel.md"
+    ],
+    "acceptance": [
+      "Redirect por role após login",
+      "Copiar código de convite",
+      "Filtrar tarefas por status"
+    ],
+    "priority": "P1"
+  }
+}

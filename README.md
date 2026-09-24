@@ -7,62 +7,57 @@ Aplicação web para **delegar tarefas domésticas com recompensa em R$** e gami
 Pais/responsáveis designam tarefas (ex.: lavar a louça do almoço — R$ 10,00, pagamento no sábado).
 Filhos/outros membros da casa executam, marcam como feitas e **só recebem o selo “Realizada” depois da conferência visual + confirmação do responsável**.
 
-- **Notificações** bidirecionais: solicitação chega ao executor; check chega ao solicitante.
-- **Saldo** por executor: acumula o valor das tarefas aprovadas; zera quando o responsável registra o pagamento e o executor **confirma o recebimento**.
-- **Histórico** completo de tarefas concluídas.
-- **Negociação pós-execução**: depois de aprovada, o executor pode propor trocar o valor em dinheiro por algo (ex.: passeio na praia). O responsável aceita ou recusa.
-- **Duas faces de UI**:
-  - Responsável → interface séria, clara, focada em controle e saldo devido.
-  - Executor → interface tipo game (progresso, saldo, conquistas, feedback visual forte).
+- **Notificações** bidirecionais (in-app + Realtime)
+- **Saldo** por executor com pagamento e confirmação (unitário ou lote)
+- **Foto de prova** opcional na conclusão
+- **Negociação** pós-aprovação (trocar R$ por experiência)
+- **Duas UIs**: séria (responsável) e game-like (executor)
 
 ## Papéis
 
 | Papel | Quem | Pode |
 |-------|------|------|
-| `responsavel` | Pais / responsáveis | Criar tarefas, definir valor e data de pagamento, verificar, aprovar, registrar pagamento, negociar |
-| `executor` | Filhos / demais | Ver tarefas atribuídas, marcar conclusão, negociar após aprovação, confirmar pagamento |
+| `responsavel` | Pais / responsáveis | Criar tarefas, verificar, aprovar, pagar, negociar |
+| `executor` | Filhos / demais | Concluir (± foto), negociar, confirmar pagamento |
 
-Famílias (grupos) unem responsáveis e executores.
-
-## Fluxo principal da tarefa
+## Fluxo da tarefa
 
 ```
-[Criada] → [Atribuída] → [Em execução] → [Aguardando verificação]
-       → [Aprovada / Rejeitada] → (opcional) [Negociação] → [Paga] → [Confirmada]
+Atribuída → Aguardando verificação → Aprovada | Rejeitada
+  → (opcional Negociação) → Paga → Confirmada
 ```
 
-1. Responsável cria tarefa (título, descrição, valor R$, data de pagamento, executor).
-2. Executor recebe notificação e marca “Concluí”.
-3. Responsável verifica (visualmente) e confirma no app → status **Realizada** + valor entra no saldo do executor.
-4. Opcional: executor abre **Negociar** e propõe troca (texto livre).
-5. No dia do pagamento (ou quando quiser), responsável marca “Paguei”; executor confirma → saldo zera naquele ciclo.
+## Stack
 
-## Stack proposta (MVP desta noite)
+- **App**: Next.js 15 (App Router) + TypeScript + Tailwind 4
+- **Auth / DB / Realtime / Storage**: Supabase
+- **Deploy**: Vercel (`apps/web`)
 
-- **Frontend**: Next.js (App Router) + TypeScript + Tailwind + shadcn/ui
-- **Backend / Auth / DB**: Supabase (Auth + Postgres + Realtime + Storage se precisar de fotos de prova)
-- **Notificações**: Supabase Realtime + (opcional) e-mail/push depois
-- **Deploy**: Vercel
+## Como rodar
 
-## Estrutura do repositório
+Guia completo: **[docs/setup-supabase.md](docs/setup-supabase.md)**
+
+```bash
+cd apps/web
+cp .env.example .env.local   # URL + anon key do Supabase
+# aplique as 6 migrations SQL no Supabase
+npm install
+npm run dev
+```
+
+## Estrutura
 
 ```
 /
-├── README.md                 ← este arquivo (visão do produto)
-├── AGENTS.md                 ← protocolo de comunicação entre agentes (JSON)
-├── docs/
-│   ├── product.md            ← requisitos detalhados
-│   ├── domain.md             ← modelo de domínio e estados
-│   └── architecture.md       ← decisões técnicas
-├── apps/web/                 ← app Next.js (a criar)
-└── ...
+├── README.md
+├── AGENTS.md                 ← protocolo JSON entre agentes
+├── docs/                     ← product, domain, architecture, setup
+├── supabase/migrations/      ← SQL (families → task-proof)
+└── apps/web/                 ← Next.js
 ```
-
-## Comunicação entre agentes
-
-**Leia `AGENTS.md` antes de qualquer trabalho.**  
-Todas as mensagens entre agentes usam o formato JSON definido lá. Issues, PRs e commits seguem as labels e o padrão de título descritos no protocolo.
 
 ## Status
 
-Projeto em construção — estrutura inicial e backlog criados nesta sessão.
+**MVP funcional** — auth, famílias, tarefas + estados, wallet lote, negociação, notificações Realtime, foto de prova, filtros e middleware por papel.
+
+Agentes: leia `AGENTS.md` e o último handoff em `docs/agent-log/`.

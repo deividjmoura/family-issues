@@ -2,10 +2,12 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { CreateTaskForm } from "@/components/tasks/create-task-form";
 import { TaskList } from "@/components/tasks/task-list";
+import { TaskFilters } from "@/components/tasks/task-filters";
 import { NotificationList } from "@/components/notifications/notification-list";
 import { RealtimeNotifications } from "@/components/notifications/realtime-badge";
 import { PendingNegotiations } from "@/components/negotiations/pending-list";
 import { PayExecutorButton } from "@/components/wallet/pay-executor-button";
+import { CopyInvite } from "@/components/family/copy-invite";
 import { AppHeader } from "@/components/layout/app-header";
 import { listMyNotifications } from "@/lib/actions/notifications";
 import { listPendingNegotiations } from "@/lib/actions/negotiations";
@@ -73,9 +75,6 @@ export default async function ResponsavelHomePage() {
   const toVerify = taskList.filter(
     (t) => t.status === "aguardando_verificacao",
   );
-  const others = taskList.filter(
-    (t) => t.status !== "aguardando_verificacao",
-  );
   const openTasks = taskList.filter(
     (t) =>
       t.status === "atribuida" ||
@@ -97,10 +96,7 @@ export default async function ResponsavelHomePage() {
         title={family.name}
         subtitle={
           <>
-            Convite:{" "}
-            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-foreground">
-              {family.invite_code}
-            </code>
+            Convite: <CopyInvite code={family.invite_code} />
           </>
         }
       />
@@ -171,13 +167,13 @@ export default async function ResponsavelHomePage() {
 
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Todas as tarefas</h2>
+          <h2 className="text-lg font-semibold">Tarefas</h2>
           <span className="text-xs text-muted-foreground">
             {taskList.length} no total
           </span>
         </div>
-        <TaskList
-          tasks={toVerify.length > 0 ? others : taskList}
+        <TaskFilters
+          tasks={taskList}
           role="responsavel"
           userId={user.id}
           pendingNegotiationTaskIds={pendingIds}
