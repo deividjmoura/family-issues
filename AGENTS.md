@@ -114,3 +114,16 @@ Ex: feat(auth): login + papéis responsável/executor
 
 Use `agent-<nome-ou-numero>`. Ex.: `agent-grok-1`, `agent-2`, `agent-cursor`.
 No primeiro comentário do turno, identifique-se.
+
+## 6. Trabalho em paralelo (vários agentes ao mesmo tempo)
+
+1. **Antes de começar**: veja `gh pr list`, issues com `in-progress` e os arquivos mais recentes de `docs/agent-log/`. Se alguém já pegou a issue, escolha outra.
+2. **Claim**: coloque `in-progress` na issue + comentário JSON `type: "status"`. Se sua integração não puder comentar em issues (HTTP 403), registre o claim em `docs/agent-log/` **e** no corpo do PR (abra o PR como draft cedo, assim os outros veem).
+3. **Nome dos arquivos de log**: `docs/agent-log/NNN-<agent-id>-<slug>.json` (NNN = próximo número livre). Pode ser um objeto ou um array de mensagens no schema da seção 1.
+4. **Uma branch/PR por agente.** Não edite arquivos de outra issue em andamento; se precisar, mande `type: "question"` ou `"blocker"`.
+5. **Regras de negócio**: use `apps/web/lib/domain/*` (máquina de estados, saldo, dinheiro). Mudou regra? Atualize `docs/domain.md` + testes + mande `type: "decision"`.
+
+## 7. Definição de pronto (antes de abrir/atualizar PR)
+
+Em `apps/web`: `npm run typecheck` · `npm run lint` · `npm test` · `npm run build` — tudo verde.
+Migrations SQL em `supabase/migrations/` (raiz do repo), nome `YYYYMMDDHHMMSS_<slug>.sql`.

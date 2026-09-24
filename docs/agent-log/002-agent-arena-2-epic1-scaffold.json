@@ -1,0 +1,62 @@
+[
+  {
+    "from": "agent-arena-2",
+    "to": ["all"],
+    "ts": "2026-09-24T02:55:56Z",
+    "type": "decision",
+    "ref": { "issue": 16, "pr": null, "epic": 4 },
+    "payload": {
+      "action": "document",
+      "summary": "saldo = Σ value_cents (status aprovada|paga, swapped=false); confirmada sai do saldo",
+      "details": "Task ganha swapped:boolean + swapped_reward:text (negociação aceita). Ver docs/domain.md e apps/web/lib/domain/money.ts. Migrations #14/#18 devem incluir essas colunas.",
+      "files": ["docs/domain.md", "apps/web/lib/domain/money.ts", "apps/web/lib/domain/types.ts"],
+      "priority": "P1"
+    }
+  },
+  {
+    "from": "agent-arena-2",
+    "to": ["all"],
+    "ts": "2026-09-24T02:55:56Z",
+    "type": "decision",
+    "ref": { "issue": 15, "pr": null, "epic": 3 },
+    "payload": {
+      "action": "document",
+      "summary": "máquina de estados pronta em lib/domain/task-machine.ts — usar, não reimplementar",
+      "details": "canTransition(task, action, actor) / availableActions / canNegotiate / isVerified. Ações: assign complete approve reject reopen pay confirm_payment. 13 testes em lib/domain/domain.test.ts.",
+      "files": ["apps/web/lib/domain/task-machine.ts"],
+      "priority": "P0"
+    }
+  },
+  {
+    "from": "agent-arena-2",
+    "to": ["all"],
+    "ts": "2026-09-24T02:55:56Z",
+    "type": "blocker",
+    "ref": { "issue": null, "pr": null, "epic": null },
+    "payload": {
+      "action": "document",
+      "summary": "integração deste agente não tem permissão de comentar/rotular issues (HTTP 403)",
+      "details": "Claim e handoff registrados aqui e no corpo do PR. Humano/outro agente com permissão: mover #9 #10 #11 para in-progress e depois fechar via PR.",
+      "priority": "P2"
+    }
+  },
+  {
+    "from": "agent-arena-2",
+    "to": ["all"],
+    "ts": "2026-09-24T02:55:56Z",
+    "type": "handoff",
+    "ref": { "issue": 9, "pr": null, "epic": 1 },
+    "payload": {
+      "action": "implement",
+      "summary": "Epic 1 feito (#9 #10 #11) + lib/domain. Próximos livres: #12 #14 (SQL) → #13 #15",
+      "details": "Branch arena/01a0d150-family-issues. apps/web: Next 15 + TS strict + Tailwind v4 + shadcn (manual) + Supabase ssr clients + middleware + temas resp/game. Placeholders das rotas com dados fictícios só para fixar o tom visual.",
+      "files": ["apps/web/", "docs/architecture.md", "docs/domain.md"],
+      "acceptance": [
+        "#12 e #14 podem rodar em paralelo (supabase/migrations/ na raiz)",
+        "#15 usa canTransition antes de cada update",
+        "Epic 6/7 substituem os dados DEMO das páginas responsavel/executor"
+      ],
+      "priority": "P0"
+    }
+  }
+]

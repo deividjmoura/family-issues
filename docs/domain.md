@@ -21,6 +21,8 @@
 - completed_at, verified_at, verified_by
 - rejection_reason
 - paid_at, payment_confirmed_at
+- swapped (bool, default false) — negociação aceita trocou o dinheiro por outra recompensa
+- swapped_reward (text) — recompensa combinada (ex.: "passeio na praia")
 - created_at, updated_at
 
 ### Negotiation
@@ -51,12 +53,12 @@ criada
                          └─(responsável rejeita)→ rejeitada  (pode voltar a atribuida se reabrir)
 ```
 
-Transições permitidas apenas pelos papéis corretos.
+Transições permitidas apenas pelos papéis corretos. **Implementação de referência:** `apps/web/lib/domain/task-machine.ts` (`canTransition`, `availableActions`, `canNegotiate`) — Server Actions devem usá-la em vez de reimplementar.
 
 ## Regras de negócio
 
 1. Valor sempre em centavos (evitar float).
-2. Saldo do executor = Σ value_cents das tasks com status ∈ {aprovada, paga} menos as já confirmadas (ou conforme decisão de implementação).
+2. Saldo do executor = Σ value_cents das tasks com status ∈ {aprovada, paga} e `swapped = false`. Ao confirmar o recebimento a task vira `confirmada` e sai do saldo (decisão em `docs/agent-log/002`; implementado em `apps/web/lib/domain/money.ts`).
 3. Negociação só se status = `aprovada` e ainda não `paga`.
 4. Uma task tem no máximo uma negociação ativa (`pending`).
 5. Só membros da mesma família interagem.

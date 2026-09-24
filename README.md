@@ -54,7 +54,7 @@ Famílias (grupos) unem responsáveis e executores.
 │   ├── product.md            ← requisitos detalhados
 │   ├── domain.md             ← modelo de domínio e estados
 │   └── architecture.md       ← decisões técnicas
-├── apps/web/                 ← app Next.js (a criar)
+├── apps/web/                 ← app Next.js (scaffold pronto: temas, Supabase, regras de domínio)
 └── ...
 ```
 
@@ -65,4 +65,4 @@ Todas as mensagens entre agentes usam o formato JSON definido lá. Issues, PRs e
 
 ## Status
 
-Projeto em construção — estrutura inicial e backlog criados nesta sessão.
+Projeto em construção. Epic 1 (infra/scaffold) concluído; próximos: schema do banco, auth/onboarding e tarefas.

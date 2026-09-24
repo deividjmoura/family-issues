@@ -1,0 +1,132 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Family Tasks — tema
+ * -------------------
+ * Duas "faces" compartilham os mesmos componentes shadcn, mudando só as CSS variables:
+ *   .theme-resp  → Responsável: sóbrio, neutro, foco em dados (padrão do :root)
+ *   .theme-game  → Executor: escuro, cores vibrantes, moedas/XP (aplicar no layout /executor)
+ * Tokens extras (além dos do shadcn): --success, --warning, --coin, --xp.
+ */
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-coin: var(--coin);
+  --color-xp: var(--xp);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* ---------- Face Responsável (padrão) ---------- */
+:root,
+.theme-resp {
+  --radius: 0.5rem;
+  --background: oklch(0.985 0.002 247);
+  --foreground: oklch(0.21 0.02 257);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.21 0.02 257);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.21 0.02 257);
+  --primary: oklch(0.32 0.06 257);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.96 0.005 247);
+  --secondary-foreground: oklch(0.25 0.03 257);
+  --muted: oklch(0.96 0.005 247);
+  --muted-foreground: oklch(0.52 0.02 257);
+  --accent: oklch(0.95 0.01 247);
+  --accent-foreground: oklch(0.25 0.03 257);
+  --destructive: oklch(0.58 0.22 27);
+  --border: oklch(0.91 0.006 247);
+  --input: oklch(0.91 0.006 247);
+  --ring: oklch(0.55 0.05 257);
+
+  --success: oklch(0.55 0.13 155);
+  --success-foreground: oklch(0.985 0 0);
+  --warning: oklch(0.75 0.15 75);
+  --warning-foreground: oklch(0.25 0.05 75);
+  --coin: oklch(0.7 0.14 85);
+  --xp: oklch(0.55 0.2 290);
+}
+
+/* ---------- Face Executor (game-like) ---------- */
+.theme-game {
+  --radius: 1rem;
+  --background: oklch(0.2 0.06 285);
+  --foreground: oklch(0.97 0.01 285);
+  --card: oklch(0.26 0.08 285);
+  --card-foreground: oklch(0.97 0.01 285);
+  --popover: oklch(0.26 0.08 285);
+  --popover-foreground: oklch(0.97 0.01 285);
+  --primary: oklch(0.85 0.2 130);
+  --primary-foreground: oklch(0.2 0.06 285);
+  --secondary: oklch(0.33 0.1 285);
+  --secondary-foreground: oklch(0.97 0.01 285);
+  --muted: oklch(0.3 0.07 285);
+  --muted-foreground: oklch(0.75 0.05 285);
+  --accent: oklch(0.7 0.2 330);
+  --accent-foreground: oklch(0.98 0 0);
+  --destructive: oklch(0.65 0.23 20);
+  --border: oklch(0.38 0.1 285);
+  --input: oklch(0.38 0.1 285);
+  --ring: oklch(0.85 0.2 130);
+
+  --success: oklch(0.8 0.2 150);
+  --success-foreground: oklch(0.2 0.06 285);
+  --warning: oklch(0.85 0.17 85);
+  --warning-foreground: oklch(0.2 0.06 285);
+  --coin: oklch(0.86 0.17 90);
+  --xp: oklch(0.72 0.2 300);
+
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Animações utilitárias da face game */
+@keyframes coin-pop {
+  0% { transform: scale(0.6) rotate(-12deg); opacity: 0; }
+  60% { transform: scale(1.15) rotate(4deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); }
+}
+.animate-coin-pop {
+  animation: coin-pop 0.5s ease-out both;
+}
