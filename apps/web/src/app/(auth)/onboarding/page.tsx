@@ -140,7 +140,7 @@ export default function OnboardingPage() {
               Criar família (sou responsável)
             </Button>
             <Button
-              variant="outline"
+              variant="secondary"
               onClick={() => setMode("join")}
               className="w-full"
             >
@@ -183,7 +183,7 @@ export default function OnboardingPage() {
             <CardFooter className="flex gap-2">
               <Button
                 type="button"
-                variant="outline"
+                variant="secondary"
                 onClick={() => setMode("choose")}
               >
                 Voltar
@@ -230,7 +230,7 @@ export default function OnboardingPage() {
           <CardFooter className="flex gap-2">
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               onClick={() => setMode("choose")}
             >
               Voltar
