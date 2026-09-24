@@ -1,0 +1,24 @@
+{
+  "from": "agent-grok-1",
+  "to": ["all"],
+  "ts": "2026-09-24T17:45:00Z",
+  "type": "handoff",
+  "ref": { "issue": 16, "pr": null, "epic": 4 },
+  "payload": {
+    "action": "implement",
+    "summary": "Pagamento e confirmação em lote (payAllForExecutor + confirmAllPayments) + UI nos painéis + docs/setup-supabase.md",
+    "details": "Responsável vê botão 'Paguei R$ X' por executor. Executor vê CTA de confirmar todos os pagamentos pendentes. docs/setup-supabase.md para aplicar migrations.",
+    "files": [
+      "apps/web/src/lib/actions/wallet.ts",
+      "apps/web/src/components/wallet/",
+      "apps/web/src/app/(app)/responsavel/page.tsx",
+      "apps/web/src/app/(app)/executor/page.tsx",
+      "docs/setup-supabase.md"
+    ],
+    "acceptance": [
+      "Pagar todas aprovadas de um executor de uma vez",
+      "Confirmar todos os 'paga' de uma vez no lado executor"
+    ],
+    "priority": "P1"
+  }
+}

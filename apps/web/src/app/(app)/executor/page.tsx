@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { TaskList } from "@/components/tasks/task-list";
 import { NotificationList } from "@/components/notifications/notification-list";
 import { RealtimeNotifications } from "@/components/notifications/realtime-badge";
+import { ConfirmAllButton } from "@/components/wallet/confirm-all-button";
 import { AppHeader } from "@/components/layout/app-header";
 import { listMyNotifications } from "@/lib/actions/notifications";
 import type { Task } from "@/lib/domain/types";
@@ -26,11 +27,12 @@ export default async function ExecutorHomePage() {
   if (!membership) redirect("/onboarding");
 
   const family = membership.family as unknown as { id: string; name: string };
+  const familyId = membership.family_id;
 
   const { data: tasks } = await supabase
     .from("tasks")
     .select("*")
-    .eq("family_id", membership.family_id)
+    .eq("family_id", familyId)
     .eq("assignee_id", user.id)
     .order("created_at", { ascending: false });
 
@@ -43,6 +45,8 @@ export default async function ExecutorHomePage() {
     (t) =>
       t.status === "atribuida" || t.status === "aguardando_verificacao",
   );
+  const awaitingConfirm = taskList.filter((t) => t.status === "paga");
+  const confirmCents = awaitingConfirm.reduce((s, t) => s + t.value_cents, 0);
   const done = taskList.filter(
     (t) =>
       t.status === "aprovada" ||
@@ -89,6 +93,19 @@ export default async function ExecutorHomePage() {
           </p>
         </div>
       </div>
+
+      {awaitingConfirm.length > 0 && (
+        <div className="rounded-2xl border-2 border-success/40 bg-card p-4">
+          <p className="mb-3 text-sm text-muted-foreground">
+            O responsável registrou pagamento. Confirme o recebimento:
+          </p>
+          <ConfirmAllButton
+            familyId={familyId}
+            amountCents={confirmCents}
+            count={awaitingConfirm.length}
+          />
+        </div>
+      )}
 
       <div className="flex gap-3 text-center text-sm">
         <div className="flex-1 rounded-xl border border-border bg-card/60 py-3">

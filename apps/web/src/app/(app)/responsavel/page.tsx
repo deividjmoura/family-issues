@@ -5,6 +5,7 @@ import { TaskList } from "@/components/tasks/task-list";
 import { NotificationList } from "@/components/notifications/notification-list";
 import { RealtimeNotifications } from "@/components/notifications/realtime-badge";
 import { PendingNegotiations } from "@/components/negotiations/pending-list";
+import { PayExecutorButton } from "@/components/wallet/pay-executor-button";
 import { AppHeader } from "@/components/layout/app-header";
 import { listMyNotifications } from "@/lib/actions/notifications";
 import { listPendingNegotiations } from "@/lib/actions/negotiations";
@@ -119,16 +120,26 @@ export default async function ResponsavelHomePage() {
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Saldo devido por executor
           </h2>
-          <ul className="space-y-2 text-sm">
+          <ul className="space-y-3 text-sm">
             {[...dueByExecutor.entries()].map(([uid, cents]) => (
               <li
                 key={uid}
-                className="flex items-center justify-between border-b border-border pb-2 last:border-0 last:pb-0"
+                className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3 last:border-0 last:pb-0"
               >
-                <span className="text-muted-foreground">
-                  {names[uid] ?? uid.slice(0, 8) + "…"}
-                </span>
-                <strong className="text-base">{formatBRL(cents)}</strong>
+                <div>
+                  <span className="font-medium text-foreground">
+                    {names[uid] ?? uid.slice(0, 8) + "…"}
+                  </span>
+                  <strong className="ml-3 text-base tabular-nums">
+                    {formatBRL(cents)}
+                  </strong>
+                </div>
+                <PayExecutorButton
+                  familyId={familyId}
+                  executorId={uid}
+                  executorName={names[uid] ?? "executor"}
+                  amountCents={cents}
+                />
               </li>
             ))}
           </ul>
