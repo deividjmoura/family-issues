@@ -61,10 +61,13 @@ $$;
 alter table public.families enable row level security;
 alter table public.family_members enable row level security;
 
--- families: membros leem; criador/responsável gerencia (MVP: insert liberado para autenticados)
+-- families: membros leem; autenticados podem buscar por invite_code (join)
 drop policy if exists families_select on public.families;
 create policy families_select on public.families
-  for select using (public.is_family_member(id));
+  for select using (
+    public.is_family_member(id)
+    or auth.role() = 'authenticated'
+  );
 
 drop policy if exists families_insert on public.families;
 create policy families_insert on public.families
@@ -74,10 +77,13 @@ drop policy if exists families_update on public.families;
 create policy families_update on public.families
   for update using (public.is_family_responsavel(id));
 
--- family_members: membros leem; responsável gerencia inserts (exceto o próprio join via invite)
+-- family_members: membros da família leem; usuário sempre lê as próprias linhas
 drop policy if exists family_members_select on public.family_members;
 create policy family_members_select on public.family_members
-  for select using (public.is_family_member(family_id));
+  for select using (
+    public.is_family_member(family_id)
+    or user_id = auth.uid()
+  );
 
 drop policy if exists family_members_insert on public.family_members;
 create policy family_members_insert on public.family_members
