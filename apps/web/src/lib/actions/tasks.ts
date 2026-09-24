@@ -38,7 +38,6 @@ const ACTION_NOTIFY: Partial<
     TaskAction,
     {
       type: NotificationType;
-      /** quem recebe: assignee | creator | responsaveis */
       to: "assignee" | "creator";
     }
   >
@@ -165,6 +164,7 @@ async function transitionTask(
     patch.verified_at = null;
     patch.verified_by = null;
     patch.rejection_reason = null;
+    patch.proof_image_url = null;
   }
 
   const { data: updated, error } = await supabase
@@ -197,8 +197,13 @@ async function transitionTask(
   return { ok: true, task: updated as Task };
 }
 
-export async function markCompleted(taskId: string): Promise<ActionResult> {
-  return transitionTask(taskId, "complete");
+export async function markCompleted(
+  taskId: string,
+  proofImageUrl?: string | null,
+): Promise<ActionResult> {
+  return transitionTask(taskId, "complete", {
+    proof_image_url: proofImageUrl?.trim() || null,
+  });
 }
 
 export async function approveTask(taskId: string): Promise<ActionResult> {

@@ -50,6 +50,7 @@ export interface Task {
   payment_confirmed_at: string | null;
   swapped: boolean;
   swapped_reward: string | null;
+  proof_image_url: string | null;
   created_at: string;
   updated_at: string;
 }

@@ -4,7 +4,6 @@ import { useTransition } from "react";
 import {
   approveTask,
   confirmPayment,
-  markCompleted,
   registerPayment,
   rejectTask,
   reopenTask,
@@ -21,6 +20,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { CompleteTaskButton } from "@/components/tasks/complete-task-button";
 
 const STATUS_LABEL: Record<string, string> = {
   criada: "Criada",
@@ -32,16 +32,32 @@ const STATUS_LABEL: Record<string, string> = {
   confirmada: "Confirmada",
 };
 
+const STATUS_VARIANT: Record<
+  string,
+  "default" | "secondary" | "success" | "warning" | "destructive" | "outline"
+> = {
+  criada: "secondary",
+  atribuida: "default",
+  aguardando_verificacao: "warning",
+  aprovada: "success",
+  rejeitada: "destructive",
+  paga: "outline",
+  confirmada: "success",
+};
+
 export function TaskList({
   tasks,
   role,
   userId,
   pendingNegotiationTaskIds = [],
+  nameByUserId = {},
 }: {
   tasks: Task[];
   role: Role;
   userId: string;
   pendingNegotiationTaskIds?: string[];
+  /** user_id → nome legível */
+  nameByUserId?: Record<string, string>;
 }) {
   const [pending, startTransition] = useTransition();
 
@@ -64,14 +80,23 @@ export function TaskList({
         const actions = availableActions(task, { userId, role });
         const hasPending = pendingNegotiationTaskIds.includes(task.id);
         const nego = canNegotiate(task, { userId, role }, hasPending);
+        const assigneeName = task.assignee_id
+          ? nameByUserId[task.assignee_id]
+          : null;
+
         return (
           <Card key={task.id}>
             <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0 pb-2">
-              <div>
+              <div className="min-w-0 flex-1">
                 <CardTitle className="text-base">{task.title}</CardTitle>
                 {task.description && (
                   <p className="mt-1 text-sm text-muted-foreground">
                     {task.description}
+                  </p>
+                )}
+                {assigneeName && role === "responsavel" && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Executor: <span className="font-medium">{assigneeName}</span>
                   </p>
                 )}
                 {task.swapped && task.swapped_reward && (
@@ -80,94 +105,114 @@ export function TaskList({
                   </p>
                 )}
               </div>
-              <Badge>{STATUS_LABEL[task.status] ?? task.status}</Badge>
+              <Badge variant={STATUS_VARIANT[task.status] ?? "outline"}>
+                {STATUS_LABEL[task.status] ?? task.status}
+              </Badge>
             </CardHeader>
-            <CardContent className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-semibold">
-                {task.swapped ? "—" : formatBRL(task.value_cents)}
-              </span>
-              {task.rejection_reason && (
-                <span className="text-sm text-red-600">
-                  Motivo: {task.rejection_reason}
-                </span>
+            <CardContent className="space-y-3">
+              {task.proof_image_url && (
+                <a
+                  href={task.proof_image_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block overflow-hidden rounded-lg border border-border"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={task.proof_image_url}
+                    alt="Prova da tarefa"
+                    className="max-h-48 w-full object-cover"
+                  />
+                </a>
               )}
-              <div className="ml-auto flex flex-wrap gap-2">
-                {actions.includes("complete") && (
-                  <Button
-                    size="sm"
-                    disabled={pending}
-                    onClick={() => run(() => markCompleted(task.id))}
-                  >
-                    Concluí!
-                  </Button>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm font-semibold">
+                  {task.swapped ? "—" : formatBRL(task.value_cents)}
+                </span>
+                {task.payment_due_date && (
+                  <span className="text-xs text-muted-foreground">
+                    Pagar até{" "}
+                    {new Date(task.payment_due_date + "T12:00:00").toLocaleDateString(
+                      "pt-BR",
+                    )}
+                  </span>
                 )}
-                {actions.includes("approve") && (
-                  <Button
-                    size="sm"
-                    disabled={pending}
-                    onClick={() => run(() => approveTask(task.id))}
-                  >
-                    Aprovar
-                  </Button>
+                {task.rejection_reason && (
+                  <span className="text-sm text-red-600">
+                    Motivo: {task.rejection_reason}
+                  </span>
                 )}
-                {actions.includes("reject") && (
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    disabled={pending}
-                    onClick={() => {
-                      const reason =
-                        window.prompt("Motivo (opcional)") ?? undefined;
-                      run(() => rejectTask(task.id, reason));
-                    }}
-                  >
-                    Rejeitar
-                  </Button>
-                )}
-                {actions.includes("reopen") && (
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    disabled={pending}
-                    onClick={() => run(() => reopenTask(task.id))}
-                  >
-                    Reabrir
-                  </Button>
-                )}
-                {actions.includes("pay") && !task.swapped && (
-                  <Button
-                    size="sm"
-                    disabled={pending}
-                    onClick={() => run(() => registerPayment(task.id))}
-                  >
-                    Paguei
-                  </Button>
-                )}
-                {actions.includes("confirm_payment") && (
-                  <Button
-                    size="sm"
-                    disabled={pending}
-                    onClick={() => run(() => confirmPayment(task.id))}
-                  >
-                    Confirmei recebimento
-                  </Button>
-                )}
-                {nego.ok && (
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    disabled={pending}
-                    onClick={() => {
-                      const text = window.prompt(
-                        "Propor troca (ex: passeio na praia)",
-                      );
-                      if (!text) return;
-                      run(() => proposeNegotiation(task.id, text));
-                    }}
-                  >
-                    Negociar
-                  </Button>
-                )}
+                <div className="ml-auto flex flex-wrap gap-2">
+                  {actions.includes("complete") && (
+                    <CompleteTaskButton taskId={task.id} />
+                  )}
+                  {actions.includes("approve") && (
+                    <Button
+                      size="sm"
+                      disabled={pending}
+                      onClick={() => run(() => approveTask(task.id))}
+                    >
+                      Aprovar
+                    </Button>
+                  )}
+                  {actions.includes("reject") && (
+                    <Button
+                      size="sm"	aught                      variant="destructive"
+                      disabled={pending}
+                      onClick={() => {
+                        const reason =
+                          window.prompt("Motivo (opcional)") ?? undefined;
+                        run(() => rejectTask(task.id, reason));
+                      }}
+                    >
+                      Rejeitar
+                    </Button>
+                  )}
+                  {actions.includes("reopen") && (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      disabled={pending}
+                      onClick={() => run(() => reopenTask(task.id))}
+                    >
+                      Reabrir
+                    </Button>
+                  )}
+                  {actions.includes("pay") && !task.swapped && (
+                    <Button
+                      size="sm"
+                      disabled={pending}
+                      onClick={() => run(() => registerPayment(task.id))}
+                    >
+                      Paguei
+                    </Button>
+                  )}
+                  {actions.includes("confirm_payment") && (
+                    <Button
+                      size="sm"
+                      disabled={pending}
+                      onClick={() => run(() => confirmPayment(task.id))}
+                    >
+                      Confirmei recebimento
+                    </Button>
+                  )}
+                  {nego.ok && (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      disabled={pending}
+                      onClick={() => {
+                        const text = window.prompt(
+                          "Propor troca (ex: passeio na praia)",
+                        );
+                        if (!text) return;
+                        run(() => proposeNegotiation(task.id, text));
+                      }}
+                    >
+                      Negociar
+                    </Button>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
