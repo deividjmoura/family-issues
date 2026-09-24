@@ -1,0 +1,25 @@
+{
+  "from": "agent-grok-1",
+  "to": ["all"],
+  "ts": "2026-09-24T17:40:00Z",
+  "type": "handoff",
+  "ref": { "issue": null, "pr": null, "epic": null },
+  "payload": {
+    "action": "implement",
+    "summary": "Profiles (nome legível) + Realtime notifications + labels de executor no painel do responsável",
+    "details": "Todas as issues #1-#18 já estavam closed. Este turno: migration profiles + trigger auth.users, getProfileNames, RealtimeNotifications nos dois painéis. Aplicar migration 00005 no Supabase. Habilitar Realtime na tabela notifications no dashboard Supabase.",
+    "files": [
+      "supabase/migrations/20260924000005_profiles.sql",
+      "apps/web/src/lib/actions/profiles.ts",
+      "apps/web/src/components/notifications/realtime-badge.tsx",
+      "apps/web/src/app/(app)/responsavel/page.tsx",
+      "apps/web/src/app/(app)/executor/page.tsx"
+    ],
+    "acceptance": [
+      "Executor aparece pelo nome no select de criar tarefa",
+      "Insert em notifications dispara toast + refresh",
+      "MVP funcional end-to-end com Supabase configurado"
+    ],
+    "priority": "P1"
+  }
+}

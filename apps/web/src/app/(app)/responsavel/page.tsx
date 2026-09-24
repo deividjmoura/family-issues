@@ -3,10 +3,12 @@ import { createClient } from "@/lib/supabase/server";
 import { CreateTaskForm } from "@/components/tasks/create-task-form";
 import { TaskList } from "@/components/tasks/task-list";
 import { NotificationList } from "@/components/notifications/notification-list";
+import { RealtimeNotifications } from "@/components/notifications/realtime-badge";
 import { PendingNegotiations } from "@/components/negotiations/pending-list";
 import { AppHeader } from "@/components/layout/app-header";
 import { listMyNotifications } from "@/lib/actions/notifications";
 import { listPendingNegotiations } from "@/lib/actions/negotiations";
+import { getProfileNames } from "@/lib/actions/profiles";
 import type { Task } from "@/lib/domain/types";
 import { formatBRL, balanceCents } from "@/lib/domain/money";
 
@@ -47,9 +49,12 @@ export default async function ResponsavelHomePage() {
     .order("created_at", { ascending: false });
 
   const taskList = (tasks ?? []) as Task[];
-  const executors = (members ?? []).map((m) => ({
-    user_id: m.user_id,
-    label: m.user_id.slice(0, 8) + "…",
+  const executorIds = (members ?? []).map((m) => m.user_id);
+  const names = await getProfileNames(executorIds);
+
+  const executors = executorIds.map((uid) => ({
+    user_id: uid,
+    label: names[uid] ?? uid.slice(0, 8) + "…",
   }));
 
   const dueByExecutor = new Map<string, number>();
@@ -82,6 +87,7 @@ export default async function ResponsavelHomePage() {
 
   return (
     <main className="mx-auto max-w-3xl space-y-8 px-6 py-10">
+      <RealtimeNotifications userId={user.id} />
       <AppHeader
         badge="Área do responsável"
         title={family.name}
@@ -119,8 +125,8 @@ export default async function ResponsavelHomePage() {
                 key={uid}
                 className="flex items-center justify-between border-b border-border pb-2 last:border-0 last:pb-0"
               >
-                <span className="font-mono text-muted-foreground">
-                  {uid.slice(0, 8)}…
+                <span className="text-muted-foreground">
+                  {names[uid] ?? uid.slice(0, 8) + "…"}
                 </span>
                 <strong className="text-base">{formatBRL(cents)}</strong>
               </li>

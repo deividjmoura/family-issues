@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { TaskList } from "@/components/tasks/task-list";
 import { NotificationList } from "@/components/notifications/notification-list";
+import { RealtimeNotifications } from "@/components/notifications/realtime-badge";
 import { AppHeader } from "@/components/layout/app-header";
 import { listMyNotifications } from "@/lib/actions/notifications";
 import type { Task } from "@/lib/domain/types";
@@ -63,6 +64,7 @@ export default async function ExecutorHomePage() {
 
   return (
     <main className="mx-auto max-w-3xl space-y-8 px-6 py-10">
+      <RealtimeNotifications userId={user.id} />
       <AppHeader
         badge="Modo missão"
         title="Suas missões"
