@@ -1,5 +1,6 @@
 import { signOut } from "@/lib/actions/auth";
 import { Button } from "@/components/ui/button";
+import { PushOptIn } from "@/components/pwa/push-opt-in";
 import type { ReactNode } from "react";
 
 export function AppHeader({
@@ -24,11 +25,14 @@ export function AppHeader({
           <div className="text-sm text-muted-foreground">{subtitle}</div>
         )}
       </div>
-      <form action={signOut}>
-        <Button type="submit" variant="secondary" size="sm">
-          Sair
-        </Button>
-      </form>
+      <div className="flex flex-col items-end gap-2">
+        <form action={signOut}>
+          <Button type="submit" variant="secondary" size="sm">
+            Sair
+          </Button>
+        </form>
+        <PushOptIn />
+      </div>
     </header>
   );
 }
