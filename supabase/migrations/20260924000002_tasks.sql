@@ -1,4 +1,4 @@
--- Epic 3 / Issue #14: tasks + enum status + RLS
+-- Epic 3 / Issue #14: tasks + enum status + RLS + swapped
 
 do $$ begin
   create type public.task_status as enum (
@@ -21,7 +21,7 @@ create table if not exists public.tasks (
   description text,
   value_cents integer not null check (value_cents >= 0),
   payment_due_date date,
-  assignee_id uuid not null references auth.users(id) on delete restrict,
+  assignee_id uuid references auth.users(id) on delete restrict,
   status public.task_status not null default 'criada',
   completed_at timestamptz,
   verified_at timestamptz,
@@ -29,6 +29,8 @@ create table if not exists public.tasks (
   rejection_reason text,
   paid_at timestamptz,
   payment_confirmed_at timestamptz,
+  swapped boolean not null default false,
+  swapped_reward text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -37,7 +39,6 @@ create index if not exists tasks_family_id_idx on public.tasks (family_id);
 create index if not exists tasks_assignee_id_idx on public.tasks (assignee_id);
 create index if not exists tasks_status_idx on public.tasks (status);
 
--- updated_at trigger
 create or replace function public.set_updated_at()
 returns trigger
 language plpgsql
