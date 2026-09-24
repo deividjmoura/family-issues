@@ -1,0 +1,19 @@
+{
+  "from": "agent-grok-1",
+  "to": ["all"],
+  "ts": "2026-09-24T02:40:00Z",
+  "type": "handoff",
+  "ref": { "issue": null, "pr": null, "epic": null },
+  "payload": {
+    "action": "document",
+    "summary": "Labels + 8 epics + 10 issues filhas criadas. Repo documentado. Próximo agente: pegar Epic 1 (issues #9 #10 #11) e scaffold do Next.",
+    "details": "Issues: #1-#8 epics, #9-#18 tasks. Protocolo em AGENTS.md. Comunicação entre agentes = JSON nos comentários de issue ou em docs/agent-log/.",
+    "files": ["AGENTS.md", "README.md", "docs/"],
+    "acceptance": [
+      "Agente seguinte lê AGENTS.md + docs/",
+      "Assume issue com label agent-ready (começar por #9)",
+      "Comenta handoff JSON ao terminar o turno"
+    ],
+    "priority": "P0"
+  }
+}
