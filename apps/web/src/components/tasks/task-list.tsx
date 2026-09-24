@@ -9,7 +9,8 @@ import {
   rejectTask,
   reopenTask,
 } from "@/lib/actions/tasks";
-import { availableActions } from "@/lib/domain/task-machine";
+import { proposeNegotiation } from "@/lib/actions/negotiations";
+import { availableActions, canNegotiate } from "@/lib/domain/task-machine";
 import { formatBRL } from "@/lib/domain/money";
 import type { Role, Task } from "@/lib/domain/types";
 import { Button } from "@/components/ui/button";
@@ -35,10 +36,12 @@ export function TaskList({
   tasks,
   role,
   userId,
+  pendingNegotiationTaskIds = [],
 }: {
   tasks: Task[];
   role: Role;
   userId: string;
+  pendingNegotiationTaskIds?: string[];
 }) {
   const [pending, startTransition] = useTransition();
 
@@ -59,6 +62,8 @@ export function TaskList({
     <div className="space-y-3">
       {tasks.map((task) => {
         const actions = availableActions(task, { userId, role });
+        const hasPending = pendingNegotiationTaskIds.includes(task.id);
+        const nego = canNegotiate(task, { userId, role }, hasPending);
         return (
           <Card key={task.id}>
             <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0 pb-2">
@@ -69,12 +74,17 @@ export function TaskList({
                     {task.description}
                   </p>
                 )}
+                {task.swapped && task.swapped_reward && (
+                  <p className="mt-1 text-sm text-amber-600">
+                    Trocado por: {task.swapped_reward}
+                  </p>
+                )}
               </div>
               <Badge>{STATUS_LABEL[task.status] ?? task.status}</Badge>
             </CardHeader>
             <CardContent className="flex flex-wrap items-center gap-2">
               <span className="text-sm font-semibold">
-                {formatBRL(task.value_cents)}
+                {task.swapped ? "—" : formatBRL(task.value_cents)}
               </span>
               {task.rejection_reason && (
                 <span className="text-sm text-red-600">
@@ -106,7 +116,8 @@ export function TaskList({
                     variant="destructive"
                     disabled={pending}
                     onClick={() => {
-                      const reason = window.prompt("Motivo (opcional)") ?? undefined;
+                      const reason =
+                        window.prompt("Motivo (opcional)") ?? undefined;
                       run(() => rejectTask(task.id, reason));
                     }}
                   >
@@ -123,7 +134,7 @@ export function TaskList({
                     Reabrir
                   </Button>
                 )}
-                {actions.includes("pay") && (
+                {actions.includes("pay") && !task.swapped && (
                   <Button
                     size="sm"
                     disabled={pending}
@@ -139,6 +150,22 @@ export function TaskList({
                     onClick={() => run(() => confirmPayment(task.id))}
                   >
                     Confirmei recebimento
+                  </Button>
+                )}
+                {nego.ok && (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    disabled={pending}
+                    onClick={() => {
+                      const text = window.prompt(
+                        "Propor troca (ex: passeio na praia)",
+                      );
+                      if (!text) return;
+                      run(() => proposeNegotiation(task.id, text));
+                    }}
+                  >
+                    Negociar
                   </Button>
                 )}
               </div>
