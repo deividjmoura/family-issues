@@ -1,53 +1,70 @@
 /**
  * E-mail transacional via Resend (opcional).
- * Se RESEND_API_KEY não estiver setada, no-op.
+ * Sem RESEND_API_KEY → no-op silencioso.
  */
 
-const LABELS: Record<string, { subject: string; body: (p: Record<string, unknown>) => string }> = {
+const LABELS: Record<
+  string,
+  { subject: string; body: (p: Record<string, unknown>) => string }
+> = {
   task_assigned: {
-    subject: "Nova tarefa atribuída",
-    body: (p) =>
-      `Você recebeu a tarefa "${p.title ?? "tarefa"}"${
-        p.value_cents != null ? ` · R$ ${(Number(p.value_cents) / 100).toFixed(2)}` : ""
-      }. Abra o app para ver detalhes.`,
+    subject: "Nova tarefa pra você",
+    body: (p) => {
+      const valor =
+        p.value_cents != null
+          ? ` · R$ ${(Number(p.value_cents) / 100).toFixed(2).replace(".", ",")}`
+          : "";
+      return `Chegou a missão <strong>${escapeHtml(String(p.title ?? "tarefa"))}</strong>${valor}. Abra o app e manda ver.`;
+    },
   },
   task_completed: {
-    subject: "Tarefa marcada como concluída",
+    subject: "Tarefa esperando verificação",
     body: (p) =>
-      `"${p.title ?? "Tarefa"}" aguarda sua verificação.`,
+      `<strong>${escapeHtml(String(p.title ?? "Tarefa"))}</strong> foi marcada como concluída. Confira e aprove.`,
   },
   task_approved: {
     subject: "Tarefa aprovada 🎉",
-    body: (p) => `"${p.title ?? "Tarefa"}" foi aprovada. O valor entrou no seu saldo.`,
+    body: (p) =>
+      `<strong>${escapeHtml(String(p.title ?? "Tarefa"))}</strong> foi aprovada. O valor já conta no seu saldo.`,
   },
   task_rejected: {
     subject: "Tarefa rejeitada",
-    body: (p) => `"${p.title ?? "Tarefa"}" foi rejeitada. Veja o motivo no app.`,
+    body: (p) =>
+      `<strong>${escapeHtml(String(p.title ?? "Tarefa"))}</strong> foi rejeitada. Veja o motivo no app.`,
   },
   payment_registered: {
-    subject: "Pagamento registrado",
+    subject: "Pagamento registrado — confirme",
     body: (p) =>
       p.total_cents != null
-        ? `Pagamento de R$ ${(Number(p.total_cents) / 100).toFixed(2)} registrado. Confirme o recebimento no app.`
+        ? `Foram registrados <strong>R$ ${(Number(p.total_cents) / 100).toFixed(2).replace(".", ",")}</strong>. Confirme o recebimento no app.`
         : `Um pagamento foi registrado. Confirme no app.`,
   },
   payment_confirmed: {
     subject: "Pagamento confirmado",
-    body: (p) => `Recebimento confirmado${p.title ? `: ${p.title}` : ""}.`,
+    body: (p) =>
+      `Recebimento confirmado${p.title ? `: ${escapeHtml(String(p.title))}` : ""}.`,
   },
   negotiation_proposed: {
-    subject: "Proposta de negociação",
+    subject: "Nova proposta de negociação",
     body: (p) =>
-      `Proposta em "${p.title ?? "tarefa"}": ${p.proposal_text ?? "—"}`,
+      `Em <strong>${escapeHtml(String(p.title ?? "tarefa"))}</strong>: “${escapeHtml(String(p.proposal_text ?? "—"))}”`,
   },
   negotiation_answered: {
-    subject: "Resposta à negociação",
+    subject: "Resposta à sua negociação",
     body: (p) =>
       p.accepted
-        ? `Sua proposta em "${p.title ?? "tarefa"}" foi aceita!`
-        : `Sua proposta em "${p.title ?? "tarefa"}" foi recusada.`,
+        ? `Sua proposta em <strong>${escapeHtml(String(p.title ?? "tarefa"))}</strong> foi <strong>aceita</strong>!`
+        : `Sua proposta em <strong>${escapeHtml(String(p.title ?? "tarefa"))}</strong> foi recusada.`,
   },
 };
+
+function escapeHtml(s: string) {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
 
 export async function sendEmailNotification(
   toEmail: string,
@@ -55,16 +72,18 @@ export async function sendEmailNotification(
   payload: Record<string, unknown>,
 ): Promise<void> {
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.RESEND_FROM_EMAIL || "Family Tasks <onboarding@resend.dev>";
+  const from =
+    process.env.RESEND_FROM_EMAIL || "Family Tasks <onboarding@resend.dev>";
   if (!apiKey || !toEmail) return;
 
   const tpl = LABELS[type];
   if (!tpl) return;
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://family-tasks.vercel.app";
+  const appUrl =
+    process.env.NEXT_PUBLIC_APP_URL || "https://family-tasks.vercel.app";
 
   try {
-    await fetch("https://api.resend.com/emails", {
+    const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -75,14 +94,19 @@ export async function sendEmailNotification(
         to: [toEmail],
         subject: `[Family Tasks] ${tpl.subject}`,
         html: `
-          <div style="font-family:system-ui,sans-serif;max-width:480px;margin:0 auto">
-            <h2 style="color:#1e3a5f">Family Tasks</h2>
-            <p>${tpl.body(payload)}</p>
-            <p><a href="${appUrl}" style="color:#2563eb">Abrir o app</a></p>
+          <div style="font-family:system-ui,-apple-system,sans-serif;max-width:480px;margin:0 auto;padding:24px;color:#0f172a">
+            <div style="font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#64748b">Family Tasks</div>
+            <h1 style="font-size:20px;margin:8px 0 16px;color:#1e3a5f">${tpl.subject}</h1>
+            <p style="line-height:1.55;margin:0 0 24px">${tpl.body(payload)}</p>
+            <a href="${appUrl}" style="display:inline-block;background:#1e3a5f;color:#fff;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:600;font-size:14px">Abrir o app</a>
+            <p style="margin-top:32px;font-size:12px;color:#94a3b8">Você recebeu este e-mail porque faz parte de uma família no Family Tasks.</p>
           </div>
         `,
       }),
     });
+    if (!res.ok) {
+      console.error("[email] Resend", res.status, await res.text());
+    }
   } catch (e) {
     console.error("[email]", e);
   }

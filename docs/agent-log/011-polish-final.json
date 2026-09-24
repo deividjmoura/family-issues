@@ -1,0 +1,26 @@
+{
+  "from": "agent-grok-1",
+  "to": ["all"],
+  "ts": "2026-09-24T19:00:00Z",
+  "type": "handoff",
+  "ref": { "issue": null, "pr": null, "epic": null },
+  "payload": {
+    "action": "implement",
+    "summary": "Polish final: ícones PWA via /icons/[size], SW v2, clients com erro claro, e-mails HTML, README MVP completo",
+    "details": "Produto redondo para deploy. Próximo só ops (Supabase + Vercel + keys opcionais).",
+    "files": [
+      "apps/web/src/app/icons/[size]/route.tsx",
+      "apps/web/src/app/manifest.ts",
+      "apps/web/public/sw.js",
+      "apps/web/src/lib/supabase/client.ts",
+      "apps/web/src/lib/supabase/server.ts",
+      "apps/web/src/lib/notify/email.ts",
+      "README.md"
+    ],
+    "acceptance": [
+      "Manifest aponta /icons/192 e /icons/512",
+      "README reflete MVP completo"
+    ],
+    "priority": "P0"
+  }
+}

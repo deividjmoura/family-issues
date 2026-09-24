@@ -1,63 +1,68 @@
-# Family Tasks (Family Issues)
+# Family Tasks
 
-Aplicação web para **delegar tarefas domésticas com recompensa em R$** e gamificação para quem executa.
+App web para **delegar tarefas domésticas com recompensa em R$**, verificação do responsável e gamificação para quem executa.
 
-## A ideia
+> Repositório: [deividjmoura/family-issues](https://github.com/deividjmoura/family-issues)
 
-Pais/responsáveis designam tarefas (ex.: lavar a louça do almoço — R$ 10,00, pagamento no sábado).
-Filhos/outros membros da casa executam, marcam como feitas e **só recebem o selo “Realizada” depois da conferência visual + confirmação do responsável**.
+## O que já funciona (MVP)
 
-- **Notificações** bidirecionais (in-app + Realtime)
-- **Saldo** por executor com pagamento e confirmação (unitário ou lote)
-- **Foto de prova** opcional na conclusão
-- **Negociação** pós-aprovação (trocar R$ por experiência)
-- **Duas UIs**: séria (responsável) e game-like (executor)
+| Área | Status |
+|------|--------|
+| Cadastro / login (Supabase Auth) | ✅ |
+| Família + código de convite + papéis | ✅ |
+| Tarefas + máquina de estados + RLS | ✅ |
+| Verificação (aprovar / rejeitar) | ✅ |
+| Foto de prova opcional | ✅ |
+| Saldo + pagar/confirmar (unitário e lote) | ✅ |
+| Negociação pós-aprovação | ✅ |
+| Notificações in-app + Realtime | ✅ |
+| E-mail (Resend, opcional) | ✅ |
+| Web Push (VAPID, opcional) | ✅ |
+| PWA (manifest + service worker) | ✅ |
+| UI responsável (séria) / executor (game) | ✅ |
 
-## Papéis
-
-| Papel | Quem | Pode |
-|-------|------|------|
-| `responsavel` | Pais / responsáveis | Criar tarefas, verificar, aprovar, pagar, negociar |
-| `executor` | Filhos / demais | Concluir (± foto), negociar, confirmar pagamento |
-
-## Fluxo da tarefa
+## Fluxo
 
 ```
-Atribuída → Aguardando verificação → Aprovada | Rejeitada
-  → (opcional Negociação) → Paga → Confirmada
+Atribuída → Concluída (± foto) → Aguardando verificação
+  → Aprovada | Rejeitada → (Negociação?) → Paga → Confirmada
 ```
 
 ## Stack
 
-- **App**: Next.js 15 (App Router) + TypeScript + Tailwind 4
-- **Auth / DB / Realtime / Storage**: Supabase
-- **Deploy**: Vercel (`apps/web`)
+- Next.js 15 · TypeScript · Tailwind 4
+- Supabase (Auth, Postgres, Realtime, Storage)
+- Vercel · Resend (e-mail) · Web Push
 
-## Como rodar
+## Subir em 15 minutos
 
-Guia completo: **[docs/setup-supabase.md](docs/setup-supabase.md)**
+1. **Supabase** — rode as migrations `01` → `07` em `supabase/migrations/`  
+   Detalhes: [docs/setup-supabase.md](docs/setup-supabase.md)
 
-```bash
-cd apps/web
-cp .env.example .env.local   # URL + anon key do Supabase
-# aplique as 6 migrations SQL no Supabase
-npm install
-npm run dev
-```
+2. **Local**
+   ```bash
+   cd apps/web
+   cp .env.example .env.local   # URL + anon key
+   npm install
+   npm run dev
+   ```
+
+3. **Produção** — Root Directory `apps/web` na Vercel  
+   Passo a passo: [docs/deploy-vercel.md](docs/deploy-vercel.md)
 
 ## Estrutura
 
 ```
-/
-├── README.md
-├── AGENTS.md                 ← protocolo JSON entre agentes
-├── docs/                     ← product, domain, architecture, setup
-├── supabase/migrations/      ← SQL (families → task-proof)
-└── apps/web/                 ← Next.js
+apps/web/          → Next.js (App Router)
+supabase/          → SQL migrations
+docs/              → product, domain, setup, deploy
+AGENTS.md          → protocolo entre agentes (JSON)
 ```
 
-## Status
+## Agentes
 
-**MVP funcional** — auth, famílias, tarefas + estados, wallet lote, negociação, notificações Realtime, foto de prova, filtros e middleware por papel.
+Leia `AGENTS.md` e o último arquivo em `docs/agent-log/` antes de codar.
 
-Agentes: leia `AGENTS.md` e o último handoff em `docs/agent-log/`.
+---
+
+Feito para famílias que querem clareza no que foi feito e motivação de verdade pra quem faz.
