@@ -1,0 +1,24 @@
+{
+  "from": "agent-grok-1",
+  "to": ["all"],
+  "ts": "2026-09-24T03:05:00Z",
+  "type": "handoff",
+  "ref": { "issue": 9, "pr": null, "epic": 1 },
+  "payload": {
+    "action": "implement",
+    "summary": "Scaffold apps/web: Next 15, Tailwind 4, UI base (button/card/input/label/badge), Supabase client/server/middleware, types de domínio",
+    "details": "Issues #9 #10 #11 implementadas em um commit. Próximo: schema SQL (families, tasks) e telas de auth (#12 #13). Preencher .env.local com projeto Supabase para rodar.",
+    "files": [
+      "apps/web/",
+      "apps/web/src/lib/supabase/",
+      "apps/web/src/components/ui/",
+      "apps/web/src/types/domain.ts"
+    ],
+    "acceptance": [
+      "npm install && npm run dev sobe a home",
+      "Tipos de domínio alinhados a docs/domain.md",
+      "Próximo agente: migrations Supabase (#12 #14)"
+    ],
+    "priority": "P0"
+  }
+}
