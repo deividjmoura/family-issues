@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+/* Tema padrão (landing / auth) */
 :root {
   --background: #f8fafc;
   --foreground: #0f172a;
@@ -14,11 +15,51 @@
   --success: #16a34a;
   --warning: #ea580c;
   --destructive: #dc2626;
+  --coin: #ca8a04;
+  --xp: #7c3aed;
   --radius: 0.75rem;
 }
 
+/* Responsável — sóbrio, claro, controle */
+.theme-resp {
+  --background: #f4f6f9;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --primary: #1e3a5f;
+  --primary-foreground: #f8fafc;
+  --muted: #e8eef5;
+  --muted-foreground: #5b6b7c;
+  --border: #d5dee8;
+  --ring: #1e3a5f;
+  --success: #0f766e;
+  --warning: #b45309;
+  --destructive: #b91c1c;
+  --coin: #a16207;
+  --xp: #5b21b6;
+}
+
+/* Executor — game, escuro, vibrante */
+.theme-game {
+  --background: #0c0a1a;
+  --foreground: #f5f3ff;
+  --card: #17142b;
+  --card-foreground: #f5f3ff;
+  --primary: #a78bfa;
+  --primary-foreground: #1e1b4b;
+  --muted: #1f1a36;
+  --muted-foreground: #a5b4c8;
+  --border: #2e2750;
+  --ring: #c4b5fd;
+  --success: #34d399;
+  --warning: #fbbf24;
+  --destructive: #f87171;
+  --coin: #fbbf24;
+  --xp: #c084fc;
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not(.theme-resp):not(.theme-game) {
     --background: #0b1220;
     --foreground: #e2e8f0;
     --card: #111827;
@@ -46,6 +87,8 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-destructive: var(--destructive);
+  --color-coin: var(--coin);
+  --color-xp: var(--xp);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --radius-lg: var(--radius);
@@ -55,4 +98,12 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* micro utilidades game */
+.theme-game .glow-coin {
+  box-shadow: 0 0 24px color-mix(in oklab, var(--coin) 35%, transparent);
+}
+.theme-game .glow-xp {
+  box-shadow: 0 0 24px color-mix(in oklab, var(--xp) 35%, transparent);
 }
