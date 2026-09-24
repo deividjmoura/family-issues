@@ -37,6 +37,19 @@ export default async function ExecutorHomePage() {
   const ganhos = earnedCents(taskList);
   const notifications = await listMyNotifications();
 
+  const { data: pendingNegos } = await supabase
+    .from("negotiations")
+    .select("task_id")
+    .eq("status", "pending")
+    .in(
+      "task_id",
+      taskList.map((t) => t.id).length
+        ? taskList.map((t) => t.id)
+        : ["00000000-0000-0000-0000-000000000000"],
+    );
+
+  const pendingIds = (pendingNegos ?? []).map((n) => n.task_id);
+
   return (
     <main className="mx-auto max-w-3xl space-y-8 px-6 py-12">
       <header className="space-y-1">
@@ -63,7 +76,12 @@ export default async function ExecutorHomePage() {
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">Tarefas</h2>
-        <TaskList tasks={taskList} role="executor" userId={user.id} />
+        <TaskList
+          tasks={taskList}
+          role="executor"
+          userId={user.id}
+          pendingNegotiationTaskIds={pendingIds}
+        />
       </section>
     </main>
   );

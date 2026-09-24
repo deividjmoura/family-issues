@@ -3,7 +3,9 @@ import { createClient } from "@/lib/supabase/server";
 import { CreateTaskForm } from "@/components/tasks/create-task-form";
 import { TaskList } from "@/components/tasks/task-list";
 import { NotificationList } from "@/components/notifications/notification-list";
+import { PendingNegotiations } from "@/components/negotiations/pending-list";
 import { listMyNotifications } from "@/lib/actions/notifications";
+import { listPendingNegotiations } from "@/lib/actions/negotiations";
 import type { Task } from "@/lib/domain/types";
 import { formatBRL, balanceCents } from "@/lib/domain/money";
 
@@ -62,6 +64,11 @@ export default async function ResponsavelHomePage() {
   }
 
   const notifications = await listMyNotifications();
+  const pendingNegos = await listPendingNegotiations(familyId);
+  const taskTitles = Object.fromEntries(
+    taskList.map((t) => [t.id, t.title]),
+  );
+  const pendingIds = pendingNegos.map((n) => n.task_id);
 
   return (
     <main className="mx-auto max-w-3xl space-y-8 px-6 py-12">
@@ -77,6 +84,7 @@ export default async function ResponsavelHomePage() {
       </header>
 
       <NotificationList items={notifications} />
+      <PendingNegotiations items={pendingNegos} taskTitles={taskTitles} />
 
       {dueByExecutor.size > 0 && (
         <section className="rounded-lg border border-border bg-card p-4">
@@ -95,7 +103,12 @@ export default async function ResponsavelHomePage() {
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">Tarefas</h2>
-        <TaskList tasks={taskList} role="responsavel" userId={user.id} />
+        <TaskList
+          tasks={taskList}
+          role="responsavel"
+          userId={user.id}
+          pendingNegotiationTaskIds={pendingIds}
+        />
       </section>
     </main>
   );
