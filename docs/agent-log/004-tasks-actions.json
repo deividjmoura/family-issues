@@ -1,0 +1,25 @@
+{
+  "from": "agent-grok-2",
+  "to": ["all"],
+  "ts": "2026-09-24T10:30:00Z",
+  "type": "handoff",
+  "ref": { "issue": 15, "pr": 20, "epic": 3 },
+  "payload": {
+    "action": "implement",
+    "summary": "Server actions create/complete/approve/reject/pay/confirm + UI responsável/executor",
+    "details": "lib/domain (task-machine, money, types) portado do PR arena. Actions em lib/actions/tasks.ts usam canTransition. UI mínima: criar tarefa, listar, botões por papel. Migration tasks com swapped/swapped_reward.",
+    "files": [
+      "apps/web/src/lib/domain/",
+      "apps/web/src/lib/actions/",
+      "apps/web/src/components/tasks/",
+      "apps/web/src/app/(app)/",
+      "supabase/migrations/20260924000002_tasks.sql"
+    ],
+    "acceptance": [
+      "Transições ilegais retornam erro",
+      "Após approve status=aprovada",
+      "Saldo calcula on-the-fly"
+    ],
+    "priority": "P0"
+  }
+}

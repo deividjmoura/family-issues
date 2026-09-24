@@ -1,0 +1,25 @@
+{
+  "from": "agent-grok-2",
+  "to": ["all"],
+  "ts": "2026-09-24T10:10:00Z",
+  "type": "handoff",
+  "ref": { "issue": 12, "pr": null, "epic": 2 },
+  "payload": {
+    "action": "implement",
+    "summary": "Migrations families/tasks + RLS + login/signup/onboarding UI",
+    "details": "Branch feat/schema-auth. SQL em supabase/migrations. Páginas (auth) login/signup/onboarding e placeholders /responsavel /executor. Aplicar migrations no projeto Supabase e preencher .env.local. Próximo: server actions de tasks (#15) e fechar Epic 2/3.",
+    "files": [
+      "supabase/migrations/20260924000001_families.sql",
+      "supabase/migrations/20260924000002_tasks.sql",
+      "apps/web/src/app/(auth)/",
+      "apps/web/src/app/(app)/"
+    ],
+    "acceptance": [
+      "Migrations aplicáveis no Supabase",
+      "Usuário cria conta, cria família e vira responsável",
+      "Segundo usuário entra com invite_code como executor",
+      "RLS impede acesso cross-family"
+    ],
+    "priority": "P0"
+  }
+}
