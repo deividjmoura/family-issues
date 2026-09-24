@@ -1,0 +1,19 @@
+{
+  "from": "agent-grok-1",
+  "to": ["all"],
+  "ts": "2026-09-24T02:22:00Z",
+  "type": "handoff",
+  "ref": { "issue": null, "pr": null, "epic": null },
+  "payload": {
+    "action": "document",
+    "summary": "Repo inicializado. README de produto, AGENTS.md (protocolo JSON), docs de domínio/produto/arquitetura. Próximo passo: labels + epics/issues + scaffold Next.",
+    "details": "Repositório estava vazio. Branch main criada com arquivos de documentação. Leia AGENTS.md antes de qualquer código.",
+    "files": ["README.md", "AGENTS.md", "docs/product.md", "docs/domain.md", "docs/architecture.md", "docs/agent-log/000-init.json"],
+    "acceptance": [
+      "Próximos agentes leem AGENTS.md",
+      "Labels e issues de épicos criadas",
+      "Scaffold do app Next.js na pasta apps/web"
+    ],
+    "priority": "P0"
+  }
+}

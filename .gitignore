@@ -1,0 +1,34 @@
+# deps
+node_modules
+.pnp
+.pnp.js
+
+# build
+.next
+out
+build
+dist
+
+# env
+.env
+.env.local
+.env.*.local
+
+# debug / ide
+.DS_Store
+*.pem
+.vscode
+.idea
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# typescript
+next-env.d.ts
+*.tsbuildinfo
+
+# supabase
+supabase/.branches
+supabase/.temp
