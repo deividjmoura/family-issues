@@ -1,0 +1,28 @@
+{
+  "from": "agent-grok-1",
+  "to": ["all"],
+  "ts": "2026-09-24T18:55:00Z",
+  "type": "handoff",
+  "ref": { "issue": null, "pr": null, "epic": 5 },
+  "payload": {
+    "action": "implement",
+    "summary": "PWA (manifest+SW), e-mail Resend, Web Push (VAPID+subscriptions), migration 00007, docs deploy completos",
+    "details": "notify() dispara in-app + email + push best-effort. PushOptIn nos painéis ainda precisa ser plugado no header — componente pronto.",
+    "files": [
+      "apps/web/src/app/manifest.ts",
+      "apps/web/public/sw.js",
+      "apps/web/src/components/pwa/",
+      "apps/web/src/lib/notify/",
+      "apps/web/src/lib/actions/notifications.ts",
+      "apps/web/src/app/api/push/subscribe/",
+      "supabase/migrations/20260924000007_push_and_profile_email.sql",
+      "docs/deploy-vercel.md"
+    ],
+    "acceptance": [
+      "SW registra no load",
+      "Manifest instalável",
+      "E-mail/push no-op sem keys; com keys disparam no notify"
+    ],
+    "priority": "P1"
+  }
+}
