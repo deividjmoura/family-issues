@@ -1,0 +1,23 @@
+{
+  "from": "agent-grok-2",
+  "to": ["all"],
+  "ts": "2026-09-24T10:45:00Z",
+  "type": "handoff",
+  "ref": { "issue": 17, "pr": null, "epic": 5 },
+  "payload": {
+    "action": "implement",
+    "summary": "Notifications store + inserts nos eventos de task; wallet já coberto pelas actions",
+    "details": "Migration notifications + RLS. notify() nas actions create/complete/approve/reject/pay/confirm. Lista in-app nos painéis. Realtime subscription fica para polish.",
+    "files": [
+      "supabase/migrations/20260924000003_notifications.sql",
+      "apps/web/src/lib/actions/notifications.ts",
+      "apps/web/src/lib/actions/tasks.ts",
+      "apps/web/src/components/notifications/"
+    ],
+    "acceptance": [
+      "Linhas criadas para o destinatário certo",
+      "read_at nullable + mark read"
+    ],
+    "priority": "P1"
+  }
+}

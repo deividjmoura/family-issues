@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { canTransition, type TaskAction } from "@/lib/domain/task-machine";
 import type { Role, Task } from "@/lib/domain/types";
+import { notify, type NotificationType } from "@/lib/actions/notifications";
 
 type ActionResult =
   | { ok: true; task?: Task }
@@ -32,6 +33,23 @@ async function getTask(taskId: string) {
   return data as Task;
 }
 
+const ACTION_NOTIFY: Partial<
+  Record<
+    TaskAction,
+    {
+      type: NotificationType;
+      /** quem recebe: assignee | creator | responsaveis */
+      to: "assignee" | "creator";
+    }
+  >
+> = {
+  complete: { type: "task_completed", to: "creator" },
+  approve: { type: "task_approved", to: "assignee" },
+  reject: { type: "task_rejected", to: "assignee" },
+  pay: { type: "payment_registered", to: "assignee" },
+  confirm_payment: { type: "payment_confirmed", to: "creator" },
+};
+
 export async function createTask(input: {
   familyId: string;
   title: string;
@@ -56,7 +74,6 @@ export async function createTask(input: {
     return { ok: false, error: "Só o responsável pode criar tarefas." };
   }
 
-  // assignee deve ser membro executor da mesma família
   const { data: assigneeMem } = await supabase
     .from("family_members")
     .select("role")
@@ -80,7 +97,7 @@ export async function createTask(input: {
       value_cents: input.valueCents,
       payment_due_date: input.paymentDueDate || null,
       assignee_id: input.assigneeId,
-      status: "atribuida", // criar já atribuída no MVP
+      status: "atribuida",
     })
     .select("*")
     .single();
@@ -88,6 +105,12 @@ export async function createTask(input: {
   if (error || !task) {
     return { ok: false, error: error?.message ?? "Erro ao criar tarefa." };
   }
+
+  await notify(input.assigneeId, "task_assigned", {
+    task_id: task.id,
+    title: task.title,
+    value_cents: task.value_cents,
+  });
 
   revalidatePath("/responsavel");
   revalidatePath("/executor");
@@ -153,6 +176,20 @@ async function transitionTask(
 
   if (error || !updated) {
     return { ok: false, error: error?.message ?? "Erro ao atualizar tarefa." };
+  }
+
+  const meta = ACTION_NOTIFY[action];
+  if (meta) {
+    const targetId =
+      meta.to === "assignee" ? task.assignee_id : task.created_by;
+    if (targetId && targetId !== user.id) {
+      await notify(targetId, meta.type, {
+        task_id: task.id,
+        title: task.title,
+        value_cents: task.value_cents,
+        status: check.to,
+      });
+    }
   }
 
   revalidatePath("/responsavel");

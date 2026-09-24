@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { TaskList } from "@/components/tasks/task-list";
+import { NotificationList } from "@/components/notifications/notification-list";
+import { listMyNotifications } from "@/lib/actions/notifications";
 import type { Task } from "@/lib/domain/types";
 import { formatBRL, balanceCents, earnedCents } from "@/lib/domain/money";
 
@@ -33,6 +35,7 @@ export default async function ExecutorHomePage() {
   const taskList = (tasks ?? []) as Task[];
   const saldo = balanceCents(taskList);
   const ganhos = earnedCents(taskList);
+  const notifications = await listMyNotifications();
 
   return (
     <main className="mx-auto max-w-3xl space-y-8 px-6 py-12">
@@ -55,6 +58,8 @@ export default async function ExecutorHomePage() {
           <p className="mt-1 text-3xl font-bold">{formatBRL(ganhos)}</p>
         </div>
       </div>
+
+      <NotificationList items={notifications} />
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">Tarefas</h2>

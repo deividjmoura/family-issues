@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { CreateTaskForm } from "@/components/tasks/create-task-form";
 import { TaskList } from "@/components/tasks/task-list";
+import { NotificationList } from "@/components/notifications/notification-list";
+import { listMyNotifications } from "@/lib/actions/notifications";
 import type { Task } from "@/lib/domain/types";
 import { formatBRL, balanceCents } from "@/lib/domain/money";
 
@@ -47,7 +49,6 @@ export default async function ResponsavelHomePage() {
     label: m.user_id.slice(0, 8) + "…",
   }));
 
-  // saldo devido por executor
   const dueByExecutor = new Map<string, number>();
   for (const t of taskList) {
     if (!t.assignee_id) continue;
@@ -59,6 +60,8 @@ export default async function ResponsavelHomePage() {
       );
     }
   }
+
+  const notifications = await listMyNotifications();
 
   return (
     <main className="mx-auto max-w-3xl space-y-8 px-6 py-12">
@@ -72,6 +75,8 @@ export default async function ResponsavelHomePage() {
           </code>
         </p>
       </header>
+
+      <NotificationList items={notifications} />
 
       {dueByExecutor.size > 0 && (
         <section className="rounded-lg border border-border bg-card p-4">
