@@ -4,6 +4,7 @@ import { CreateTaskForm } from "@/components/tasks/create-task-form";
 import { TaskList } from "@/components/tasks/task-list";
 import { NotificationList } from "@/components/notifications/notification-list";
 import { PendingNegotiations } from "@/components/negotiations/pending-list";
+import { AppHeader } from "@/components/layout/app-header";
 import { listMyNotifications } from "@/lib/actions/notifications";
 import { listPendingNegotiations } from "@/lib/actions/negotiations";
 import type { Task } from "@/lib/domain/types";
@@ -63,36 +64,65 @@ export default async function ResponsavelHomePage() {
     }
   }
 
+  const pendingVerify = taskList.filter(
+    (t) => t.status === "aguardando_verificacao",
+  ).length;
+  const openTasks = taskList.filter(
+    (t) =>
+      t.status === "atribuida" ||
+      t.status === "aguardando_verificacao" ||
+      t.status === "aprovada",
+  ).length;
+
   const notifications = await listMyNotifications();
   const pendingNegos = await listPendingNegotiations(familyId);
-  const taskTitles = Object.fromEntries(
-    taskList.map((t) => [t.id, t.title]),
-  );
+  const taskTitles = Object.fromEntries(taskList.map((t) => [t.id, t.title]));
   const pendingIds = pendingNegos.map((n) => n.task_id);
+  const totalDue = [...dueByExecutor.values()].reduce((a, b) => a + b, 0);
 
   return (
-    <main className="mx-auto max-w-3xl space-y-8 px-6 py-12">
-      <header className="space-y-1">
-        <p className="text-sm text-muted-foreground">Responsável</p>
-        <h1 className="text-2xl font-bold">{family.name}</h1>
-        <p className="text-sm text-muted-foreground">
-          Código de convite:{" "}
-          <code className="rounded bg-muted px-1.5 py-0.5 font-mono">
-            {family.invite_code}
-          </code>
-        </p>
-      </header>
+    <main className="mx-auto max-w-3xl space-y-8 px-6 py-10">
+      <AppHeader
+        badge="Área do responsável"
+        title={family.name}
+        subtitle={
+          <>
+            Convite:{" "}
+            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-foreground">
+              {family.invite_code}
+            </code>
+          </>
+        }
+      />
+
+      <div className="grid grid-cols-3 gap-3">
+        <Stat label="Em aberto" value={String(openTasks)} />
+        <Stat
+          label="A verificar"
+          value={String(pendingVerify)}
+          accent={pendingVerify > 0 ? "warning" : undefined}
+        />
+        <Stat label="A pagar" value={formatBRL(totalDue)} />
+      </div>
 
       <NotificationList items={notifications} />
       <PendingNegotiations items={pendingNegos} taskTitles={taskTitles} />
 
       {dueByExecutor.size > 0 && (
-        <section className="rounded-lg border border-border bg-card p-4">
-          <h2 className="mb-2 text-sm font-semibold">Saldo devido</h2>
-          <ul className="space-y-1 text-sm">
+        <section className="rounded-xl border border-border bg-card p-5 shadow-sm">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            Saldo devido por executor
+          </h2>
+          <ul className="space-y-2 text-sm">
             {[...dueByExecutor.entries()].map(([uid, cents]) => (
-              <li key={uid}>
-                {uid.slice(0, 8)}…: <strong>{formatBRL(cents)}</strong>
+              <li
+                key={uid}
+                className="flex items-center justify-between border-b border-border pb-2 last:border-0 last:pb-0"
+              >
+                <span className="font-mono text-muted-foreground">
+                  {uid.slice(0, 8)}…
+                </span>
+                <strong className="text-base">{formatBRL(cents)}</strong>
               </li>
             ))}
           </ul>
@@ -102,7 +132,12 @@ export default async function ResponsavelHomePage() {
       <CreateTaskForm familyId={familyId} executors={executors} />
 
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold">Tarefas</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Tarefas da família</h2>
+          <span className="text-xs text-muted-foreground">
+            {taskList.length} no total
+          </span>
+        </div>
         <TaskList
           tasks={taskList}
           role="responsavel"
@@ -111,5 +146,30 @@ export default async function ResponsavelHomePage() {
         />
       </section>
     </main>
+  );
+}
+
+function Stat({
+  label,
+  value,
+  accent,
+}: {
+  label: string;
+  value: string;
+  accent?: "warning";
+}) {
+  return (
+    <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
+      <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+        {label}
+      </p>
+      <p
+        className={`mt-1 text-xl font-bold tabular-nums ${
+          accent === "warning" ? "text-warning" : ""
+        }`}
+      >
+        {value}
+      </p>
+    </div>
   );
 }
