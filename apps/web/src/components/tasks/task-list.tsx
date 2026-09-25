@@ -132,10 +132,11 @@ export function TaskList({
           const assigneeName = task.assignee_id
             ? nameByUserId[task.assignee_id]
             : null;
-          const pts = task.points ?? 0;
+          const pts = effectivePoints(task);
+          const isAwaitingVerification = task.status === "aguardando_verificacao";
 
           return (
-            <Card key={task.id} className={role === "executor" ? "theme-game__mission-card" : undefined}>
+            <Card key={task.id} className={role === "executor" ? `theme-game__mission-card ${isAwaitingVerification ? "theme-game__mission-card--pending" : ""}` : undefined}>
               <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0 pb-2">
                 <div className="min-w-0 flex-1">
                   <CardTitle className="text-base">{task.title}</CardTitle>
@@ -174,6 +175,11 @@ export function TaskList({
                   )}
                 </div>
                 <div className="flex flex-col items-end gap-1">
+                  {role === "executor" && isAwaitingVerification && (
+                    <span className="theme-game__pending-xp" title="O XP entra após a aprovação da missão">
+                      ⏳ XP pendente
+                    </span>
+                  )}
                   <Badge variant={STATUS_VARIANT[task.status] ?? "outline"}>
                     {STATUS_LABEL[task.status] ?? task.status}
                   </Badge>
@@ -201,8 +207,13 @@ export function TaskList({
                   </span>
                   {pts > 0 && (
                     <span className="rounded-full bg-xp/15 px-2 py-0.5 text-xs font-semibold text-xp">
-                      ⭐ {pts} pts
+                      ⭐ {pts} XP
                     </span>
+                  )}
+                  {role === "executor" && isAwaitingVerification && (
+                    <p className="theme-game__pending-copy">
+                      Missão enviada! Aguarde a aprovação para receber o XP.
+                    </p>
                   )}
                   {task.payment_due_date && (
                     <span className="text-xs text-muted-foreground">
