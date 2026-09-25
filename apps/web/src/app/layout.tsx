@@ -7,6 +7,7 @@ import "./side-menu.css";
 import "./cyber-nav.css";
 import "./kids-fx.css";
 import "./complete-modal.css";
+import "./game-lobby.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

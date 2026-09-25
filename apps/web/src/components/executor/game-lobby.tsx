@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import type { Task } from "@/lib/domain/types";
+import type { Task, TaskOffer } from "@/lib/domain/types";
 import type { AppNotification } from "@/lib/actions/notifications";
 import { TaskList } from "@/components/tasks/task-list";
 import { Leaderboard } from "@/components/leaderboard/leaderboard";
@@ -21,12 +21,6 @@ type PanelId =
   | "done"
   | "offers"
   | null;
-
-interface OfferMeta {
-  title: string;
-  value_cents: number;
-  points: number;
-}
 
 export function GameLobby({
   familyName,
@@ -70,8 +64,8 @@ export function GameLobby({
   familyTasks: Task[];
   pendingIds: string[];
   names: Record<string, string>;
-  offers: Parameters<typeof PendingOffers>[0]["offers"];
-  taskMeta: Record<string, OfferMeta>;
+  offers: TaskOffer[];
+  taskMeta: Record<string, { title: string; value_cents: number }>;
   awaitingConfirmCount: number;
   confirmCents: number;
 }) {
@@ -219,7 +213,7 @@ export function GameLobby({
           </div>
         </div>
         {awaitingConfirmCount > 0 ? (
-          <div className="rounded-xl border border-console-green/40 bg-console-green/10 p-4">
+          <div className="rounded-xl border border-[var(--console-green)]/40 bg-[var(--console-green)]/10 p-4">
             <p className="mb-3 text-sm">
               💵 Pagamento na conta — confirme o loot:
             </p>
@@ -319,7 +313,6 @@ export function GameLobby({
 
   return (
     <div className="game-lobby">
-      {/* Top HUD — estilo Free Fire */}
       <div className="game-hud">
         <div className="game-hud__left">
           <p className="game-hud__family">{familyName}</p>
@@ -333,13 +326,9 @@ export function GameLobby({
             ⭐ {xp}
           </span>
         </div>
-        <SideMenu
-          notifications={notifications}
-          createLabel="Nova missão"
-        />
+        <SideMenu notifications={notifications} createLabel="Nova missão" />
       </div>
 
-      {/* Avatar / hero zone */}
       <div className="game-hero">
         <div className="game-hero__avatar" aria-hidden>
           🎮
@@ -365,7 +354,6 @@ export function GameLobby({
         )}
       </div>
 
-      {/* Grid de ícones — Roblox / Minecraft vibe */}
       <div className="game-grid">
         {tiles.map((t) => (
           <button
@@ -389,7 +377,7 @@ export function GameLobby({
       </div>
 
       <p className="game-lobby-hint">
-        Toque em um ícone para abrir · estilo lobby de jogo
+        Toque em um ícone para abrir · lobby de jogo
       </p>
 
       {modal}
