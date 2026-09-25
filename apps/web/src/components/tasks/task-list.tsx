@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { sfx } from "@/lib/sounds";
 import {
   approveTask,
   claimTask,
@@ -71,7 +72,11 @@ export function TaskList({
   function run(fn: () => Promise<{ ok: boolean; error?: string }>) {
     startTransition(async () => {
       const res = await fn();
-      if (!res.ok && res.error) alert(res.error);
+      if (res.ok) sfx.success();
+      else if (res.error) {
+        sfx.close();
+        alert(res.error);
+      }
     });
   }
 
@@ -118,7 +123,7 @@ export function TaskList({
           const pts = task.points ?? 0;
 
           return (
-            <Card key={task.id}>
+            <Card key={task.id} className={role === "executor" ? "theme-game__mission-card" : undefined}>
               <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0 pb-2">
                 <div className="min-w-0 flex-1">
                   <CardTitle className="text-base">{task.title}</CardTitle>
