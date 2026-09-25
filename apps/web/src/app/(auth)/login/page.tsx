@@ -54,34 +54,32 @@ const instructions = [
   },
 ];
 
-function routeAfterLogin(
+async function routeAfterLogin(
   supabase: ReturnType<typeof createClient>,
   router: ReturnType<typeof useRouter>,
 ) {
-  return (async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      router.replace("/login");
-      return;
-    }
-    const { data: membership } = await supabase
-      .from("family_members")
-      .select("role")
-      .eq("user_id", user.id)
-      .limit(1)
-      .maybeSingle();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    router.replace("/login");
+    return;
+  }
+  const { data: membership } = await supabase
+    .from("family_members")
+    .select("role")
+    .eq("user_id", user.id)
+    .limit(1)
+    .maybeSingle();
 
-    if (!membership) {
-      router.replace("/onboarding");
-    } else if (membership.role === "responsavel") {
-      router.replace("/responsavel");
-    } else {
-      router.replace("/executor");
-    }
-    router.refresh();
-  })();
+  if (!membership) {
+    router.replace("/onboarding");
+  } else if (membership.role === "responsavel") {
+    router.replace("/responsavel");
+  } else {
+    router.replace("/executor");
+  }
+  router.refresh();
 }
 
 function LoginForm() {
