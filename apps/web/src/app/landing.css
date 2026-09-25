@@ -158,3 +158,161 @@
   .responsible-step{flex-basis:86vw;min-height:215px}
   .responsible-step h3{font-size:20px}
 }
+
+
+/* Mobile story: o mockup vem primeiro e os passos viram um carrossel lateral. */
+@media (max-width:900px){
+  .landing-marquee{height:66px}
+  .marquee-track{gap:36px;animation-duration:20s}
+  .marquee-track span{gap:36px;font-size:13px;letter-spacing:-.01em}
+
+  .responsible-section{
+    display:grid;
+    grid-template-columns:1fr;
+    grid-template-rows:auto auto auto;
+    gap:26px;
+    padding-top:64px;
+    padding-bottom:76px;
+  }
+  .responsible-copy{grid-column:1;grid-row:1}
+  .responsible-stage{
+    grid-column:1;
+    grid-row:2;
+    width:100%;
+    min-height:350px;
+    height:auto;
+    align-self:start;
+  }
+  .responsible-stage .stage-glow{width:320px;height:320px}
+  .stepper-device{
+    width:min(100%,420px);
+    margin-inline:auto;
+    border-radius:24px;
+  }
+  .stepper-top{padding:19px 20px 21px}
+  .stepper-top span{font-size:9px}
+  .stepper-top strong{font-size:18px}
+  .stepper-dots{gap:6px}
+  .stepper-dots i{width:8px;height:8px}
+  .stepper-body{min-height:315px;padding:21px}
+  .mock-label{font-size:10px}
+  .mock-input{padding:15px;font-size:12px}
+  .mock-form button{padding:13px;font-size:12px}
+  .mock-check{font-size:10px;padding:12px}
+  .mock-title{font-size:15px}
+  .member-row{padding:12px 7px}
+  .member-row strong{font-size:12px}
+  .member-row small{font-size:9px}
+  .task-card{padding:15px}
+  .task-card strong{font-size:12px}
+  .task-card small{font-size:9px}
+  .task-card b{font-size:10px}
+  .balance-card strong{font-size:33px}
+
+  .responsible-steps{
+    grid-column:1;
+    grid-row:3;
+    width:calc(100% + 15px);
+    display:flex;
+    gap:14px;
+    overflow-x:auto;
+    overflow-y:hidden;
+    scroll-snap-type:x mandatory;
+    scroll-padding-inline:4px;
+    overscroll-behavior-x:contain;
+    -webkit-overflow-scrolling:touch;
+    padding:4px 15px 18px 4px;
+    margin:0;
+    align-content:initial;
+    scrollbar-width:none;
+  }
+  .responsible-steps::-webkit-scrollbar{display:none}
+  .responsible-step,
+  .responsible-step.active{
+    flex:0 0 min(86vw,350px);
+    min-height:190px;
+    padding:22px;
+    display:grid;
+    grid-template-columns:54px 46px 1fr;
+    gap:12px;
+    align-items:start;
+    scroll-snap-align:start;
+    border:1px solid #e4e8ef;
+    border-radius:22px;
+    background:#fff;
+    box-shadow:0 12px 30px rgba(42,53,83,.08);
+    opacity:.52;
+    transform:none;
+    transition:opacity .25s ease,box-shadow .25s ease,border-color .25s ease;
+  }
+  .responsible-step.active{
+    opacity:1;
+    border-color:#cfe0ff;
+    box-shadow:0 18px 38px rgba(42,53,83,.12);
+  }
+  .responsible-step .step-number{
+    display:block;
+    margin:2px 0 0;
+    font-size:36px;
+  }
+  .responsible-step .step-icon{
+    width:46px;
+    height:46px;
+    margin:0;
+    border-radius:13px;
+  }
+  .responsible-step h3{
+    margin:1px 0 8px;
+    font-size:22px;
+    line-height:1.05;
+  }
+  .responsible-step p{
+    max-width:none;
+    margin:0;
+    font-size:12px;
+    line-height:1.7;
+  }
+}
+
+@media (max-width:640px){
+  .landing-marquee{height:64px}
+  .marquee-track{gap:32px}
+  .marquee-track span{gap:32px;font-size:12.5px}
+
+  .responsible-section{padding-top:58px;gap:22px}
+  .responsible-stage{min-height:320px}
+  .stepper-device{width:100%;border-radius:22px}
+  .stepper-top{padding:17px 18px 19px}
+  .stepper-top strong{font-size:17px}
+  .stepper-body{min-height:285px;padding:18px}
+  .mock-title{font-size:14px}
+  .responsible-steps{
+    width:calc(100% + 15px);
+    gap:12px;
+    padding-left:2px;
+  }
+  .responsible-step,
+  .responsible-step.active{
+    flex-basis:88vw;
+    min-height:184px;
+    padding:20px;
+    grid-template-columns:48px 42px 1fr;
+    gap:10px;
+  }
+  .responsible-step .step-number{font-size:34px}
+  .responsible-step .step-icon{width:42px;height:42px}
+  .responsible-step h3{font-size:21px}
+  .responsible-step p{font-size:11.5px;line-height:1.68}
+}
+
+@media (max-width:390px){
+  .landing-marquee{height:62px}
+  .marquee-track span{font-size:12px}
+  .responsible-stage{min-height:300px}
+  .responsible-step,
+  .responsible-step.active{
+    flex-basis:90vw;
+    min-height:180px;
+    padding:18px;
+  }
+}
