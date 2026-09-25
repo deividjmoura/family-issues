@@ -71,6 +71,8 @@ export function GameLobby({
 }) {
   const [panel, setPanel] = useState<PanelId>(null);
   const [mounted, setMounted] = useState(false);
+  const level = Math.floor(xp / 100) + 1;
+  const levelProgress = xp % 100;
 
   useEffect(() => setMounted(true), []);
 
@@ -322,8 +324,11 @@ export function GameLobby({
           <span className="game-pill game-pill--gold" title="Gold a receber">
             💰 {formatBRL(gold)}
           </span>
-          <span className="game-pill game-pill--xp" title="XP">
-            ⭐ {xp}
+          <span className="game-pill game-pill--xp" title={`${xp} XP`}>
+            ⭐ {xp} XP
+          </span>
+          <span className="game-pill game-pill--level" title={`Nível ${level}`}>
+            LVL {level}
           </span>
         </div>
         <SideMenu notifications={notifications} createLabel="Nova missão" />
@@ -335,7 +340,16 @@ export function GameLobby({
         </div>
         <div className="game-hero__info">
           <p className="game-hero__title">Pronto pra jogar?</p>
-          <p className="game-hero__sub">
+          <div className="game-level">
+          <div className="game-level__row">
+            <span>NÍVEL {level}</span>
+            <span>{levelProgress}/100 XP</span>
+          </div>
+          <div className="game-level__track" aria-label={`${levelProgress}% para o próximo nível`}>
+            <div className="game-level__fill" style={{ width: `${Math.max(3, levelProgress)}%` }} />
+          </div>
+        </div>
+        <p className="game-hero__sub">
             {activeCount > 0
               ? `${activeCount} missão${activeCount === 1 ? "" : "ões"} te esperando`
               : boardCount > 0
