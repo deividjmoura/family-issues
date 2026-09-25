@@ -24,7 +24,10 @@ export interface AppNotification {
   created_at: string;
 }
 
-const PUSH_COPY: Record<string, (p: Record<string, unknown>) => { title: string; body: string }> = {
+const PUSH_COPY: Record<
+  string,
+  (p: Record<string, unknown>) => { title: string; body: string }
+> = {
   task_assigned: (p) => ({
     title: "Nova tarefa",
     body: String(p.title ?? "Você tem uma nova missão"),
@@ -41,11 +44,11 @@ const PUSH_COPY: Record<string, (p: Record<string, unknown>) => { title: string;
     title: "Rejeitada",
     body: String(p.title ?? "Tarefa rejeitada"),
   }),
-  payment_registered: (p) => ({
+  payment_registered: (_p) => ({
     title: "Pagamento",
     body: "Confirme o recebimento no app",
   }),
-  payment_confirmed: () => ({
+  payment_confirmed: (_p) => ({
     title: "Confirmado",
     body: "Recebimento confirmado",
   }),
@@ -60,7 +63,6 @@ const PUSH_COPY: Record<string, (p: Record<string, unknown>) => { title: string;
 };
 
 async function resolveUserEmail(userId: string): Promise<string | null> {
-  // 1) profile
   const supabase = await createClient();
   const { data: profile } = await supabase
     .from("profiles")
@@ -71,7 +73,6 @@ async function resolveUserEmail(userId: string): Promise<string | null> {
     return profile.email as string;
   }
 
-  // 2) service role admin API
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) return null;
@@ -97,7 +98,6 @@ export async function notify(
     payload,
   });
 
-  // Side-channels (best-effort, não bloqueiam o fluxo)
   void (async () => {
     try {
       const email = await resolveUserEmail(userId);
