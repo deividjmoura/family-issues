@@ -1,42 +1,34 @@
-import { signOut } from "@/lib/actions/auth";
-import { Button } from "@/components/ui/button";
-import { PushOptIn } from "@/components/pwa/push-opt-in";
-import { ThemeToggle } from "@/components/theme/theme-toggle";
 import type { ReactNode } from "react";
+import type { AppNotification } from "@/lib/actions/notifications";
+import { SideMenu } from "@/components/layout/side-menu";
 
 export function AppHeader({
   title,
   subtitle,
   badge,
+  notifications = [],
 }: {
   title: string;
   subtitle?: ReactNode;
   badge?: string;
+  notifications?: AppNotification[];
 }) {
   return (
-    <header className="flex flex-wrap items-start justify-between gap-4 border-b border-border pb-6">
-      <div className="space-y-1">
+    <header className="flex flex-wrap items-start justify-between gap-3 border-b border-border pb-5">
+      <div className="min-w-0 flex-1 space-y-1">
         {badge && (
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             {badge}
           </p>
         )}
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{title}</h1>
+        <h1 className="truncate text-2xl font-bold tracking-tight sm:text-3xl">
+          {title}
+        </h1>
         {subtitle && (
           <div className="text-sm text-muted-foreground">{subtitle}</div>
         )}
       </div>
-      <div className="flex flex-col items-end gap-2">
-        <div className="flex flex-wrap items-center justify-end gap-2">
-          <ThemeToggle />
-          <form action={signOut}>
-            <Button type="submit" variant="secondary" size="sm">
-              Sair
-            </Button>
-          </form>
-        </div>
-        <PushOptIn />
-      </div>
+      <SideMenu notifications={notifications} />
     </header>
   );
 }

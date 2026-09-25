@@ -3,7 +3,6 @@ import type { CSSProperties } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { TaskList } from "@/components/tasks/task-list";
 import { CreateTaskFab } from "@/components/tasks/create-task-fab";
-import { NotificationList } from "@/components/notifications/notification-list";
 import { RealtimeNotifications } from "@/components/notifications/realtime-badge";
 import { ConfirmAllButton } from "@/components/wallet/confirm-all-button";
 import { AppHeader } from "@/components/layout/app-header";
@@ -103,6 +102,7 @@ export default async function ExecutorHomePage() {
         badge="⚔️ MISSION LOBBY"
         title="Suas missões"
         subtitle={family.name}
+        notifications={notifications}
       />
 
       <div className="grid grid-cols-3 gap-3">
@@ -195,14 +195,14 @@ export default async function ExecutorHomePage() {
         title="🏆 Ranking"
       />
 
-      <PendingOffers
-        offers={offers}
-        taskMeta={taskMeta}
-        nameByUserId={names}
-        currentUserId={user.id}
-      />
-
-      <NotificationList items={notifications} />
+      {offers.length > 0 && (
+        <PendingOffers
+          offers={offers}
+          taskMeta={taskMeta}
+          nameByUserId={names}
+          currentUserId={user.id}
+        />
+      )}
 
       {openBoard.length > 0 && (
         <section className="space-y-3">
