@@ -97,7 +97,6 @@ export function CompleteTaskButton({ taskId, xp = 1 }: { taskId: string; xp?: nu
         setError(res.error ?? "Erro ao concluir");
         return;
       }
-      sfx.success();
       window.dispatchEvent(
         new CustomEvent(GAME_MISSION_COMPLETE_EVENT, { detail: { xp } }),
       );
