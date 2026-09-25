@@ -35,7 +35,7 @@ export function InstallPrompt() {
 
   return (
     <div className="fixed bottom-4 left-4 right-4 z-40 mx-auto max-w-md rounded-xl border border-border bg-card p-4 shadow-lg">
-      <p className="text-sm font-medium">Instalar Family Tasks?</p>
+      <p className="text-sm font-medium">Instalar Family Issues?</p>
       <p className="mt-1 text-xs text-muted-foreground">
         Acesse como app na tela inicial — funciona offline o básico.
       </p>
