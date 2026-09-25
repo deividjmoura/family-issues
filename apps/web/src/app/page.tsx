@@ -111,10 +111,6 @@ export default function HomePage() {
   const [activeStep, setActiveStep] = useState(0);
 
   useEffect(() => {
-    const timer = window.setInterval(() => {
-      setActiveStep((value) => (value + 1) % steps.length);
-    }, 4800);
-
     const nodes = Array.from(document.querySelectorAll<HTMLElement>("[data-step-index]"));
     const observer = new IntersectionObserver(
       (entries) => {
@@ -126,11 +122,7 @@ export default function HomePage() {
       { threshold: [0.35, 0.6], rootMargin: "-35% 0px -35% 0px" }
     );
     nodes.forEach((node) => observer.observe(node));
-
-    return () => {
-      window.clearInterval(timer);
-      observer.disconnect();
-    };
+    return () => observer.disconnect();
   }, []);
 
   return (
