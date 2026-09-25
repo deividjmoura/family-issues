@@ -32,28 +32,41 @@ export default function OnboardingPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  /** true enquanto verifica se já tem família — evita flash do formulário */
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => {
+
+    (async () => {
+      const { data } = await supabase.auth.getUser();
       if (!data.user) {
         router.replace("/login");
         return;
       }
+      if (cancelled) return;
       setUserId(data.user.id);
-      // Se já é membro de alguma família, vai pro app
-      supabase
+
+      const { data: members } = await supabase
         .from("family_members")
         .select("id, role")
         .eq("user_id", data.user.id)
-        .limit(1)
-        .then(({ data: members }) => {
-          if (members && members.length > 0) {
-            const role = members[0].role;
-            router.replace(role === "responsavel" ? "/responsavel" : "/executor");
-          }
-        });
-    });
+        .limit(1);
+
+      if (cancelled) return;
+
+      if (members && members.length > 0) {
+        const role = members[0].role;
+        router.replace(role === "responsavel" ? "/responsavel" : "/executor");
+        return;
+      }
+      setChecking(false);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [router]);
 
   async function createFamily(e: React.FormEvent) {
@@ -123,6 +136,15 @@ export default function OnboardingPage() {
     }
     router.push("/executor");
     router.refresh();
+  }
+
+  if (checking) {
+    return (
+      <main className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-3 px-4">
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <p className="text-sm text-muted-foreground">Carregando sua conta…</p>
+      </main>
+    );
   }
 
   if (mode === "choose") {

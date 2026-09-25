@@ -59,6 +59,8 @@ export interface Task {
   swapped: boolean;
   swapped_reward: string | null;
   proof_image_url: string | null;
+  /** Mensagem do executor ao concluir (resumo, observação…) */
+  completion_note: string | null;
   created_at: string;
   updated_at: string;
 }

@@ -17,6 +17,34 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
+async function routeAfterLogin(
+  supabase: ReturnType<typeof createClient>,
+  router: ReturnType<typeof useRouter>,
+) {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    router.replace("/login");
+    return;
+  }
+  const { data: membership } = await supabase
+    .from("family_members")
+    .select("role")
+    .eq("user_id", user.id)
+    .limit(1)
+    .maybeSingle();
+
+  if (!membership) {
+    router.replace("/onboarding");
+  } else if (membership.role === "responsavel") {
+    router.replace("/responsavel");
+  } else {
+    router.replace("/executor");
+  }
+  router.refresh();
+}
+
 function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
@@ -44,13 +72,13 @@ function LoginForm() {
       email,
       password,
     });
-    setLoading(false);
     if (signError) {
+      setLoading(false);
       setError(translateAuthError(signError.message));
       return;
     }
-    router.push("/onboarding");
-    router.refresh();
+    await routeAfterLogin(supabase, router);
+    setLoading(false);
   }
 
   async function signInGoogle() {
@@ -61,7 +89,7 @@ function LoginForm() {
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${origin}/auth/callback?next=/onboarding`,
+        redirectTo: `${origin}/auth/callback?next=/`,
       },
     });
     setLoading(false);

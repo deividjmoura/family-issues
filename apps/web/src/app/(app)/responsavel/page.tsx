@@ -108,6 +108,7 @@ export default async function ResponsavelHomePage() {
           </>
         }
         notifications={notifications}
+        createLabel="Nova tarefa"
       />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">

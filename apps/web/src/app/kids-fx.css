@@ -1,0 +1,130 @@
+/* ========== Executor kids — movimento e atenção ========== */
+
+@keyframes kids-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes kids-bounce-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.85) translateY(12px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.04) translateY(-2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes kids-sparkle {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes kids-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes kids-wiggle {
+  0%,
+  100% {
+    transform: rotate(-1.5deg);
+  }
+  50% {
+    transform: rotate(1.5deg);
+  }
+}
+
+.theme-game .hud-chip {
+  animation: kids-bounce-in 0.55s ease both, kids-float 4s ease-in-out infinite;
+}
+.theme-game .hud-chip:nth-child(1) {
+  animation-delay: 0s, 0s;
+}
+.theme-game .hud-chip:nth-child(2) {
+  animation-delay: 0.08s, 0.4s;
+}
+.theme-game .hud-chip:nth-child(3) {
+  animation-delay: 0.16s, 0.8s;
+}
+
+.theme-game .cyber-card {
+  animation: kids-bounce-in 0.5s ease both;
+  animation-delay: 0.2s;
+}
+
+.theme-game h1,
+.theme-game h2 {
+  animation: kids-wiggle 5s ease-in-out infinite;
+  transform-origin: center left;
+}
+
+/* partículas flutuantes no fundo */
+.theme-game main::after {
+  content: "✦  ★  ◆  ●  ✦  ★  ◆";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  font-size: 1.1rem;
+  letter-spacing: 3.5rem;
+  line-height: 5rem;
+  color: rgba(0, 240, 255, 0.12);
+  animation: kids-sparkle 3s ease-in-out infinite;
+  overflow: hidden;
+  word-break: break-all;
+  padding: 2rem;
+}
+
+/* cards de missão com pulse leve */
+.theme-game [data-slot="card"] {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.theme-game [data-slot="card"]:hover {
+  transform: translateY(-3px) scale(1.01);
+}
+
+/* botão concluir chama atenção */
+.theme-game button:not(:disabled) {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.theme-game button:not(:disabled):active {
+  transform: scale(0.96);
+}
+
+/* shimmer no gold */
+.theme-game .glow-coin p.tabular-nums {
+  background: linear-gradient(
+    90deg,
+    #fff35c 0%,
+    #fff 40%,
+    #fff35c 60%,
+    #fbbf24 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: kids-shimmer 3s linear infinite;
+}

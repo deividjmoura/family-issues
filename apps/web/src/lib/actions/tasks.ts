@@ -65,7 +65,10 @@ export async function createTask(input: {
   if (!Number.isInteger(input.valueCents) || input.valueCents < 0) {
     return { ok: false, error: "Valor inválido." };
   }
-  const points = Math.max(0, Math.floor(input.points ?? 0));
+  let points = Math.max(0, Math.floor(input.points ?? 0));
+  if (points === 0) {
+    points = Math.max(1, Math.round(input.valueCents / 100));
+  }
 
   const role = await getMembership(input.familyId, user.id);
   if (!role) return { ok: false, error: "Você não é membro desta família." };
@@ -86,7 +89,6 @@ export async function createTask(input: {
     status = "atribuida";
   }
 
-  // Executor criando: pode auto-atribuir
   if (role === "executor" && !assigneeId) {
     assigneeId = user.id;
     status = "atribuida";
@@ -195,7 +197,6 @@ async function transitionTask(
     ...extra,
   };
 
-  // complete em tarefa aberta → assume automaticamente
   if (action === "complete" && !task.assignee_id) {
     patch.assignee_id = user.id;
   }
@@ -224,6 +225,7 @@ async function transitionTask(
     patch.verified_by = null;
     patch.rejection_reason = null;
     patch.proof_image_url = null;
+    patch.completion_note = null;
   }
 
   const { data: updated, error } = await supabase
@@ -262,9 +264,11 @@ async function transitionTask(
 export async function markCompleted(
   taskId: string,
   proofImageUrl?: string | null,
+  completionNote?: string | null,
 ): Promise<ActionResult> {
   return transitionTask(taskId, "complete", {
     proof_image_url: proofImageUrl?.trim() || null,
+    completion_note: completionNote?.trim() || null,
   });
 }
 
