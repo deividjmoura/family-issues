@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { CreateTaskFab } from "@/components/tasks/create-task-fab";
 import { TaskList } from "@/components/tasks/task-list";
-import { TaskFilters } from "@/components/tasks/task-filters";
 import { FamilyRealtime } from "@/components/realtime/family-realtime";
 import { PendingNegotiations } from "@/components/negotiations/pending-list";
 import { PendingOffers } from "@/components/offers/pending-offers";
@@ -122,6 +122,21 @@ export default async function ResponsavelHomePage() {
         <Stat label="A pagar" value={formatBRL(totalDue)} />
       </div>
 
+      <Link
+        href="/responsavel/tarefas"
+        className="flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3 shadow-sm transition hover:border-primary/40 hover:shadow-md"
+      >
+        <div>
+          <p className="text-sm font-semibold">Todas as tarefas</p>
+          <p className="text-xs text-muted-foreground">
+            {taskList.length} no total · filtros e histórico
+          </p>
+        </div>
+        <span className="text-lg text-primary" aria-hidden>
+          →
+        </span>
+      </Link>
+
       <Leaderboard
         tasks={taskList}
         nameByUserId={names}
@@ -184,17 +199,6 @@ export default async function ResponsavelHomePage() {
           />
         </section>
       )}
-
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold">Todas as tarefas</h2>
-        <TaskFilters
-          tasks={taskList}
-          role="responsavel"
-          userId={user.id}
-          pendingNegotiationTaskIds={pendingIds}
-          nameByUserId={names}
-        />
-      </section>
 
       <CreateTaskFab
         familyId={familyId}
