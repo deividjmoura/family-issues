@@ -1,19 +1,34 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
+import { createPortal } from "react-dom";
 import { createClient } from "@/lib/supabase/client";
 import { markCompleted } from "@/lib/actions/tasks";
 import { Button } from "@/components/ui/button";
 
 export function CompleteTaskButton({ taskId }: { taskId: string }) {
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [note, setNote] = useState("");
   const [preview, setPreview] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [pending, startTransition] = useTransition();
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
+  const galleryRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
 
   async function uploadProof(f: File): Promise<string | null> {
     const supabase = createClient();
@@ -40,8 +55,17 @@ export function CompleteTaskButton({ taskId }: { taskId: string }) {
 
   function onPickFile(f: File | undefined) {
     if (!f) return;
+    if (preview) URL.revokeObjectURL(preview);
     setFile(f);
     setPreview(URL.createObjectURL(f));
+  }
+
+  function clearPhoto() {
+    if (preview) URL.revokeObjectURL(preview);
+    setFile(null);
+    setPreview(null);
+    if (cameraRef.current) cameraRef.current.value = "";
+    if (galleryRef.current) galleryRef.current.value = "";
   }
 
   function submit() {
@@ -52,7 +76,7 @@ export function CompleteTaskButton({ taskId }: { taskId: string }) {
         setUploading(true);
         proofUrl = await uploadProof(file);
         setUploading(false);
-        if (!proofUrl && file) return;
+        if (!proofUrl) return;
       }
       const res = await markCompleted(
         taskId,
@@ -65,123 +89,152 @@ export function CompleteTaskButton({ taskId }: { taskId: string }) {
       }
       setOpen(false);
       setNote("");
-      setFile(null);
-      setPreview(null);
+      clearPhoto();
     });
   }
+
+  const modal =
+    open && mounted
+      ? createPortal(
+          <div
+            className="complete-modal-root"
+            role="presentation"
+            onClick={() => !pending && setOpen(false)}
+          >
+            <div
+              className="complete-modal-panel"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="complete-title"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="complete-modal-panel__head">
+                <h2 id="complete-title" className="complete-modal-title">
+                  Missão concluída!
+                </h2>
+                <button
+                  type="button"
+                  className="complete-modal-close"
+                  onClick={() => setOpen(false)}
+                  aria-label="Fechar"
+                >
+                  ×
+                </button>
+              </div>
+
+              <div className="complete-modal-body">
+                <p className="complete-modal-hint">
+                  Escreva uma mensagem (ex: resumo do livro) e tire uma foto se
+                  quiser.
+                </p>
+
+                <label
+                  className="complete-modal-label"
+                  htmlFor="complete-note"
+                >
+                  Sua mensagem
+                </label>
+                <textarea
+                  id="complete-note"
+                  className="complete-modal-textarea"
+                  placeholder="Ex: Li 5 páginas. Resumo: o herói encontrou o mapa…"
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  maxLength={2000}
+                  rows={4}
+                  autoFocus
+                />
+
+                {/* Câmera — capture força o app de câmera no mobile */}
+                <input
+                  ref={cameraRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  className="hidden"
+                  onChange={(e) => onPickFile(e.target.files?.[0])}
+                />
+                {/* Galeria como opção secundária */}
+                <input
+                  ref={galleryRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/heic"
+                  className="hidden"
+                  onChange={(e) => onPickFile(e.target.files?.[0])}
+                />
+
+                {preview ? (
+                  <div className="complete-modal-preview">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={preview}
+                      alt="Prévia da prova"
+                      className="complete-modal-preview__img"
+                    />
+                    <button
+                      type="button"
+                      className="complete-modal-preview__remove"
+                      onClick={clearPhoto}
+                    >
+                      Remover foto
+                    </button>
+                  </div>
+                ) : (
+                  <div className="complete-modal-photo-actions">
+                    <Button
+                      type="button"
+                      className="w-full min-h-[48px]"
+                      onClick={() => cameraRef.current?.click()}
+                    >
+                      📷 Tirar foto
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      className="w-full min-h-[44px]"
+                      onClick={() => galleryRef.current?.click()}
+                    >
+                      Escolher da galeria
+                    </Button>
+                  </div>
+                )}
+
+                {error && (
+                  <p className="complete-modal-error" role="alert">
+                    {error}
+                  </p>
+                )}
+              </div>
+
+              <div className="complete-modal-footer">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  disabled={pending || uploading}
+                  onClick={() => setOpen(false)}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  type="button"
+                  disabled={pending || uploading}
+                  onClick={submit}
+                >
+                  {pending || uploading ? "Enviando…" : "Enviar conclusão"}
+                </Button>
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )
+      : null;
 
   return (
     <>
       <Button size="sm" disabled={pending} onClick={() => setOpen(true)}>
         Concluí! ✨
       </Button>
-
-      {open && (
-        <div
-          className="modal-backdrop"
-          role="presentation"
-          onClick={() => !pending && setOpen(false)}
-        >
-          <div
-            className="modal-panel"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="complete-title"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="modal-panel__head">
-              <h2 id="complete-title" className="text-lg font-bold">
-                Missão concluída!
-              </h2>
-              <button
-                type="button"
-                className="modal-close"
-                onClick={() => setOpen(false)}
-                aria-label="Fechar"
-              >
-                ×
-              </button>
-            </div>
-            <p className="mb-3 text-sm text-muted-foreground">
-              Escreva uma mensagem (ex: resumo do livro) e, se quiser, anexe uma
-              foto.
-            </p>
-
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Sua mensagem
-            </label>
-            <textarea
-              className="mb-3 min-h-[100px] w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
-              placeholder="Ex: Li 5 páginas. Resumo: o herói encontrou o mapa…"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              maxLength={2000}
-            />
-
-            <input
-              ref={inputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp,image/heic"
-              className="hidden"
-              onChange={(e) => onPickFile(e.target.files?.[0])}
-            />
-
-            {preview ? (
-              <div className="mb-3 overflow-hidden rounded-lg border border-border">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={preview}
-                  alt="Prévia da prova"
-                  className="max-h-40 w-full object-cover"
-                />
-                <button
-                  type="button"
-                  className="w-full py-1 text-xs text-muted-foreground underline"
-                  onClick={() => {
-                    setFile(null);
-                    setPreview(null);
-                  }}
-                >
-                  Remover foto
-                </button>
-              </div>
-            ) : (
-              <Button
-                type="button"
-                variant="secondary"
-                className="mb-3 w-full"
-                onClick={() => inputRef.current?.click()}
-              >
-                📷 Anexar foto (opcional)
-              </Button>
-            )}
-
-            {error && (
-              <p className="mb-2 text-sm text-red-500" role="alert">
-                {error}
-              </p>
-            )}
-
-            <div className="flex justify-end gap-2">
-              <Button
-                type="button"
-                variant="secondary"
-                disabled={pending || uploading}
-                onClick={() => setOpen(false)}
-              >
-                Cancelar
-              </Button>
-              <Button
-                type="button"
-                disabled={pending || uploading}
-                onClick={submit}
-              >
-                {pending || uploading ? "Enviando…" : "Enviar conclusão"}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      {modal}
     </>
   );
 }
