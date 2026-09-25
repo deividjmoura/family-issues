@@ -23,14 +23,18 @@ interface ExecutorOption {
 export function CreateTaskForm({
   familyId,
   executors,
+  allowOpenBoard = true,
 }: {
   familyId: string;
   executors: ExecutorOption[];
+  /** Se true, assignee opcional (quadro aberto) */
+  allowOpenBoard?: boolean;
 }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [value, setValue] = useState("");
-  const [assigneeId, setAssigneeId] = useState(executors[0]?.user_id ?? "");
+  const [points, setPoints] = useState("10");
+  const [assigneeId, setAssigneeId] = useState("");
   const [due, setDue] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [ok, setOk] = useState<string | null>(null);
@@ -45,28 +49,32 @@ export function CreateTaskForm({
       setError("Valor inválido. Ex: 10 ou 10,50");
       return;
     }
-    if (!assigneeId) {
-      setError("Selecione um executor.");
-      return;
-    }
+    const pts = Math.max(0, parseInt(points || "0", 10) || 0);
     startTransition(async () => {
       const res = await createTask({
         familyId,
         title,
         description,
         valueCents: cents,
+        points: pts,
         paymentDueDate: due || undefined,
-        assigneeId,
+        assigneeId: assigneeId || null,
       });
       if (!res.ok) {
         setError(res.error);
         return;
       }
-      setOk("Tarefa criada!");
+      setOk(
+        assigneeId
+          ? "Tarefa criada e atribuída!"
+          : "Tarefa no quadro aberto — alguém pode assumir.",
+      );
       setTitle("");
       setDescription("");
       setValue("");
+      setPoints("10");
       setDue("");
+      setAssigneeId("");
     });
   }
 
@@ -74,7 +82,11 @@ export function CreateTaskForm({
     <Card>
       <CardHeader>
         <CardTitle>Nova tarefa</CardTitle>
-        <CardDescription>Crie e atribua a um executor</CardDescription>
+        <CardDescription>
+          {allowOpenBoard
+            ? "Pode deixar sem executor: fica no quadro para alguém assumir"
+            : "Crie e atribua"}
+        </CardDescription>
       </CardHeader>
       <form onSubmit={onSubmit}>
         <CardContent className="space-y-3">
@@ -96,7 +108,7 @@ export function CreateTaskForm({
               onChange={(e) => setDescription(e.target.value)}
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             <div className="space-y-1">
               <Label htmlFor="value">Valor (R$)</Label>
               <Input
@@ -108,6 +120,16 @@ export function CreateTaskForm({
               />
             </div>
             <div className="space-y-1">
+              <Label htmlFor="points">Pontos (ranking)</Label>
+              <Input
+                id="points"
+                type="number"
+                min={0}
+                value={points}
+                onChange={(e) => setPoints(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1 sm:col-span-1 col-span-2">
               <Label htmlFor="due">Pagamento previsto</Label>
               <Input
                 id="due"
@@ -118,17 +140,20 @@ export function CreateTaskForm({
             </div>
           </div>
           <div className="space-y-1">
-            <Label htmlFor="assignee">Executor</Label>
+            <Label htmlFor="assignee">
+              Executor {allowOpenBoard && "(opcional)"}
+            </Label>
             <select
               id="assignee"
               className="flex h-10 w-full rounded-lg border border-border bg-card px-3 text-sm"
               value={assigneeId}
               onChange={(e) => setAssigneeId(e.target.value)}
-              required
             >
-              {executors.length === 0 && (
-                <option value="">Nenhum executor na família</option>
-              )}
+              <option value="">
+                {allowOpenBoard
+                  ? "— Quadro aberto (qualquer um assume) —"
+                  : "Selecione"}
+              </option>
               {executors.map((ex) => (
                 <option key={ex.user_id} value={ex.user_id}>
                   {ex.label}
@@ -144,7 +169,7 @@ export function CreateTaskForm({
           {ok && <p className="text-sm text-green-600">{ok}</p>}
         </CardContent>
         <CardFooter>
-          <Button type="submit" disabled={pending || executors.length === 0}>
+          <Button type="submit" disabled={pending}>
             {pending ? "Criando…" : "Criar tarefa"}
           </Button>
         </CardFooter>

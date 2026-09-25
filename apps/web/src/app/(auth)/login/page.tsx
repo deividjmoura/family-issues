@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, Suspense } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { translateAuthError } from "@/lib/auth-errors";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,16 +17,27 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const params = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    params.get("error") === "auth"
+      ? "Não foi possível confirmar o login. Tente de novo."
+      : null,
+  );
+  const [info, setInfo] = useState<string | null>(
+    params.get("confirmed") === "1"
+      ? "E-mail confirmado! Agora você pode entrar."
+      : null,
+  );
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    setInfo(null);
     setLoading(true);
     const supabase = createClient();
     const { error: signError } = await supabase.auth.signInWithPassword({
@@ -34,11 +46,31 @@ export default function LoginPage() {
     });
     setLoading(false);
     if (signError) {
-      setError(signError.message);
+      setError(translateAuthError(signError.message));
       return;
     }
     router.push("/onboarding");
     router.refresh();
+  }
+
+  async function signInGoogle() {
+    setError(null);
+    setLoading(true);
+    const supabase = createClient();
+    const origin = window.location.origin;
+    const { error: oauthError } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${origin}/auth/callback?next=/onboarding`,
+      },
+    });
+    setLoading(false);
+    if (oauthError) {
+      setError(
+        translateAuthError(oauthError.message) +
+          " (ative o provedor Google no Supabase → Authentication → Providers)",
+      );
+    }
   }
 
   return (
@@ -46,9 +78,7 @@ export default function LoginPage() {
       <Card>
         <CardHeader>
           <CardTitle>Entrar</CardTitle>
-          <CardDescription>
-            Acesse sua conta Family Tasks
-          </CardDescription>
+          <CardDescription>Acesse sua conta Family Tasks</CardDescription>
         </CardHeader>
         <form onSubmit={onSubmit}>
           <CardContent className="space-y-4">
@@ -79,20 +109,56 @@ export default function LoginPage() {
                 {error}
               </p>
             )}
+            {info && (
+              <p className="text-sm text-green-600" role="status">
+                {info}
+              </p>
+            )}
           </CardContent>
           <CardFooter className="flex flex-col gap-3">
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Entrando…" : "Entrar"}
             </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              className="w-full"
+              disabled={loading}
+              onClick={() => void signInGoogle()}
+            >
+              Continuar com Google
+            </Button>
             <p className="text-center text-sm text-muted-foreground">
               Não tem conta?{" "}
-              <Link href="/signup" className="font-medium text-primary underline">
+              <Link
+                href="/signup"
+                className="font-medium text-primary underline"
+              >
                 Criar conta
+              </Link>
+            </p>
+            <p className="text-center text-xs text-muted-foreground">
+              <Link href="/politica" className="underline">
+                Política de uso
               </Link>
             </p>
           </CardFooter>
         </form>
       </Card>
     </main>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="mx-auto flex min-h-screen max-w-md items-center justify-center px-4">
+          <p className="text-sm text-muted-foreground">Carregando…</p>
+        </main>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }

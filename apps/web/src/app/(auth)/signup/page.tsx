@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { translateAuthError } from "@/lib/auth-errors";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,27 +23,57 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    setInfo(null);
     setLoading(true);
     const supabase = createClient();
-    const { error: signError } = await supabase.auth.signUp({
+    const origin = window.location.origin;
+    const { data, error: signError } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: { full_name: name },
+        emailRedirectTo: `${origin}/auth/callback?next=/login?confirmed=1`,
       },
     });
     setLoading(false);
     if (signError) {
-      setError(signError.message);
+      setError(translateAuthError(signError.message));
+      return;
+    }
+    if (!data.session) {
+      setInfo(
+        "Enviamos um link de confirmação para o seu e-mail. Depois de confirmar, faça login.",
+      );
       return;
     }
     router.push("/onboarding");
     router.refresh();
+  }
+
+  async function signInGoogle() {
+    setError(null);
+    setLoading(true);
+    const supabase = createClient();
+    const origin = window.location.origin;
+    const { error: oauthError } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${origin}/auth/callback?next=/onboarding`,
+      },
+    });
+    setLoading(false);
+    if (oauthError) {
+      setError(
+        translateAuthError(oauthError.message) +
+          " (ative Google no Supabase → Authentication → Providers)",
+      );
+    }
   }
 
   return (
@@ -95,16 +126,37 @@ export default function SignupPage() {
                 {error}
               </p>
             )}
+            {info && (
+              <p className="text-sm text-green-600" role="status">
+                {info}
+              </p>
+            )}
           </CardContent>
           <CardFooter className="flex flex-col gap-3">
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Criando…" : "Criar conta"}
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              className="w-full"
+              disabled={loading}
+              onClick={() => void signInGoogle()}
+            >
+              Continuar com Google
             </Button>
             <p className="text-center text-sm text-muted-foreground">
               Já tem conta?{" "}
               <Link href="/login" className="font-medium text-primary underline">
                 Entrar
               </Link>
+            </p>
+            <p className="text-center text-xs text-muted-foreground">
+              Ao criar conta você aceita a{" "}
+              <Link href="/politica" className="underline">
+                política de uso
+              </Link>
+              .
             </p>
           </CardFooter>
         </form>
