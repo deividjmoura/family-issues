@@ -77,6 +77,23 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(dest);
   }
 
+  // Já tem família → não mostra onboarding
+  if (user && path === "/onboarding") {
+    const { data: membership } = await supabase
+      .from("family_members")
+      .select("role")
+      .eq("user_id", user.id)
+      .limit(1)
+      .maybeSingle();
+
+    if (membership) {
+      const dest = request.nextUrl.clone();
+      dest.pathname =
+        membership.role === "responsavel" ? "/responsavel" : "/executor";
+      return NextResponse.redirect(dest);
+    }
+  }
+
   if (
     user &&
     (path.startsWith("/responsavel") || path.startsWith("/executor"))
