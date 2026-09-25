@@ -3,12 +3,6 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const PUBLIC = ["/", "/login", "/signup"];
 
-type CookieToSet = {
-  name: string;
-  value: string;
-  options?: Parameters<NextResponse["cookies"]["set"]>[2];
-};
-
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
@@ -26,16 +20,26 @@ export async function updateSession(request: NextRequest) {
       getAll() {
         return request.cookies.getAll();
       },
-      setAll(cookiesToSet: CookieToSet[]) {
-        cookiesToSet.forEach(({ name, value }) =>
-          request.cookies.set(name, value),
-        );
+      setAll(
+        cookiesToSet: {
+          name: string;
+          value: string;
+          options?: Record<string, unknown>;
+        }[],
+      ) {
+        cookiesToSet.forEach((cookie) => {
+          request.cookies.set(cookie.name, cookie.value);
+        });
         supabaseResponse = NextResponse.next({
           request,
         });
-        cookiesToSet.forEach(({ name, value, options }) =>
-          supabaseResponse.cookies.set(name, value, options),
-        );
+        cookiesToSet.forEach((cookie) => {
+          supabaseResponse.cookies.set(
+            cookie.name,
+            cookie.value,
+            cookie.options as Parameters<typeof supabaseResponse.cookies.set>[2],
+          );
+        });
       },
     },
   });
@@ -73,7 +77,10 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(dest);
   }
 
-  if (user && (path.startsWith("/responsavel") || path.startsWith("/executor"))) {
+  if (
+    user &&
+    (path.startsWith("/responsavel") || path.startsWith("/executor"))
+  ) {
     const { data: membership } = await supabase
       .from("family_members")
       .select("role")

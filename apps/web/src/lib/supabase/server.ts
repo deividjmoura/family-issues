@@ -1,12 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
-type CookieToSet = {
-  name: string;
-  value: string;
-  options?: Record<string, unknown>;
-};
-
 export async function createClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -23,13 +17,23 @@ export async function createClient() {
       getAll() {
         return cookieStore.getAll();
       },
-      setAll(cookiesToSet: CookieToSet[]) {
+      setAll(
+        cookiesToSet: {
+          name: string;
+          value: string;
+          options?: Record<string, unknown>;
+        }[],
+      ) {
         try {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options),
-          );
+          cookiesToSet.forEach((cookie) => {
+            cookieStore.set(
+              cookie.name,
+              cookie.value,
+              cookie.options as Parameters<typeof cookieStore.set>[2],
+            );
+          });
         } catch {
-          // Server Components read-only — middleware / actions persistem sessão
+          // Server Components read-only
         }
       },
     },
