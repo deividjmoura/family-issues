@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { sfx } from "@/lib/sounds";
 
 export const GAME_MISSION_COMPLETE_EVENT = "family-game:mission-complete";
@@ -8,19 +8,25 @@ export const GAME_MISSION_COMPLETE_EVENT = "family-game:mission-complete";
 export function GameFeedback() {
   const [visible, setVisible] = useState(false);
   const [xp, setXp] = useState(0);
+  const hideTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     const onComplete = (event: Event) => {
       const detail = (event as CustomEvent<{ xp?: number }>).detail;
       setXp(Math.max(1, detail?.xp ?? 1));
       setVisible(true);
-      sfx.success();
-      const timer = window.setTimeout(() => setVisible(false), 1500);
-      return () => window.clearTimeout(timer);
+      if (hideTimerRef.current) window.clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = window.setTimeout(() => {
+        setVisible(false);
+        hideTimerRef.current = null;
+      }, 1500);
     };
 
     window.addEventListener(GAME_MISSION_COMPLETE_EVENT, onComplete);
-    return () => window.removeEventListener(GAME_MISSION_COMPLETE_EVENT, onComplete);
+    return () => {
+      window.removeEventListener(GAME_MISSION_COMPLETE_EVENT, onComplete);
+      if (hideTimerRef.current) window.clearTimeout(hideTimerRef.current);
+    };
   }, []);
 
   if (!visible) return null;
