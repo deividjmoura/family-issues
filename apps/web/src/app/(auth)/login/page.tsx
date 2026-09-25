@@ -17,43 +17,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-const instructions = [
-  {
-    icon: "🧹",
-    title: "Tarefas",
-    text: "O responsável cria e atribui tarefas. O player executa e marca como concluída para entrar na fila de verificação.",
-  },
-  {
-    icon: "💰",
-    title: "Recompensas",
-    text: "Depois da aprovação, a recompensa da tarefa é liberada. O histórico e o saldo acompanham o que já foi recebido.",
-  },
-  {
-    icon: "🎯",
-    title: "Missões",
-    text: "Metas maiores podem reunir várias tarefas e liberar bônus especiais quando forem concluídas.",
-    future: true,
-  },
-  {
-    icon: "🛍️",
-    title: "Loja",
-    text: "A ideia é usar pontos acumulados para resgatar itens e recompensas disponíveis na loja da família.",
-    future: true,
-  },
-  {
-    icon: "🎁",
-    title: "Presentear pontos",
-    text: "O responsável poderá enviar pontos extras a um player acompanhado de uma mensagem explicando o motivo.",
-    future: true,
-  },
-  {
-    icon: "🧑‍🎤",
-    title: "Avatar",
-    text: "Cada player poderá montar e personalizar seu boneco para usar no perfil e em áreas sociais do app.",
-    future: true,
-  },
-];
-
 async function routeAfterLogin(
   supabase: ReturnType<typeof createClient>,
   router: ReturnType<typeof useRouter>,
@@ -139,56 +102,7 @@ function LoginForm() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-5xl flex-col justify-center gap-8 px-4 py-8 lg:flex-row lg:items-center">
-      <section className="w-full lg:max-w-2xl" aria-labelledby="how-it-works-title">
-        <div className="mb-5">
-          <p className="mb-2 text-sm font-semibold uppercase tracking-wider text-primary">
-            Como funciona
-          </p>
-          <h1 id="how-it-works-title" className="text-3xl font-bold tracking-tight">
-            Transforme tarefas em conquistas.
-          </h1>
-          <p className="mt-2 max-w-xl text-muted-foreground">
-            O Family Tasks organiza tarefas da família, verificação e
-            recompensas em um só lugar. Algumas funções abaixo já estão
-            disponíveis; outras fazem parte da evolução do produto.
-          </p>
-        </div>
-
-        <div className="grid gap-3 sm:grid-cols-2">
-          {instructions.map((item) => (
-            <article
-              key={item.title}
-              className="rounded-xl border bg-card p-4 shadow-sm"
-            >
-              <div className="mb-2 flex items-center gap-2">
-                <span className="text-2xl" aria-hidden="true">
-                  {item.icon}
-                </span>
-                <h2 className="font-semibold">{item.title}</h2>
-                {item.future && (
-                  <span className="ml-auto rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
-                    Em breve
-                  </span>
-                )}
-              </div>
-              <p className="text-sm leading-6 text-muted-foreground">
-                {item.text}
-              </p>
-            </article>
-          ))}
-        </div>
-
-        <div className="mt-4 rounded-xl border border-dashed bg-muted/30 p-4 text-sm">
-          <p className="font-semibold">👨‍👩‍👧 Para quem é responsável</p>
-          <p className="mt-1 text-muted-foreground">
-            Você organiza as tarefas e verifica o que foi realizado. Recursos
-            adicionais de gestão e recompensas estão sendo construídos para
-            ampliar esse fluxo.
-          </p>
-        </div>
-      </section>
-
+    <main className="flex min-h-screen w-full items-center justify-center px-4 py-8 sm:px-6">
       <Card className="w-full shrink-0 lg:max-w-md">
         <CardHeader>
           <CardTitle>Entrar</CardTitle>
@@ -259,6 +173,7 @@ function LoginForm() {
           </CardFooter>
         </form>
       </Card>
+
     </main>
   );
 }
