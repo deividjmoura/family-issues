@@ -3,5 +3,9 @@ export default function ExecutorLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="theme-game min-h-screen">{children}</div>;
+  return (
+    <div className="theme-game min-h-screen">
+      {children}
+    </div>
+  );
 }
