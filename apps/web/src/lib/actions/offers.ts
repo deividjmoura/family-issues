@@ -130,9 +130,17 @@ export async function respondOffer(
   const role = await getMembership(task.family_id, user.id);
   if (!role) return { ok: false, error: "Sem acesso." };
 
-  // Quem responde: responsável ou o outro lado da oferta
-  if (offer.user_id === user.id && !counter) {
-    return { ok: false, error: "Use contra-proposta ou aguarde resposta." };
+  // A negociação é bilateral: só participa quem criou a tarefa ou
+  // quem está atribuído a ela. Quem criou a oferta não pode respondê-la;
+  // a resposta deve vir do outro lado.
+  const isTaskParty =
+    task.created_by === user.id || task.assignee_id === user.id;
+  if (!isTaskParty) {
+    return { ok: false, error: "Você não participa desta negociação." };
+  }
+
+  if (offer.user_id === user.id) {
+    return { ok: false, error: "Aguarde a resposta do outro lado." };
   }
 
   if (counter && Number.isInteger(counter.valueCents)) {
