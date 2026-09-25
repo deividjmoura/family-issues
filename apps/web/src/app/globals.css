@@ -1,6 +1,5 @@
 @import "tailwindcss";
 
-/* Tema padrão (landing / auth) */
 :root {
   --background: #f8fafc;
   --foreground: #0f172a;
@@ -20,17 +19,17 @@
   --radius: 0.75rem;
 }
 
-/* Responsável — sóbrio, claro, controle */
+/* Responsável — dashboard limpo (inspiração admin/cards) */
 .theme-resp {
-  --background: #f4f6f9;
+  --background: #eef2f7;
   --foreground: #0f172a;
   --card: #ffffff;
   --card-foreground: #0f172a;
   --primary: #1e3a5f;
   --primary-foreground: #f8fafc;
-  --muted: #e8eef5;
-  --muted-foreground: #5b6b7c;
-  --border: #d5dee8;
+  --muted: #e2e8f0;
+  --muted-foreground: #64748b;
+  --border: #cbd5e1;
   --ring: #1e3a5f;
   --success: #0f766e;
   --warning: #b45309;
@@ -39,17 +38,17 @@
   --xp: #5b21b6;
 }
 
-/* Executor — game, escuro, vibrante */
+/* Executor — game neon */
 .theme-game {
-  --background: #0c0a1a;
+  --background: #0b0618;
   --foreground: #f5f3ff;
-  --card: #17142b;
+  --card: #15102a;
   --card-foreground: #f5f3ff;
   --primary: #a78bfa;
   --primary-foreground: #1e1b4b;
-  --muted: #1f1a36;
+  --muted: #1c1535;
   --muted-foreground: #a5b4c8;
-  --border: #2e2750;
+  --border: #3b2d6b;
   --ring: #c4b5fd;
   --success: #34d399;
   --warning: #fbbf24;
@@ -58,19 +57,29 @@
   --xp: #c084fc;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not(.theme-resp):not(.theme-game) {
-    --background: #0b1220;
-    --foreground: #e2e8f0;
-    --card: #111827;
-    --card-foreground: #e2e8f0;
-    --primary: #3b82f6;
-    --primary-foreground: #ffffff;
-    --muted: #1e293b;
-    --muted-foreground: #94a3b8;
-    --border: #1e293b;
-    --ring: #3b82f6;
-  }
+/* Toggle claro/escuro global (data-scheme no html) */
+html[data-scheme="light"] .theme-game {
+  --background: #f3e8ff;
+  --foreground: #1e1b4b;
+  --card: #ffffff;
+  --card-foreground: #1e1b4b;
+  --primary: #7c3aed;
+  --primary-foreground: #ffffff;
+  --muted: #ede9fe;
+  --muted-foreground: #5b21b6;
+  --border: #ddd6fe;
+}
+
+html[data-scheme="dark"] .theme-resp {
+  --background: #0f172a;
+  --foreground: #e2e8f0;
+  --card: #1e293b;
+  --card-foreground: #e2e8f0;
+  --primary: #93c5fd;
+  --primary-foreground: #0f172a;
+  --muted: #334155;
+  --muted-foreground: #94a3b8;
+  --border: #334155;
 }
 
 @theme inline {
@@ -100,10 +109,15 @@ body {
   font-family: var(--font-sans), system-ui, sans-serif;
 }
 
-/* micro utilidades game */
 .theme-game .glow-coin {
-  box-shadow: 0 0 24px color-mix(in oklab, var(--coin) 35%, transparent);
+  box-shadow: 0 0 28px color-mix(in oklab, var(--coin) 40%, transparent);
 }
 .theme-game .glow-xp {
-  box-shadow: 0 0 24px color-mix(in oklab, var(--xp) 35%, transparent);
+  box-shadow: 0 0 28px color-mix(in oklab, var(--xp) 40%, transparent);
+}
+
+.theme-game main {
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(167, 139, 250, 0.18), transparent),
+    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(251, 191, 36, 0.08), transparent);
 }

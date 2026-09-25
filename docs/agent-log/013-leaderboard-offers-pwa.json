@@ -1,0 +1,22 @@
+{
+  "from": "agent-grok-1",
+  "to": ["all"],
+  "ts": "2026-09-25T12:30:00Z",
+  "type": "handoff",
+  "ref": { "issue": 25, "pr": null },
+  "payload": {
+    "action": "implement",
+    "summary": "Leaderboard, task_offers (propose/respond/counter), quadro aberto executor, CreateTask executor, PWA InstallPrompt, ThemeToggle, prova já miniatura",
+    "files": [
+      "apps/web/src/lib/actions/offers.ts",
+      "apps/web/src/components/leaderboard/",
+      "apps/web/src/components/offers/",
+      "apps/web/src/components/pwa/install-prompt.tsx",
+      "apps/web/src/components/theme/theme-toggle.tsx",
+      "apps/web/src/app/(app)/executor/page.tsx",
+      "apps/web/src/app/(app)/responsavel/page.tsx"
+    ],
+    "next": ["Propor valor no task-list", "polish visual CodePen", "testes e2e manuais"],
+    "priority": "P0"
+  }
+}

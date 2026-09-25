@@ -6,11 +6,14 @@ import { TaskFilters } from "@/components/tasks/task-filters";
 import { NotificationList } from "@/components/notifications/notification-list";
 import { RealtimeNotifications } from "@/components/notifications/realtime-badge";
 import { PendingNegotiations } from "@/components/negotiations/pending-list";
+import { PendingOffers } from "@/components/offers/pending-offers";
 import { PayExecutorButton } from "@/components/wallet/pay-executor-button";
 import { CopyInvite } from "@/components/family/copy-invite";
 import { AppHeader } from "@/components/layout/app-header";
+import { Leaderboard } from "@/components/leaderboard/leaderboard";
 import { listMyNotifications } from "@/lib/actions/notifications";
 import { listPendingNegotiations } from "@/lib/actions/negotiations";
+import { listPendingOffersForFamily } from "@/lib/actions/offers";
 import { getProfileNames } from "@/lib/actions/profiles";
 import type { Task } from "@/lib/domain/types";
 import { formatBRL, balanceCents } from "@/lib/domain/money";
@@ -42,8 +45,7 @@ export default async function ResponsavelHomePage() {
   const { data: members } = await supabase
     .from("family_members")
     .select("user_id, role")
-    .eq("family_id", familyId)
-    .eq("role", "executor");
+    .eq("family_id", familyId);
 
   const { data: tasks } = await supabase
     .from("tasks")
@@ -52,8 +54,11 @@ export default async function ResponsavelHomePage() {
     .order("created_at", { ascending: false });
 
   const taskList = (tasks ?? []) as Task[];
-  const executorIds = (members ?? []).map((m) => m.user_id);
-  const names = await getProfileNames(executorIds);
+  const executorIds = (members ?? [])
+    .filter((m) => m.role === "executor")
+    .map((m) => m.user_id);
+  const allIds = (members ?? []).map((m) => m.user_id);
+  const names = await getProfileNames(allIds);
 
   const executors = executorIds.map((uid) => ({
     user_id: uid,
@@ -75,6 +80,9 @@ export default async function ResponsavelHomePage() {
   const toVerify = taskList.filter(
     (t) => t.status === "aguardando_verificacao",
   );
+  const openBoard = taskList.filter(
+    (t) => t.status === "criada" && !t.assignee_id,
+  ).length;
   const openTasks = taskList.filter(
     (t) =>
       t.status === "atribuida" ||
@@ -84,15 +92,16 @@ export default async function ResponsavelHomePage() {
 
   const notifications = await listMyNotifications();
   const pendingNegos = await listPendingNegotiations(familyId);
+  const { offers, taskMeta } = await listPendingOffersForFamily(familyId);
   const taskTitles = Object.fromEntries(taskList.map((t) => [t.id, t.title]));
   const pendingIds = pendingNegos.map((n) => n.task_id);
   const totalDue = [...dueByExecutor.values()].reduce((a, b) => a + b, 0);
 
   return (
-    <main className="mx-auto max-w-3xl space-y-8 px-6 py-10">
+    <main className="mx-auto max-w-3xl space-y-6 px-4 py-8 sm:px-6">
       <RealtimeNotifications userId={user.id} />
       <AppHeader
-        badge="Área do responsável"
+        badge="Painel do responsável"
         title={family.name}
         subtitle={
           <>
@@ -101,8 +110,9 @@ export default async function ResponsavelHomePage() {
         }
       />
 
-      <div className="grid grid-cols-3 gap-3">
-        <Stat label="Em aberto" value={String(openTasks)} />
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <Stat label="Ativas" value={String(openTasks)} />
+        <Stat label="Quadro aberto" value={String(openBoard)} />
         <Stat
           label="A verificar"
           value={String(toVerify.length)}
@@ -111,13 +121,27 @@ export default async function ResponsavelHomePage() {
         <Stat label="A pagar" value={formatBRL(totalDue)} />
       </div>
 
-      <NotificationList items={notifications} />
+      <Leaderboard
+        tasks={taskList}
+        nameByUserId={names}
+        title="Ranking da família"
+      />
+
+      <PendingOffers
+        offers={offers}
+        taskMeta={taskMeta}
+        nameByUserId={names}
+        currentUserId={user.id}
+      />
+
       <PendingNegotiations items={pendingNegos} taskTitles={taskTitles} />
 
+      <NotificationList items={notifications} />
+
       {dueByExecutor.size > 0 && (
-        <section className="rounded-xl border border-border bg-card p-5 shadow-sm">
+        <section className="rounded-xl border border-border bg-card p-4 shadow-sm">
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-            Saldo devido por executor
+            A pagar
           </h2>
           <ul className="space-y-3 text-sm">
             {[...dueByExecutor.entries()].map(([uid, cents]) => (
@@ -126,12 +150,10 @@ export default async function ResponsavelHomePage() {
                 className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3 last:border-0 last:pb-0"
               >
                 <div>
-                  <span className="font-medium text-foreground">
+                  <span className="font-medium">
                     {names[uid] ?? uid.slice(0, 8) + "…"}
                   </span>
-                  <strong className="ml-3 text-base tabular-nums">
-                    {formatBRL(cents)}
-                  </strong>
+                  <strong className="ml-3 tabular-nums">{formatBRL(cents)}</strong>
                 </div>
                 <PayExecutorButton
                   familyId={familyId}
@@ -149,12 +171,10 @@ export default async function ResponsavelHomePage() {
 
       {toVerify.length > 0 && (
         <section className="space-y-3">
-          <div className="flex items-center gap-2">
-            <h2 className="text-lg font-semibold">Aguardando verificação</h2>
-            <span className="rounded-full bg-warning/15 px-2 py-0.5 text-xs font-semibold text-warning">
-              {toVerify.length}
-            </span>
-          </div>
+          <h2 className="text-lg font-semibold">
+            A verificar{" "}
+            <span className="text-sm text-warning">({toVerify.length})</span>
+          </h2>
           <TaskList
             tasks={toVerify}
             role="responsavel"
@@ -166,12 +186,7 @@ export default async function ResponsavelHomePage() {
       )}
 
       <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Tarefas</h2>
-          <span className="text-xs text-muted-foreground">
-            {taskList.length} no total
-          </span>
-        </div>
+        <h2 className="text-lg font-semibold">Todas as tarefas</h2>
         <TaskFilters
           tasks={taskList}
           role="responsavel"
@@ -194,12 +209,12 @@ function Stat({
   accent?: "warning";
 }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
-      <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+    <div className="rounded-xl border border-border bg-card p-3 shadow-sm">
+      <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
         {label}
       </p>
       <p
-        className={`mt-1 text-xl font-bold tabular-nums ${
+        className={`mt-1 text-lg font-bold tabular-nums ${
           accent === "warning" ? "text-warning" : ""
         }`}
       >

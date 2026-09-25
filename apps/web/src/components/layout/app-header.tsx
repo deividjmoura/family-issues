@@ -1,6 +1,7 @@
 import { signOut } from "@/lib/actions/auth";
 import { Button } from "@/components/ui/button";
 import { PushOptIn } from "@/components/pwa/push-opt-in";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import type { ReactNode } from "react";
 
 export function AppHeader({
@@ -26,11 +27,14 @@ export function AppHeader({
         )}
       </div>
       <div className="flex flex-col items-end gap-2">
-        <form action={signOut}>
-          <Button type="submit" variant="secondary" size="sm">
-            Sair
-          </Button>
-        </form>
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <ThemeToggle />
+          <form action={signOut}>
+            <Button type="submit" variant="secondary" size="sm">
+              Sair
+            </Button>
+          </form>
+        </div>
         <PushOptIn />
       </div>
     </header>
