@@ -34,3 +34,127 @@
 @media (max-width:640px){.landing-header{height:62px;padding-inline:12px}.landing-brand{font-size:16px}.landing-brand-mark{width:31px;height:31px}.landing-header-cta{padding:10px 14px;font-size:10px}.landing-hero{padding:48px 18px 55px}.hero-kicker{font-size:9px}.hero-copy h1{font-size:clamp(40px,11.5vw,56px)}.hero-copy>p{font-size:13px}.hero-actions{flex-direction:column;align-items:stretch}.hero-primary,.hero-secondary{width:100%}.hero-art{min-height:345px;margin-top:15px}.hero-photo-frame{width:min(380px,91vw);padding:7px;border-width:6px;border-radius:27px}.hero-photo{height:260px;border-radius:20px}.hero-photo-badge{left:-5px;top:28px;padding:9px}.hero-reward{right:-4px;bottom:14px;padding:9px}.hero-swords{right:0;top:5%;width:36px}.hero-blob{width:110px;height:110px}.hero-sparkle-one{left:0}.landing-marquee{height:54px}.marquee-track{gap:28px}.marquee-track span{gap:28px;font-size:10px}.landing-section{width:calc(100% - 30px)}.email-section,.responsible-section,.player-section{padding:65px 0}.section-copy h2,.responsible-copy h2,.player-heading h2{font-size:39px}.section-copy>p,.responsible-copy>p,.player-heading>p{font-size:12px}.email-mock-wrap{padding:16px 3px}.email-mock{padding:15px}.email-window-head strong{font-size:10px}.email-message{padding:12px}.responsible-stage{min-height:375px}.stepper-device{width:100%;border-radius:22px}.stepper-body{min-height:300px;padding:18px}.responsible-step{grid-template-columns:45px 36px 1fr;gap:9px;padding:18px 0}.step-number{font-size:25px}.step-icon{width:36px;height:36px;border-radius:10px}.responsible-step h3{font-size:17px}.responsible-step p{font-size:10px}.player-feature{min-height:200px;padding:24px}.coming-grid{grid-template-columns:1fr 1fr;gap:9px}.coming-card{min-height:175px;padding:18px 14px}.coming-card>strong{font-size:28px}.coming-card h3{font-size:14px}.coming-card p{font-size:9px}.cta-section{padding-top:8px}.cta-panel{min-height:330px;padding:60px 17px;border-radius:25px}.cta-panel h2{font-size:43px}.cta-swords{left:2%;top:14%;width:34px}.cta-target{right:3%;top:14%;width:32px}.landing-footer{width:calc(100% - 30px);font-size:9px}.landing-footer>div{gap:14px}}
 
 @media (max-width:390px){.landing-brand{font-size:14px}.landing-header-cta{padding:9px 11px}.hero-copy h1{font-size:38px}.hero-photo{height:235px}.hero-art{min-height:315px}.coming-grid{grid-template-columns:1fr}.responsible-stage{min-height:350px}.stepper-top{padding:16px}.stepper-body{min-height:275px}}
+
+/* Scroll-story: o mockup fica preso enquanto os quatro passos passam por ele. */
+@media (min-width:901px){
+  .responsible-section{
+    min-height:760px;
+    align-items:start;
+  }
+  .responsible-stage{
+    position:sticky;
+    top:94px;
+    align-self:start;
+    height:520px;
+    min-height:520px;
+  }
+  .responsible-steps{
+    min-height:580px;
+    align-content:start;
+  }
+  .responsible-step{
+    min-height:145px;
+    padding:27px 0;
+  }
+  .responsible-step h3{font-size:24px}
+  .responsible-step p{font-size:12px;line-height:1.75}
+  .step-number{font-size:34px}
+  .step-icon{width:46px;height:46px}
+  .stepper-device{width:min(470px,100%)}
+  .stepper-top{padding:23px 24px 25px}
+  .stepper-top span{font-size:9px}
+  .stepper-top strong{font-size:19px}
+  .stepper-body{min-height:380px;padding:27px}
+  .mock-label{font-size:10px}
+  .mock-input{padding:16px;font-size:12px}
+  .mock-form button{padding:14px;font-size:12px}
+  .mock-check{font-size:10px;padding:13px}
+  .mock-title{font-size:15px}
+  .member-row{padding:13px 8px}
+  .member-row strong{font-size:12px}
+  .member-row small{font-size:9px}
+  .task-card{padding:17px}
+  .task-card strong{font-size:12px}
+  .task-card small{font-size:9px}
+  .task-card b{font-size:11px}
+  .balance-card strong{font-size:35px}
+  .wallet-history{font-size:10px;padding:15px 3px}
+}
+
+@media (max-width:900px){
+  .responsible-stage{
+    position:relative;
+    min-height:430px;
+  }
+  .responsible-steps{
+    display:flex;
+    gap:14px;
+    overflow-x:auto;
+    overflow-y:hidden;
+    scroll-snap-type:x mandatory;
+    overscroll-behavior-x:contain;
+    padding:10px 4px 22px;
+    margin-right:-15px;
+    scrollbar-width:thin;
+  }
+  .responsible-step{
+    flex:0 0 min(78vw,360px);
+    min-height:205px;
+    scroll-snap-align:start;
+    display:block;
+    padding:22px;
+    border:1px solid #e8ebf1;
+    border-radius:22px;
+    background:rgba(255,255,255,.9);
+    box-shadow:0 12px 30px rgba(42,53,83,.07);
+    opacity:.58;
+    transform:none;
+  }
+  .responsible-step.active{
+    opacity:1;
+    transform:none;
+    border-color:#d6e5ff;
+    box-shadow:0 18px 38px rgba(42,53,83,.1);
+  }
+  .responsible-step .step-number{display:block;font-size:35px;margin-bottom:17px}
+  .responsible-step .step-icon{width:46px;height:46px;margin-bottom:17px}
+  .responsible-step h3{font-size:22px;margin:0 0 8px}
+  .responsible-step p{font-size:12px;line-height:1.7}
+}
+
+@media (max-width:640px){
+  .responsible-section{gap:24px}
+  .responsible-stage{min-height:355px}
+  .stepper-device{width:min(100%,380px)}
+  .stepper-top{padding:18px}
+  .stepper-top strong{font-size:16px}
+  .stepper-body{min-height:275px;padding:18px}
+  .mock-label{font-size:9px}
+  .mock-input{padding:13px;font-size:11px}
+  .mock-form button{padding:12px;font-size:11px}
+  .mock-check{font-size:9px}
+  .mock-title{font-size:13px}
+  .member-row{padding:10px 6px}
+  .member-row strong{font-size:11px}
+  .member-row small{font-size:8px}
+  .task-card{padding:13px}
+  .task-card strong{font-size:11px}
+  .balance-card strong{font-size:30px}
+  .responsible-steps{
+    margin-right:-15px;
+    padding-right:15px;
+  }
+  .responsible-step{
+    flex-basis:82vw;
+    min-height:220px;
+    padding:22px;
+  }
+  .responsible-step h3{font-size:21px}
+  .responsible-step p{font-size:11px}
+}
+
+@media (max-width:390px){
+  .responsible-stage{min-height:330px}
+  .responsible-step{flex-basis:86vw;min-height:215px}
+  .responsible-step h3{font-size:20px}
+}
