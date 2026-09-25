@@ -30,13 +30,19 @@ CREATE POLICY task_offers_insert ON public.task_offers
     AND EXISTS (
       SELECT 1
       FROM public.tasks t
-      JOIN public.family_members fm
-        ON fm.family_id = t.family_id
-       AND fm.user_id = (SELECT auth.uid())
-       AND fm.role = 'executor'
       WHERE t.id = task_id
         AND t.status IN ('criada', 'atribuida')
-        AND (t.assignee_id IS NULL OR t.assignee_id = (SELECT auth.uid()))
+        AND (
+          (SELECT auth.uid()) = t.created_by
+          OR EXISTS (
+            SELECT 1
+            FROM public.family_members fm
+            WHERE fm.family_id = t.family_id
+              AND fm.user_id = (SELECT auth.uid())
+              AND fm.role = 'executor'
+              AND (t.assignee_id IS NULL OR t.assignee_id = (SELECT auth.uid()))
+          )
+        )
     )
   );
 
@@ -45,7 +51,8 @@ CREATE POLICY task_offers_update ON public.task_offers
   FOR UPDATE
   TO authenticated
   USING (
-    EXISTS (
+    (SELECT auth.uid()) <> user_id
+    AND EXISTS (
       SELECT 1
       FROM public.tasks t
       WHERE t.id = task_id
@@ -56,7 +63,8 @@ CREATE POLICY task_offers_update ON public.task_offers
     )
   )
   WITH CHECK (
-    EXISTS (
+    (SELECT auth.uid()) <> user_id
+    AND EXISTS (
       SELECT 1
       FROM public.tasks t
       WHERE t.id = task_id
