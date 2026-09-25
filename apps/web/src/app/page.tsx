@@ -111,23 +111,50 @@ export default function HomePage() {
   const [activeStep, setActiveStep] = useState(0);
 
   useEffect(() => {
-    const container = document.querySelector<HTMLElement>(".responsible-steps");
-    const nodes = Array.from(document.querySelectorAll<HTMLElement>("[data-step-index]"));
     const isMobile = window.matchMedia("(max-width: 900px)").matches;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (visible) setActiveStep(Number((visible.target as HTMLElement).dataset.stepIndex ?? 0));
-      },
-      isMobile
-        ? { root: container, threshold: [0.55, 0.75], rootMargin: "0px" }
-        : { threshold: [0.35, 0.6], rootMargin: "-35% 0px -35% 0px" }
-    );
-    nodes.forEach((node) => observer.observe(node));
-    return () => observer.disconnect();
+
+    if (!isMobile) {
+      const nodes = Array.from(document.querySelectorAll<HTMLElement>("[data-step-index]"));
+      const observer = new IntersectionObserver(
+        (entries) => {
+          const visible = entries
+            .filter((entry) => entry.isIntersecting)
+            .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+          if (visible) setActiveStep(Number((visible.target as HTMLElement).dataset.stepIndex ?? 0));
+        },
+        { threshold: [0.35, 0.6], rootMargin: "-35% 0px -35% 0px" }
+      );
+      nodes.forEach((node) => observer.observe(node));
+      return () => observer.disconnect();
+    }
+
+    const containers = Array.from(document.querySelectorAll<HTMLElement>(".mobile-step-carousel"));
+    const observers = containers.map((container) => {
+      const nodes = Array.from(container.querySelectorAll<HTMLElement>("[data-mobile-step-index]"));
+      const observer = new IntersectionObserver(
+        (entries) => {
+          const visible = entries
+            .filter((entry) => entry.isIntersecting)
+            .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+          if (visible) setActiveStep(Number((visible.target as HTMLElement).dataset.mobileStepIndex ?? 0));
+        },
+        { root: container, threshold: [0.65, 0.85], rootMargin: "0px" }
+      );
+      nodes.forEach((node) => observer.observe(node));
+      return observer;
+    });
+
+    return () => observers.forEach((observer) => observer.disconnect());
   }, []);
+
+  useEffect(() => {
+    if (!window.matchMedia("(max-width: 900px)").matches) return;
+    document.querySelectorAll<HTMLElement>("[data-mobile-step-index]").forEach((node) => {
+      if (Number(node.dataset.mobileStepIndex) === activeStep) {
+        node.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
+      }
+    });
+  }, [activeStep]);
 
   return (
     <main className="landing-page">
@@ -209,16 +236,16 @@ export default function HomePage() {
           <p>Um fluxo simples para montar a família, distribuir missões e acompanhar tudo sem perder o fio da rotina.</p>
         </div>
 
-        <div className="responsible-stage">
-          <div className="stage-glow" />
-          <StepperMock step={activeStep} />
-        </div>
-
         <div className="responsible-steps">
+          <div className="mobile-scroll-hint" aria-hidden="true">
+            <span>Deslize para ver os passos</span>
+            <ArrowRight size={14} />
+          </div>
           {steps.map((step, index) => (
             <article
               key={step.number}
               data-step-index={index}
+              data-mobile-step-index={index}
               className={`responsible-step ${activeStep === index ? "active" : ""}`}
               onClick={() => setActiveStep(index)}
             >
@@ -229,6 +256,18 @@ export default function HomePage() {
               <div><h3>{step.title}</h3><p>{step.description}</p></div>
             </article>
           ))}
+        </div>
+
+        <div className="responsible-stage">
+          <div className="stage-glow" />
+          <div className="desktop-stepper"><StepperMock step={activeStep} /></div>
+          <div className="mobile-step-carousel" aria-label="Demonstrações dos passos">
+            {steps.map((_, index) => (
+              <div className="mobile-step-slide" data-mobile-step-index={index} key={steps[index].number}>
+                <StepperMock step={index} />
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
