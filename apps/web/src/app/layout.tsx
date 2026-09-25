@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { PwaRegister } from "@/components/pwa/register";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 import "./globals.css";
+import "./side-menu.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
