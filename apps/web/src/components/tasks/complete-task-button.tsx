@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { createClient } from "@/lib/supabase/client";
 import { markCompleted } from "@/lib/actions/tasks";
 import { Button } from "@/components/ui/button";
+import { sfx } from "@/lib/sounds";
 
 export function CompleteTaskButton({ taskId }: { taskId: string }) {
   const [open, setOpen] = useState(false);
@@ -24,6 +25,7 @@ export function CompleteTaskButton({ taskId }: { taskId: string }) {
 
   useEffect(() => {
     if (!open) return;
+    sfx.open();
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = "";
@@ -58,6 +60,7 @@ export function CompleteTaskButton({ taskId }: { taskId: string }) {
     if (preview) URL.revokeObjectURL(preview);
     setFile(f);
     setPreview(URL.createObjectURL(f));
+    sfx.click();
   }
 
   function clearPhoto() {
@@ -66,6 +69,12 @@ export function CompleteTaskButton({ taskId }: { taskId: string }) {
     setPreview(null);
     if (cameraRef.current) cameraRef.current.value = "";
     if (galleryRef.current) galleryRef.current.value = "";
+  }
+
+  function closeModal() {
+    if (pending) return;
+    sfx.close();
+    setOpen(false);
   }
 
   function submit() {
@@ -87,6 +96,7 @@ export function CompleteTaskButton({ taskId }: { taskId: string }) {
         setError(res.error ?? "Erro ao concluir");
         return;
       }
+      sfx.success();
       setOpen(false);
       setNote("");
       clearPhoto();
@@ -99,7 +109,7 @@ export function CompleteTaskButton({ taskId }: { taskId: string }) {
           <div
             className="complete-modal-root"
             role="presentation"
-            onClick={() => !pending && setOpen(false)}
+            onClick={closeModal}
           >
             <div
               className="complete-modal-panel"
@@ -115,7 +125,7 @@ export function CompleteTaskButton({ taskId }: { taskId: string }) {
                 <button
                   type="button"
                   className="complete-modal-close"
-                  onClick={() => setOpen(false)}
+                  onClick={closeModal}
                   aria-label="Fechar"
                 >
                   ×
@@ -145,7 +155,6 @@ export function CompleteTaskButton({ taskId }: { taskId: string }) {
                   autoFocus
                 />
 
-                {/* Câmera — capture força o app de câmera no mobile */}
                 <input
                   ref={cameraRef}
                   type="file"
@@ -154,7 +163,6 @@ export function CompleteTaskButton({ taskId }: { taskId: string }) {
                   className="hidden"
                   onChange={(e) => onPickFile(e.target.files?.[0])}
                 />
-                {/* Galeria como opção secundária */}
                 <input
                   ref={galleryRef}
                   type="file"
@@ -211,7 +219,7 @@ export function CompleteTaskButton({ taskId }: { taskId: string }) {
                   type="button"
                   variant="secondary"
                   disabled={pending || uploading}
-                  onClick={() => setOpen(false)}
+                  onClick={closeModal}
                 >
                   Cancelar
                 </Button>
@@ -231,7 +239,14 @@ export function CompleteTaskButton({ taskId }: { taskId: string }) {
 
   return (
     <>
-      <Button size="sm" disabled={pending} onClick={() => setOpen(true)}>
+      <Button
+        size="sm"
+        disabled={pending}
+        onClick={() => {
+          sfx.click();
+          setOpen(true);
+        }}
+      >
         Concluí! ✨
       </Button>
       {modal}

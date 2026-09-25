@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "@/lib/actions/auth";
 import {
   markAllNotificationsRead,
@@ -13,6 +14,7 @@ import { OPEN_CREATE_TASK_EVENT } from "@/components/tasks/create-task-fab";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { PushOptIn } from "@/components/pwa/push-opt-in";
 import { Button } from "@/components/ui/button";
+import { sfx } from "@/lib/sounds";
 
 const LABELS: Record<string, string> = {
   task_assigned: "Nova tarefa atribuída",
@@ -35,11 +37,13 @@ export function SideMenu({
   createLabel?: string;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [tab, setTab] = useState<Tab>("notificacoes");
   const [pending, startTransition] = useTransition();
   const unread = notifications.filter((n) => !n.read_at).length;
+  const isResponsavel = pathname?.startsWith("/responsavel");
 
   useEffect(() => {
     setMounted(true);
@@ -47,8 +51,12 @@ export function SideMenu({
 
   useEffect(() => {
     if (!open) return;
+    sfx.whoosh();
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") {
+        sfx.close();
+        setOpen(false);
+      }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -77,6 +85,11 @@ export function SideMenu({
     window.dispatchEvent(new Event(OPEN_CREATE_TASK_EVENT));
   }
 
+  function closeMenu() {
+    sfx.close();
+    setOpen(false);
+  }
+
   const drawer =
     open && mounted
       ? createPortal(
@@ -85,7 +98,7 @@ export function SideMenu({
               type="button"
               className="side-menu-backdrop"
               aria-label="Fechar menu"
-              onClick={() => setOpen(false)}
+              onClick={closeMenu}
             />
             <aside className="side-menu-panel">
               <div className="side-menu-panel__head">
@@ -93,7 +106,7 @@ export function SideMenu({
                 <button
                   type="button"
                   className="side-menu-close"
-                  onClick={() => setOpen(false)}
+                  onClick={closeMenu}
                   aria-label="Fechar"
                 >
                   ×
@@ -125,7 +138,7 @@ export function SideMenu({
               </div>
 
               <div className="side-menu-body">
-                <div className="mb-4">
+                <div className="mb-4 space-y-2">
                   <Button
                     type="button"
                     className="w-full min-h-[48px] text-base font-bold"
@@ -133,6 +146,33 @@ export function SideMenu({
                   >
                     ＋ {createLabel}
                   </Button>
+
+                  {isResponsavel && (
+                    <nav className="grid gap-1.5">
+                      <Link
+                        href="/responsavel"
+                        onClick={closeMenu}
+                        className={`rounded-lg border px-3 py-2.5 text-sm font-medium transition ${
+                          pathname === "/responsavel"
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border bg-card hover:bg-muted"
+                        }`}
+                      >
+                        🏠 Dashboard
+                      </Link>
+                      <Link
+                        href="/responsavel/tarefas"
+                        onClick={closeMenu}
+                        className={`rounded-lg border px-3 py-2.5 text-sm font-medium transition ${
+                          pathname?.startsWith("/responsavel/tarefas")
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border bg-card hover:bg-muted"
+                        }`}
+                      >
+                        📋 Todas as tarefas
+                      </Link>
+                    </nav>
+                  )}
                 </div>
 
                 {tab === "notificacoes" && (
@@ -249,7 +289,10 @@ export function SideMenu({
       <button
         type="button"
         className="side-menu-trigger"
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          sfx.click();
+          setOpen(true);
+        }}
         aria-label="Abrir menu"
         aria-expanded={open}
       >

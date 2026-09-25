@@ -620,40 +620,53 @@ body {
   animation: borderGlow 1.5s infinite alternate;
 }
 
-/* ========== Modal ========== */
+/* ========== Modal flutuante (centrado + pop de jogo) ========== */
 .modal-backdrop {
   position: fixed;
   inset: 0;
   z-index: 50;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
   background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(6px);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   padding: 1rem;
+  animation: modal-backdrop-fade 0.28s ease both;
 }
-@media (min-width: 640px) {
-  .modal-backdrop {
-    align-items: center;
+
+@keyframes modal-backdrop-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
+
 .modal-panel {
   width: 100%;
   max-width: 28rem;
   max-height: 90vh;
   overflow-y: auto;
-  border-radius: 1.25rem 1.25rem 0.75rem 0.75rem;
+  border-radius: 1.25rem;
   background: var(--card);
   color: var(--card-foreground);
   border: 1px solid var(--border);
   padding: 1.25rem;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
-  animation: modal-in 0.2s ease;
+  box-shadow:
+    0 0 0 1px rgba(37, 99, 235, 0.06),
+    0 24px 64px rgba(0, 0, 0, 0.35);
+  animation: modal-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  transform-origin: center center;
 }
+
 .theme-game .modal-panel {
   border-radius: 0.25rem;
   border-color: var(--neon-cyan);
-  box-shadow: 0 0 2em rgba(0, 240, 255, 0.25), 0 24px 64px rgba(0, 0, 0, 0.5);
+  box-shadow:
+    0 0 2em rgba(0, 240, 255, 0.3),
+    0 24px 64px rgba(0, 0, 0, 0.5);
   clip-path: polygon(
     0 0,
     calc(100% - 16px) 0,
@@ -663,27 +676,32 @@ body {
     0 calc(100% - 16px)
   );
 }
-@media (min-width: 640px) {
-  .modal-panel {
-    border-radius: 1.25rem;
-  }
-}
-@keyframes modal-in {
-  from {
+
+@keyframes modal-pop {
+  0% {
     opacity: 0;
-    transform: translateY(16px);
+    transform: scale(0.72) translateY(24px) rotate(-1.2deg);
   }
-  to {
+  55% {
     opacity: 1;
-    transform: translateY(0);
+    transform: scale(1.04) translateY(-3px) rotate(0.4deg);
+  }
+  75% {
+    transform: scale(0.98) translateY(1px) rotate(-0.2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0) rotate(0);
   }
 }
+
 .modal-panel__head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 0.25rem;
 }
+
 .modal-close {
   width: 2rem;
   height: 2rem;
@@ -694,4 +712,9 @@ body {
   font-size: 1.25rem;
   line-height: 1;
   cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.modal-close:hover {
+  transform: scale(1.1) rotate(90deg);
 }
