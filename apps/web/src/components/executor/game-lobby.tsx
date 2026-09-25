@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Task, TaskOffer } from "@/lib/domain/types";
 import type { AppNotification } from "@/lib/actions/notifications";
@@ -12,6 +12,7 @@ import { SideMenu } from "@/components/layout/side-menu";
 import { OPEN_CREATE_TASK_EVENT } from "@/components/tasks/create-task-fab";
 import { GAME_LEVEL_UP_EVENT } from "@/components/executor/game-feedback";
 import { formatBRL } from "@/lib/domain/money";
+import { sfx } from "@/lib/sounds";
 
 type PanelId =
   | "quests"
@@ -23,6 +24,15 @@ type PanelId =
   | "offers"
   | "achievements"
   | null;
+
+type Burst = {
+  id: number;
+  x: number;
+  y: number;
+};
+
+const BURST_MS = 900;
+const CLOSE_MS = 280;
 
 export function GameLobby({
   familyName,
@@ -73,6 +83,12 @@ export function GameLobby({
 }) {
   const [panel, setPanel] = useState<PanelId>(null);
   const [mounted, setMounted] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const [bursts, setBursts] = useState<Burst[]>([]);
+  const [firingTile, setFiringTile] = useState<string | null>(null);
+  const closeTimerRef = useRef<number | null>(null);
+  const burstTimersRef = useRef<number[]>([]);
+
   const level = Math.floor(xp / 100) + 1;
   const levelProgress = xp % 100;
   const xpToNextLevel = 100 - levelProgress;
@@ -111,6 +127,13 @@ export function GameLobby({
   useEffect(() => setMounted(true), []);
 
   useEffect(() => {
+    return () => {
+      if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current);
+      burstTimersRef.current.forEach((id) => window.clearTimeout(id));
+    };
+  }, []);
+
+  useEffect(() => {
     const key = `family-game:last-level:${userId}`;
     const previous = window.localStorage.getItem(key);
     if (previous === null) {
@@ -133,14 +156,44 @@ export function GameLobby({
     if (!panel) return;
     document.body.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setPanel(null);
+      if (e.key === "Escape") closePanel();
     };
     window.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = "";
       window.removeEventListener("keydown", onKey);
     };
-  }, [panel]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [panel, closing]);
+
+  function spawnBurst(x: number, y: number) {
+    const prefersReduced =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReduced) return;
+
+    const id = Date.now() + Math.random();
+    setBursts((prev) => [...prev, { id, x, y }]);
+    const timer = window.setTimeout(() => {
+      setBursts((prev) => prev.filter((b) => b.id !== id));
+    }, BURST_MS);
+    burstTimersRef.current.push(timer);
+  }
+
+  function closePanel(fromX?: number, fromY?: number) {
+    if (!panel || closing) return;
+    setClosing(true);
+    sfx.close();
+    const x = fromX ?? window.innerWidth / 2;
+    const y = fromY ?? window.innerHeight / 2;
+    spawnBurst(x, y);
+    if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current);
+    closeTimerRef.current = window.setTimeout(() => {
+      setPanel(null);
+      setClosing(false);
+      closeTimerRef.current = null;
+    }, CLOSE_MS);
+  }
 
   const tiles: {
     id: PanelId | "new";
@@ -219,11 +272,26 @@ export function GameLobby({
     },
   ];
 
-  function onTile(id: PanelId | "new") {
+  function onTile(
+    id: PanelId | "new",
+    event: React.MouseEvent<HTMLButtonElement>,
+  ) {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    spawnBurst(x, y);
+    setFiringTile(String(id));
+    window.setTimeout(() => setFiringTile(null), 450);
+
     if (id === "new") {
+      sfx.click();
       window.dispatchEvent(new Event(OPEN_CREATE_TASK_EVENT));
       return;
     }
+
+    sfx.open();
+    sfx.whoosh();
+    setClosing(false);
     setPanel(id);
   }
 
@@ -361,13 +429,39 @@ export function GameLobby({
       </div>
     ) : null;
 
+  const burstLayer =
+    mounted && bursts.length > 0
+      ? createPortal(
+          <>
+            {bursts.map((b) => (
+              <div
+                key={b.id}
+                className="game-burst"
+                style={{ left: b.x, top: b.y }}
+                aria-hidden
+              >
+                <span className="game-burst__core" />
+                {Array.from({ length: 24 }, (_, i) => (
+                  <span
+                    key={i}
+                    className="game-burst__particle"
+                    style={{ animationDelay: `${(i % 7) * 0.012}s` }}
+                  />
+                ))}
+              </div>
+            ))}
+          </>,
+          document.body,
+        )
+      : null;
+
   const modal =
     panel && mounted
       ? createPortal(
           <div
-            className="game-panel-root"
+            className={`game-panel-root${closing ? " is-closing" : ""}`}
             role="presentation"
-            onClick={() => setPanel(null)}
+            onClick={(e) => closePanel(e.clientX, e.clientY)}
           >
             <div
               className="game-panel"
@@ -380,7 +474,7 @@ export function GameLobby({
                 <button
                   type="button"
                   className="game-panel__close"
-                  onClick={() => setPanel(null)}
+                  onClick={(e) => closePanel(e.clientX, e.clientY)}
                   aria-label="Fechar"
                 >
                   ×
@@ -430,14 +524,14 @@ export function GameLobby({
           </p>
           <div className="game-level">
             <div className="game-level__row">
-            <span>NÍVEL {level}</span>
-            <span>{levelProgress}/100 XP</span>
+              <span>NÍVEL {level}</span>
+              <span>{levelProgress}/100 XP</span>
+            </div>
+            <div className="game-level__track" aria-label={`${levelProgress}% para o próximo nível`}>
+              <div className="game-level__fill" style={{ width: `${Math.max(3, levelProgress)}%` }} />
+            </div>
           </div>
-          <div className="game-level__track" aria-label={`${levelProgress}% para o próximo nível`}>
-            <div className="game-level__fill" style={{ width: `${Math.max(3, levelProgress)}%` }} />
-          </div>
-        </div>
-        <p className="game-hero__sub">
+          <p className="game-hero__sub">
             {activeCount > 0
               ? `${activeCount} missão${activeCount === 1 ? "" : "ões"} te esperando`
               : boardCount > 0
@@ -449,7 +543,12 @@ export function GameLobby({
           <button
             type="button"
             className="game-loot-alert"
-            onClick={() => setPanel("gold")}
+            onClick={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              spawnBurst(rect.left + rect.width / 2, rect.top + rect.height / 2);
+              sfx.open();
+              setPanel("gold");
+            }}
           >
             💎 Loot! Confirmar pagamento
           </button>
@@ -461,8 +560,8 @@ export function GameLobby({
           <button
             key={t.id}
             type="button"
-            className={`game-tile ${t.color}`}
-            onClick={() => onTile(t.id)}
+            className={`game-tile ${t.color}${firingTile === String(t.id) ? " is-firing" : ""}`}
+            onClick={(e) => onTile(t.id, e)}
           >
             {t.badge != null && t.badge > 0 && (
               <span className="game-tile__badge">
@@ -482,6 +581,7 @@ export function GameLobby({
         Toque em um ícone para abrir · lobby de jogo
       </p>
 
+      {burstLayer}
       {modal}
     </div>
   );
