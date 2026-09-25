@@ -20,6 +20,7 @@ type PanelId =
   | "stats"
   | "done"
   | "offers"
+  | "achievements"
   | null;
 
 export function GameLobby({
@@ -73,6 +74,24 @@ export function GameLobby({
   const [mounted, setMounted] = useState(false);
   const level = Math.floor(xp / 100) + 1;
   const levelProgress = xp % 100;
+  const completedDates = new Set(doneTasks.map((task) => task.completed_at?.slice(0, 10)).filter((date): date is string => Boolean(date)));
+  const today = new Date();
+  const dateKey = (date: Date) => date.toISOString().slice(0, 10);
+  let streak = 0;
+  for (let i = 0; i < 365; i += 1) {
+    const day = new Date(today);
+    day.setDate(today.getDate() - i);
+    if (!completedDates.has(dateKey(day))) break;
+    streak += 1;
+  }
+  const todayCompleted = doneTasks.filter((task) => task.completed_at?.slice(0, 10) === dateKey(today)).length;
+  const achievements = [
+    { icon: "🌟", title: "Primeira missão", unlocked: doneTasks.length >= 1, text: "Conclua sua primeira missão." },
+    { icon: "🔥", title: "Em sequência", unlocked: streak >= 3, text: "Mantenha 3 dias seguidos." },
+    { icon: "⚡", title: "Caçador de XP", unlocked: xp >= 100, text: "Alcance 100 XP." },
+    { icon: "🏅", title: "Veterano", unlocked: doneTasks.length >= 10, text: "Conclua 10 missões." },
+    { icon: "🚀", title: "Combo diário", unlocked: todayCompleted >= 3, text: "Complete 3 missões no mesmo dia." },
+  ];
 
   useEffect(() => setMounted(true), []);
 
@@ -151,6 +170,13 @@ export function GameLobby({
       color: "tile-pink",
     },
     {
+      id: "achievements",
+      icon: "🏅",
+      label: "Conquistas",
+      sub: `${achievements.filter((item) => item.unlocked).length}/${achievements.length}`,
+      color: "tile-purple",
+    },
+    {
       id: "new",
       icon: "➕",
       label: "Nova",
@@ -175,6 +201,7 @@ export function GameLobby({
     stats: "📊 System stats",
     done: "✅ Missões concluídas",
     offers: "📢 Ofertas pendentes",
+    achievements: "🏅 Conquistas desbloqueáveis",
   };
 
   const panelBody =
@@ -279,6 +306,25 @@ export function GameLobby({
           Nenhuma oferta no momento.
         </p>
       )
+    ) : panel === "achievements" ? (
+      <div className="game-achievements">
+        <div className="game-streak">
+          <span className="game-streak__flame">🔥</span>
+          <div>
+            <strong>{streak} {streak === 1 ? "dia" : "dias"} de sequência</strong>
+            <span>Complete uma missão hoje para manter seu ritmo.</span>
+          </div>
+        </div>
+        <div className="game-achievements__grid">
+          {achievements.map((item) => (
+            <div key={item.title} className={`game-achievement ${item.unlocked ? "is-unlocked" : "is-locked"}`}>
+              <span className="game-achievement__icon" aria-hidden>{item.unlocked ? item.icon : "🔒"}</span>
+              <strong>{item.title}</strong>
+              <span>{item.unlocked ? "DESBLOQUEADA" : item.text}</span>
+            </div>
+          ))}
+        </div>
+      </div>
     ) : null;
 
   const modal =
@@ -330,16 +376,24 @@ export function GameLobby({
           <span className="game-pill game-pill--level" title={`Nível ${level}`}>
             LVL {level}
           </span>
+          <span className="game-pill game-pill--streak" title="Sequência atual">
+            🔥 {streak}
+          </span>
         </div>
         <SideMenu notifications={notifications} createLabel="Nova missão" />
       </div>
 
       <div className="game-hero">
         <div className="game-hero__avatar" aria-hidden>
-          🎮
+          <span className="game-avatar__emoji">
+            {streak >= 3 ? "🦸" : level >= 5 ? "🧙" : activeCount > 0 ? "🎮" : "😎"}
+          </span>
+          <span className="game-avatar__orbit" aria-hidden />
         </div>
         <div className="game-hero__info">
-          <p className="game-hero__title">Pronto pra jogar?</p>
+          <p className="game-hero__title">
+            {streak >= 3 ? "🔥 Sequência ativa!" : activeCount > 0 ? "Pronto pra jogar?" : "Base segura!"}
+          </p>
           <div className="game-level">
           <div className="game-level__row">
             <span>NÍVEL {level}</span>
