@@ -143,7 +143,15 @@ export async function respondOffer(
     return { ok: false, error: "Aguarde a resposta do outro lado." };
   }
 
-  if (counter && Number.isInteger(counter.valueCents)) {
+  if (counter) {
+    if (!Number.isInteger(counter.valueCents) || counter.valueCents < 0) {
+      return { ok: false, error: "Valor da contra-proposta inválido." };
+    }
+
+    if (task.assignee_id && task.assignee_id !== offer.user_id) {
+      return { ok: false, error: "A tarefa já foi assumida por outro executor." };
+    }
+
     await supabase
       .from("task_offers")
       .update({
@@ -184,6 +192,10 @@ export async function respondOffer(
   }
 
   if (accept) {
+    if (task.assignee_id && task.assignee_id !== offer.user_id) {
+      return { ok: false, error: "A tarefa já foi assumida por outro executor." };
+    }
+
     await supabase
       .from("task_offers")
       .update({
