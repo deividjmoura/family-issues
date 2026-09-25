@@ -242,7 +242,38 @@ export async function respondOffer(
       }
     }
 
-    await supabase.from("tasks").update(patch).eq("id", task.id);
+    let taskUpdate = supabase
+      .from("tasks")
+      .update(patch)
+      .eq("id", task.id);
+
+    if (task.assignee_id) {
+      taskUpdate = taskUpdate.eq("assignee_id", task.assignee_id);
+    } else {
+      taskUpdate = taskUpdate.is("assignee_id", null);
+    }
+
+    const { data: updatedTask, error: taskUpdateError } = await taskUpdate
+      .select("*")
+      .maybeSingle();
+
+    if (taskUpdateError || !updatedTask) {
+      // Evita deixar a oferta como aceita se a tarefa mudou
+      // entre a validação e a atualização (ex.: outro executor fez claim).
+      await supabase
+        .from("task_offers")
+        .update({
+          status: "pending",
+          responded_by: null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", offerId);
+
+      return {
+        ok: false,
+        error: "A tarefa mudou enquanto a proposta era aceita. Tente novamente.",
+      };
+    }
 
     await notify(offer.user_id, "negotiation_answered", {
       task_id: task.id,
