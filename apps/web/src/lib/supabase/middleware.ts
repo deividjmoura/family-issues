@@ -3,6 +3,12 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const PUBLIC = ["/", "/login", "/signup"];
 
+type CookieToSet = {
+  name: string;
+  value: string;
+  options?: Parameters<NextResponse["cookies"]["set"]>[2];
+};
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
@@ -11,7 +17,6 @@ export async function updateSession(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  // Sem env (build/preview sem secrets) — não quebra, só passa adiante
   if (!url || !key) {
     return supabaseResponse;
   }
@@ -21,7 +26,7 @@ export async function updateSession(request: NextRequest) {
       getAll() {
         return request.cookies.getAll();
       },
-      setAll(cookiesToSet) {
+      setAll(cookiesToSet: CookieToSet[]) {
         cookiesToSet.forEach(({ name, value }) =>
           request.cookies.set(name, value),
         );
@@ -50,7 +55,6 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (user && (path === "/login" || path === "/signup" || path === "/")) {
-    // Já logado: manda pro painel certo se já tem família
     const { data: membership } = await supabase
       .from("family_members")
       .select("role")
@@ -69,7 +73,6 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(dest);
   }
 
-  // Protege rotas de papel: executor não entra em /responsavel e vice-versa
   if (user && (path.startsWith("/responsavel") || path.startsWith("/executor"))) {
     const { data: membership } = await supabase
       .from("family_members")
