@@ -2,188 +2,110 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import {
+  ArrowRight,
+  Check,
+  ClipboardCheck,
+  Coins,
+  CrossedSwords,
+  Gift,
+  Mail,
+  PiggyBank,
+  ShieldCheck,
+  Sparkles,
+  Target,
+  UserPlus,
+  Users,
+  WalletCards,
+  X,
+} from "lucide-react";
 
 const steps = [
   {
     number: "01",
-    eyebrow: "ANTES DE COMEÇAR",
-    title: <>Tudo começa com <span className="accent-purple">um e-mail.</span></>,
-    text: "O acesso começa com o cadastro de um e-mail válido. Depois do cadastro, é necessário confirmar esse e-mail para poder acessar a conta. Isso mantém a entrada no sistema vinculada a um endereço de e-mail que você controla.",
-    tone: "purple",
-    mock: "email",
+    title: "Cadastre a conta",
+    description: "Crie a conta do responsável e confirme o e-mail para manter tudo protegido e vinculado.",
+    tone: "blue",
   },
   {
     number: "02",
-    eyebrow: "ORGANIZE A FAMÍLIA",
-    title: <>Organize <span className="accent-purple">a família.</span></>,
-    text: "Defina o espaço da família e os participantes. O responsável acompanha o que foi criado e realizado, deixando a rotina mais clara para todos.",
+    title: "Organize a família",
+    description: "Adicione responsáveis e jogadores para deixar cada papel claro desde o começo.",
     tone: "purple",
-    mock: "family",
   },
   {
     number: "03",
-    eyebrow: "DELEGUE E VERIFIQUE",
-    title: <>Delegue e <span className="accent-pink">verifique.</span></>,
-    text: "Crie tarefas, acompanhe as execuções e confirme o que foi realmente concluído antes da recompensa ser liberada.",
+    title: "Delegue e verifique",
+    description: "Crie missões, acompanhe as entregas e aprove o que realmente foi concluído.",
     tone: "pink",
-    mock: "task",
   },
   {
     number: "04",
-    eyebrow: "RECOMPENSAS",
-    title: <>Acompanhe <span className="accent-yellow">recompensas.</span></>,
-    text: "O saldo e o histórico registram as recompensas recebidas, mantendo o processo claro para todos.",
-    tone: "yellow",
-    mock: "wallet",
+    title: "Acompanhe recompensas",
+    description: "Veja saldo e histórico para transformar pequenas responsabilidades em progresso.",
+    tone: "orange",
   },
-];
+] as const;
 
-function StepMock({ type, tone }: { type: string; tone: string }) {
-  if (type === "email") {
-    return (
-      <div className={`instruction-mock mock-card mock-card-${tone}`}>
-        <div className="mock-bar">Caixa de entrada <span>●</span></div>
-        <div className="mail-row">
-          <div className="mock-icon purple">✉</div>
-          <div>
-            <strong>Family Issues — Confirme seu e-mail</strong>
-            <small>Toque no link para liberar o acesso da sua conta.</small>
-            <b>Confirmar e-mail</b>
-          </div>
-        </div>
-        <div className="success-row">✓ &nbsp;Conta protegida e vinculada ao seu e-mail</div>
-      </div>
-    );
-  }
-  if (type === "family") {
-    return (
-      <div className={`instruction-mock mock-device mock-device-${tone}`}>
-        <div className="mock-top">Passo 02 de 04 <span>• • ▬</span></div>
-        <div className="family-list">
-          {[["P","Pai","Responsável","purple"],["M","Mãe","Responsável","pink"],["A","Ana","Jogadora","blue"],["P","Pedro","Jogador","yellow"]].map(([letter,name,role,color]) => (
-            <div className="family-row" key={name}><i className={color}>{letter}</i><span><strong>{name}</strong><small>{role}</small></span></div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-  if (type === "task") {
-    return (
-      <div className={`instruction-mock mock-device mock-device-${tone}`}>
-        <div className="mock-top">Passo 03 de 04 <span>• • ▬</span></div>
-        <div className="task-row"><div><strong>Lavar a louça</strong><small>✓ Verificar entrega</small></div><b>R$ 5,00</b></div>
-        <div className="task-row"><div><strong>Arrumar o quarto</strong><small>✓ Aprovado</small></div><b>R$ 8,00</b></div>
-      </div>
-    );
-  }
+function StepperMock({ step }: { step: number }) {
+  const current = steps[step];
   return (
-    <div className={`instruction-mock mock-device mock-device-${tone} mock-wallet`}>
-      <div className="mock-top">Passo 04 de 04 <span>• • ▬</span></div>
-      <div className="wallet-total"><small>Saldo disponível</small><strong>R$ 42,00</strong></div>
-      <div className="wallet-row">Arrumar o quarto <b>+ R$ 8,00</b></div>
-      <div className="wallet-row">Lavar a louça <b>+ R$ 5,00</b></div>
-    </div>
-  );
-}
-
-use client";
-
-import Link from "next/link";
-import { useEffect } from "react";
-
-const steps = [
-  {
-    number: "01",
-    eyebrow: "ANTES DE COMEÇAR",
-    title: <>Tudo começa com <span className="accent-purple">um e-mail.</span></>,
-    text: "O acesso começa com o cadastro de um e-mail válido. Depois do cadastro, é necessário confirmar esse e-mail para poder acessar a conta. Isso mantém a entrada no sistema vinculada a um endereço de e-mail que você controla.",
-    tone: "purple",
-    mock: "email",
-  },
-  {
-    number: "02",
-    eyebrow: "ORGANIZE A FAMÍLIA",
-    title: <>Organize <span className="accent-purple">a família.</span></>,
-    text: "Defina o espaço da família e os participantes. O responsável acompanha o que foi criado e realizado, deixando a rotina mais clara para todos.",
-    tone: "purple",
-    mock: "family",
-  },
-  {
-    number: "03",
-    eyebrow: "DELEGUE E VERIFIQUE",
-    title: <>Delegue e <span className="accent-pink">verifique.</span></>,
-    text: "Crie tarefas, acompanhe as execuções e confirme o que foi realmente concluído antes da recompensa ser liberada.",
-    tone: "pink",
-    mock: "task",
-  },
-  {
-    number: "04",
-    eyebrow: "RECOMPENSAS",
-    title: <>Acompanhe <span className="accent-yellow">recompensas.</span></>,
-    text: "O saldo e o histórico registram as recompensas recebidas, mantendo o processo claro para todos.",
-    tone: "yellow",
-    mock: "wallet",
-  },
-];
-
-function StepMock({ type, tone }: { type: string; tone: string }) {
-  if (type === "email") {
-    return (
-      <div className={`mock-card mock-card-${tone}`}>
-        <div className="mock-bar">Caixa de entrada <span>●</span></div>
-        <div className="mail-row">
-          <div className="mock-icon purple">✉</div>
-          <div>
-            <strong>Family Issues — Confirme seu e-mail</strong>
-            <small>Toque no link para liberar o acesso da sua conta.</small>
-            <b>Confirmar e-mail</b>
-          </div>
+    <div className={`stepper-device stepper-${current.tone}`} key={current.number}>
+      <div className="stepper-top">
+        <div>
+          <span>FAMILY ISSUES</span>
+          <strong>Passo {current.number} de 04</strong>
         </div>
-        <div className="success-row">✓ &nbsp;Conta protegida e vinculada ao seu e-mail</div>
+        <div className="stepper-dots">{steps.map((_, i) => <i key={i} className={i <= step ? "on" : ""} />)}</div>
       </div>
-    );
-  }
-
-  if (type === "family") {
-    return (
-      <div className={`mock-device mock-device-${tone}`}>
-        <div className="mock-top">Passo 02 de 04 <span>• • ▬</span></div>
-        <div className="family-list">
-          {[
-            ["P", "Pai", "Responsável", "purple"],
-            ["M", "Mãe", "Responsável", "pink"],
-            ["A", "Ana", "Jogadora", "blue"],
-            ["P", "Pedro", "Jogador", "yellow"],
-          ].map(([letter, name, role, color]) => (
-            <div className="family-row" key={name}>
-              <i className={color}>{letter}</i><span><strong>{name}</strong><small>{role}</small></span>
+      <div className="stepper-body">
+        {step === 0 && (
+          <div className="mock-form">
+            <span className="mock-label">E-MAIL DO RESPONSÁVEL</span>
+            <div className="mock-input">familia@email.com</div>
+            <button type="button">Criar conta <ArrowRight size={14} /></button>
+            <div className="mock-check"><Check size={15} /> E-mail de confirmação enviado</div>
+          </div>
+        )}
+        {step === 1 && (
+          <div className="members-mock">
+            <div className="mock-title">Membros da família <Users size={17} /></div>
+            {[
+              ["P", "Pai", "Responsável", "purple"],
+              ["M", "Mãe", "Responsável", "pink"],
+              ["A", "Ana", "Jogadora", "blue"],
+              ["P", "Pedro", "Jogador", "yellow"],
+            ].map(([letter, name, role, color]) => (
+              <div className="member-row" key={name}>
+                <i className={`avatar-${color}`}>{letter}</i>
+                <span><strong>{name}</strong><small>{role}</small></span>
+                <Check size={15} />
+              </div>
+            ))}
+          </div>
+        )}
+        {step === 2 && (
+          <div className="tasks-mock">
+            <div className="mock-title">Missões da família <ClipboardCheck size={17} /></div>
+            <div className="task-card task-card-hot">
+              <div><strong>Lavar a louça</strong><small>✓ Verificar entrega</small></div>
+              <b>R$ 5,00</b>
             </div>
-          ))}
-        </div>
+            <div className="task-card">
+              <div><strong>Arrumar o quarto</strong><small>✓ Aprovada</small></div>
+              <b>R$ 8,00</b>
+            </div>
+          </div>
+        )}
+        {step === 3 && (
+          <div className="wallet-mock">
+            <div className="mock-title">Recompensas <PiggyBank size={18} /></div>
+            <div className="balance-card"><small>Saldo disponível</small><strong>R$ 42,00</strong><span>+ R$ 13,00 nesta semana</span></div>
+            <div className="wallet-history"><span>Lavar a louça</span><b>+ R$ 5,00</b></div>
+            <div className="wallet-history"><span>Arrumar o quarto</span><b>+ R$ 8,00</b></div>
+          </div>
+        )}
       </div>
-    );
-  }
-
-  if (type === "task") {
-    return (
-      <div className={`mock-device mock-device-${tone}`}>
-        <div className="mock-top">Passo 03 de 04 <span>• • ▬</span></div>
-        <div className="task-row">
-          <div><strong>Lavar a louça</strong><small>✓ Verificar entrega</small></div><b>R$ 5,00</b>
-        </div>
-        <div className="task-row">
-          <div><strong>Arrumar o quarto</strong><small>✓ Aprovado</small></div><b>R$ 8,00</b>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className={`mock-device mock-device-${tone} mock-wallet`}>
-      <div className="mock-top">Passo 04 de 04 <span>• • ▬</span></div>
-      <div className="wallet-total"><small>Saldo disponível</small><strong>R$ 42,00</strong></div>
-      <div className="wallet-row">Arrumar o quarto <b>+ R$ 8,00</b></div>
-      <div className="wallet-row">Lavar a louça <b>+ R$ 5,00</b></div>
     </div>
   );
 }
@@ -192,42 +114,41 @@ export default function HomePage() {
   const [activeStep, setActiveStep] = useState(0);
 
   useEffect(() => {
-    const items = Array.from(document.querySelectorAll<HTMLElement>(".fi-reveal"));
-    const revealObserver = new IntersectionObserver(
-      (entries) => entries.forEach((entry) => entry.isIntersecting && entry.target.classList.add("is-visible")),
-      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" }
-    );
-    items.forEach((item) => revealObserver.observe(item));
+    const timer = window.setInterval(() => {
+      setActiveStep((value) => (value + 1) % steps.length);
+    }, 4800);
 
-    const stepNodes = Array.from(document.querySelectorAll<HTMLElement>(".instruction-copy"));
-    const stepObserver = new IntersectionObserver(
+    const nodes = Array.from(document.querySelectorAll<HTMLElement>("[data-step-index]"));
+    const observer = new IntersectionObserver(
       (entries) => {
-        const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (visible) setActiveStep(Number((visible.target as HTMLElement).dataset.step ?? 0));
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible) setActiveStep(Number((visible.target as HTMLElement).dataset.stepIndex ?? 0));
       },
-      { threshold: [0.2, 0.45, 0.7], rootMargin: "-32% 0px -42% 0px" }
+      { threshold: [0.35, 0.6], rootMargin: "-35% 0px -35% 0px" }
     );
-    stepNodes.forEach((node) => stepObserver.observe(node));
+    nodes.forEach((node) => observer.observe(node));
 
     return () => {
-      revealObserver.disconnect();
-      stepObserver.disconnect();
+      window.clearInterval(timer);
+      observer.disconnect();
     };
   }, []);
 
   return (
     <main className="landing-page">
-      <div className="landing-noise" />
+      <div className="landing-noise" aria-hidden="true" />
 
       <header className="landing-header">
         <Link href="/" className="landing-brand" aria-label="Family Issues">
-          <span className="landing-brand-mark">✦</span>
-          <span>Family<span>Issues</span></span>
+          <span className="landing-brand-mark"><Sparkles size={15} fill="currentColor" /></span>
+          <span className="brand-family">Family</span><span className="brand-issues">Issues</span>
         </Link>
 
         <nav className="landing-nav" aria-label="Navegação principal">
           <a href="#como-funciona">Como funciona</a>
-          <a href="#jornada">Para quem joga</a>
+          <a href="#para-quem-joga">Para quem joga</a>
           <Link href="/login">Entrar</Link>
         </nav>
 
@@ -235,68 +156,144 @@ export default function HomePage() {
       </header>
 
       <section className="landing-hero">
-        <div className="hero-glow hero-glow-blue" />
-        <div className="hero-glow hero-glow-purple" />
-        <div className="hero-dots" />
-
-        <div className="hero-copy fi-reveal is-visible">
-          <span className="hero-kicker">Tarefas domésticas com recompensa em R$ e gamificação</span>
-          <h1>Transforme<br />responsabilidades<br />em uma <em>jornada</em> de<br /><strong>conquistas.</strong></h1>
-          <p>Uma forma organizada de distribuir tarefas, acompanhar responsabilidades e transformar resultados em recompensas — com uma experiência séria para quem administra e mais envolvente para quem executa.</p>
+        <div className="hero-dots" aria-hidden="true" />
+        <div className="hero-glow hero-glow-blue" aria-hidden="true" />
+        <div className="hero-copy">
+          <span className="hero-kicker"><Sparkles size={13} /> Tarefas domésticas com recompensa em R$ e gamificação</span>
+          <h1>Transforme responsabilidades em uma <em>jornada</em> de <strong>conquistas.</strong></h1>
+          <p>Organize tarefas, acompanhe responsabilidades e transforme cada resultado em uma pequena conquista — com clareza para quem administra e diversão para quem joga.</p>
           <div className="hero-actions">
-            <Link href="/signup" className="hero-primary">Criar minha conta <span>→</span></Link>
+            <Link href="/signup" className="hero-primary">Criar minha conta <ArrowRight size={18} /></Link>
             <Link href="/login" className="hero-secondary">Já tenho uma conta</Link>
           </div>
         </div>
 
-        <div className="hero-art fi-reveal is-visible" aria-hidden="true">
-          <div className="hero-orbit orbit-a" />
-          <div className="hero-orbit orbit-b" />
-          <div className="hero-sun" />
+        <div className="hero-art" aria-label="Exemplo de uma missão concluída">
+          <div className="hero-blob" />
+          <CrossedSwords className="hero-swords" size={48} />
           <div className="hero-photo-frame">
             <div className="hero-photo">
-              <img src="https://images.unsplash.com/photo-1504150558240-0b4fdc2ee3f4?auto=format&fit=crop&w=1100&q=90" alt="" />
+              <img src="https://images.unsplash.com/photo-1504150558240-0b4fdc2ee3f4?auto=format&fit=crop&w=1100&q=90" alt="Família brincando ao ar livre" />
             </div>
             <div className="hero-photo-badge"><span>✓</span><div><strong>Missão concluída!</strong><small>Aguardando aprovação</small></div></div>
-            <div className="hero-reward">◉ &nbsp; + R$ 10,00 <small>Recompensa aprovada</small></div>
+            <div className="hero-reward"><Coins size={17} fill="currentColor" /><div><strong>+ R$ 10,00</strong><small>Recompensa aprovada</small></div></div>
           </div>
-          <div className="floating-shape controller">⚔</div>
-          <div className="floating-shape gift">✦</div>
-          <div className="floating-shape sparkle">✦</div>
+          <div className="hero-sparkle hero-sparkle-one">✦</div>
+          <div className="hero-sparkle hero-sparkle-two">✦</div>
         </div>
       </section>
 
-      <div className="landing-marquee">
+      <section className="landing-marquee" aria-label="Destaques">
         <div className="marquee-track">
-          {[...["🎁 Presentes em pontos", "🧑‍🎤 Monte seu avatar", "⚔ Aceite missões", "✨ Ganhe recompensas"], ...["🎁 Presentes em pontos", "🧑‍🎤 Monte seu avatar", "⚔ Aceite missões", "✨ Ganhe recompensas"]].map((item, i) => <span key={i}>{item}</span>)}
+          {[...Array(2)].flatMap(() => ["🎁 Presentes em pontos", "🤴 Monte seu avatar", "⚔️ Aceite missões", "✨ Ganhe recompensas"]).map((item, i) => (
+            <span key={i}>{item}<b>✦</b></span>
+          ))}
         </div>
-      </div>
+      </section>
 
-      <section id="como-funciona" className="landing-section instructions-section">
-        <div className="instructions-sticky">
-          <div className="instruction-stage">
-            <div className={`instruction-halo halo-${steps[activeStep].tone}`} />
-            <div key={steps[activeStep].number} className="instruction-card-enter">
-              <StepMock type={steps[activeStep].mock} tone={steps[activeStep].tone} />
+      <section className="landing-section email-section">
+        <div className="section-copy">
+          <span className="section-eyebrow purple"><Mail size={14} /> ANTES DE COMEÇAR</span>
+          <h2>Tudo começa com <span>um e-mail.</span></h2>
+          <p>O acesso começa com o cadastro de um e-mail válido. Depois, basta confirmar a mensagem recebida para manter a conta protegida e vinculada ao endereço que você controla.</p>
+        </div>
+        <div className="email-mock-wrap">
+          <div className="email-mock">
+            <div className="email-window-head"><strong>📥 Caixa de entrada</strong><span>1 nova mensagem</span></div>
+            <div className="email-message">
+              <div className="email-logo">✦</div>
+              <div><strong>Family Issues — Confirme seu e-mail</strong><small>Confirme seu endereço para liberar o acesso.</small><button type="button">Confirmar e-mail</button></div>
             </div>
+            <div className="email-safe"><ShieldCheck size={17} /><span>Conta protegida e vinculada ao seu e-mail</span></div>
           </div>
         </div>
+      </section>
 
-        <div className="instruction-list">
+      <section id="como-funciona" className="landing-section responsible-section">
+        <div className="responsible-copy">
+          <span className="section-eyebrow blue"><UserPlus size={14} /> PARA RESPONSÁVEIS</span>
+          <h2>Organização clara, do início à <span>recompensa.</span></h2>
+          <p>Um fluxo simples para montar a família, distribuir missões e acompanhar tudo sem perder o fio da rotina.</p>
+        </div>
+
+        <div className="responsible-stage">
+          <div className="stage-glow" />
+          <StepperMock step={activeStep} />
+        </div>
+
+        <div className="responsible-steps">
           {steps.map((step, index) => (
             <article
-              className={`instruction-copy fi-reveal ${activeStep === index ? "instruction-active" : ""}`}
-              data-step={index}
               key={step.number}
+              data-step-index={index}
+              className={`responsible-step ${activeStep === index ? "active" : ""}`}
+              onClick={() => setActiveStep(index)}
             >
-              <div className={`instruction-index instruction-index-${step.tone}`}>{step.number}</div>
-              <div className="instruction-icon">{index === 0 ? "✉" : index === 1 ? "♙" : index === 2 ? "▣" : "✦"}</div>
-              <div className="instruction-text">
-                <span className="section-kicker">{step.eyebrow}</span>
-                <h2>{step.title}</h2>
-                <p>{step.text}</p>
-              </div>
+              <strong className={`step-number ${step.tone}`}>{step.number}</strong>
+              <span className={`step-icon ${step.tone}`}>
+                {index === 0 ? <UserPlus size={18} /> : index === 1 ? <Users size={18} /> : index === 2 ? <ClipboardCheck size={18} /> : <PiggyBank size={18} />}
+              </span>
+              <div><h3>{step.title}</h3><p>{step.description}</p></div>
             </article>
           ))}
         </div>
       </section>
+
+      <section id="para-quem-joga" className="landing-section player-section">
+        <div className="player-heading">
+          <span className="section-eyebrow orange"><CrossedSwords size={14} /> PARA QUEM JOGA</span>
+          <h2>Sua rotina. Seus objetivos. Sua próxima <span>conquista.</span></h2>
+          <p>Para quem executa, cada tarefa vira uma missão clara e cada aprovação vira progresso.</p>
+        </div>
+
+        <div className="player-feature-grid">
+          <article className="player-feature purple-card">
+            <CrossedSwords size={32} />
+            <h3>Aceite missões</h3>
+            <p>Receba tarefas, conclua os objetivos e envie cada conquista para verificação.</p>
+          </article>
+          <article className="player-feature yellow-card">
+            <Sparkles size={32} />
+            <h3>Ganhe recompensas</h3>
+            <p>Cada tarefa aprovada pode gerar recompensa. Seu progresso fica registrado no seu saldo.</p>
+          </article>
+        </div>
+
+        <div className="coming-grid">
+          {[
+            ["🎯", "Suba o nível da jornada", "Transforme consistência em novos níveis e objetivos.", "lilac"],
+            ["🛍️", "Use seus pontos", "Troque pontos por recompensas que façam sentido para você.", "green"],
+            ["🎁", "Compartilhe pontos", "Envie parte do seu progresso para quem está na família.", "pink"],
+            ["🤴", "Monte seu avatar", "Crie uma identidade para acompanhar sua jornada.", "blue"],
+          ].map(([emoji, title, description, color]) => (
+            <article className={`coming-card ${color}`} key={title}>
+              <span className="coming-badge">Em breve</span>
+              <strong>{emoji}</strong>
+              <h3>{title}</h3>
+              <p>{description}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="landing-section cta-section">
+        <div className="cta-panel">
+          <CrossedSwords className="cta-swords" size={52} />
+          <Target className="cta-target" size={45} />
+          <Sparkles className="cta-stars cta-stars-one" size={28} />
+          <Sparkles className="cta-stars cta-stars-two" size={20} />
+          <h2>Pronto para começar?</h2>
+          <p>Cadastre seu e-mail, confirme a conta e entre na jornada.</p>
+          <Link href="/signup" className="cta-button">Criar conta <ArrowRight size={18} /></Link>
+          <Link href="/politica" className="cta-policy">Política de uso</Link>
+        </div>
+      </section>
+
+      <footer className="landing-footer">
+        <Link href="/" className="footer-brand"><span>✦</span> Family <b>Issues</b></Link>
+        <p>Tarefas viram conquistas. Recompensas viram hábito.</p>
+        <div><Link href="/politica">Política de uso</Link><Link href="/login">Entrar</Link></div>
+      </footer>
+    </main>
+  );
+}
