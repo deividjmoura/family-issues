@@ -103,7 +103,6 @@ function LoginForm() {
 
   return (
     <main className="flex min-h-screen w-full items-center justify-center px-4 py-8 sm:px-6">
-      <Card className="w-full max-w-md">
       <Card className="w-full shrink-0 lg:max-w-md">
         <CardHeader>
           <CardTitle>Entrar</CardTitle>
@@ -174,6 +173,7 @@ function LoginForm() {
           </CardFooter>
         </form>
       </Card>
+
     </main>
   );
 }
