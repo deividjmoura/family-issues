@@ -4,6 +4,7 @@ import { PwaRegister } from "@/components/pwa/register";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 import "./globals.css";
 import "./side-menu.css";
+import "./cyber-nav.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

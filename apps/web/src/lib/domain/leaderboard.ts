@@ -1,4 +1,5 @@
 import type { Task } from "./types";
+import { effectivePoints } from "./points";
 
 /** Pontos contam em tarefas aprovadas / pagas / confirmadas (não rejeitadas). */
 export function leaderboardFromTasks(
@@ -16,7 +17,7 @@ export function leaderboardFromTasks(
     ) {
       continue;
     }
-    const pts = t.points ?? 0;
+    const pts = effectivePoints(t);
     const cur = map.get(t.assignee_id) ?? { points: 0, tasks: 0 };
     cur.points += pts;
     cur.tasks += 1;

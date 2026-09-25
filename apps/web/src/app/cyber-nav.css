@@ -1,0 +1,55 @@
+/* Override cyber-nav: sem margin negativa que quebrava o layout no desktop */
+.cyber-nav-wrap {
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.theme-game .cyber-nav {
+  position: relative;
+  background: var(--border-color);
+  padding: 0.65rem 1rem;
+  margin: 0 0 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  clip-path: polygon(0 0, 100% 0, 100% 70%, 98% 100%, 2% 100%, 0 70%);
+  box-shadow: 0 0 1.5em var(--border-color);
+  animation: borderGlow 1.2s infinite alternate;
+  border-radius: 0;
+}
+
+.theme-game .cyber-nav-bottom {
+  height: 4px;
+  width: min(280px, 50%);
+  margin: 0 auto 1rem;
+  background: var(--neon-pink);
+  transform: skewX(-45deg);
+  animation: navBottomShift 4s ease-in-out infinite alternate;
+  box-shadow: 0 0 12px var(--neon-pink);
+}
+
+/* HUD: 3 colunas no mobile estreito → 1 coluna se muito estreito */
+@media (max-width: 420px) {
+  .theme-game main .grid.grid-cols-1 {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 421px) {
+  .theme-game main > .grid.grid-cols-1 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* FAB não cobre conteúdo no mobile */
+.fab-create {
+  bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+  right: calc(1.25rem + env(safe-area-inset-right, 0px));
+}
+
+/* Cards cyber: overflow controlado */
+.theme-game .hud-chip,
+.theme-game .cyber-card {
+  overflow: hidden;
+  min-width: 0;
+}

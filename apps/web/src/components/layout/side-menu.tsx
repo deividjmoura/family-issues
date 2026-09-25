@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { signOut } from "@/lib/actions/auth";
 import {
   markAllNotificationsRead,
@@ -29,6 +30,7 @@ export function SideMenu({
 }: {
   notifications: AppNotification[];
 }) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<Tab>("notificacoes");
   const [pending, startTransition] = useTransition();
@@ -44,11 +46,22 @@ export function SideMenu({
   }, [open]);
 
   useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
     return () => {
       document.body.style.overflow = "";
     };
   }, [open]);
+
+  function afterRead(action: () => Promise<unknown>) {
+    startTransition(async () => {
+      await action();
+      router.refresh();
+    });
+  }
 
   return (
     <>
@@ -57,12 +70,15 @@ export function SideMenu({
         className="side-menu-trigger"
         onClick={() => setOpen(true)}
         aria-label="Abrir menu"
+        aria-expanded={open}
       >
         <span className="side-menu-trigger__icon" aria-hidden>
           ☰
         </span>
         {unread > 0 && (
-          <span className="side-menu-trigger__badge">{unread > 9 ? "9+" : unread}</span>
+          <span className="side-menu-trigger__badge">
+            {unread > 9 ? "9+" : unread}
+          </span>
         )}
       </button>
 
@@ -87,9 +103,11 @@ export function SideMenu({
               </button>
             </div>
 
-            <div className="side-menu-tabs">
+            <div className="side-menu-tabs" role="tablist">
               <button
                 type="button"
+                role="tab"
+                aria-selected={tab === "notificacoes"}
                 className={`side-menu-tab${tab === "notificacoes" ? " is-active" : ""}`}
                 onClick={() => setTab("notificacoes")}
               >
@@ -100,6 +118,8 @@ export function SideMenu({
               </button>
               <button
                 type="button"
+                role="tab"
+                aria-selected={tab === "opcoes"}
                 className={`side-menu-tab${tab === "opcoes" ? " is-active" : ""}`}
                 onClick={() => setTab("opcoes")}
               >
@@ -116,11 +136,7 @@ export function SideMenu({
                       variant="secondary"
                       className="w-full"
                       disabled={pending}
-                      onClick={() =>
-                        startTransition(async () => {
-                          await markAllNotificationsRead();
-                        })
-                      }
+                      onClick={() => afterRead(() => markAllNotificationsRead())}
                     >
                       Marcar todas como lidas
                     </Button>
@@ -146,9 +162,9 @@ export function SideMenu({
                             }`}
                           >
                             <div className="flex items-start justify-between gap-2">
-                              <div className="min-w-0">
+                              <div className="min-w-0 flex-1">
                                 <p className="font-medium leading-snug">{label}</p>
-                                <p className="truncate text-muted-foreground">
+                                <p className="break-words text-muted-foreground">
                                   {title}
                                 </p>
                                 <p className="mt-0.5 text-[11px] text-muted-foreground">
@@ -159,11 +175,10 @@ export function SideMenu({
                                 <Button
                                   size="sm"
                                   variant="ghost"
+                                  className="shrink-0"
                                   disabled={pending}
                                   onClick={() =>
-                                    startTransition(async () => {
-                                      await markNotificationRead(n.id);
-                                    })
+                                    afterRead(() => markNotificationRead(n.id))
                                   }
                                 >
                                   Lida
@@ -199,7 +214,7 @@ export function SideMenu({
                       <Button
                         type="submit"
                         variant="secondary"
-                        className="w-full"
+                        className="w-full min-h-[44px]"
                       >
                         Sair da conta
                       </Button>
