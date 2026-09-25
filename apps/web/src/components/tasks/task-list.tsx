@@ -16,6 +16,7 @@ import {
   canOfferPrice,
 } from "@/lib/domain/task-machine";
 import { formatBRL } from "@/lib/domain/money";
+import { effectivePoints } from "@/lib/domain/points";
 import type { Role, Task } from "@/lib/domain/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -216,7 +217,7 @@ export function TaskList({
                       />
                     )}
                     {actions.includes("complete") && (
-                      <CompleteTaskButton taskId={task.id} />
+                      <CompleteTaskButton taskId={task.id} xp={effectivePoints(task)} />
                     )}
                     {actions.includes("approve") && (
                       <Button
