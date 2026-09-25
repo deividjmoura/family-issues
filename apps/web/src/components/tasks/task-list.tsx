@@ -80,7 +80,7 @@ export function TaskList({
         <p className="text-sm font-medium text-foreground">Nenhuma tarefa</p>
         <p className="mt-1 text-xs text-muted-foreground">
           {role === "responsavel"
-            ? "Crie uma tarefa — com ou sem executor."
+            ? "Crie uma tarefa pelo menu (☰)."
             : "Missões abertas ou atribuídas a você aparecem aqui."}
         </p>
       </div>
@@ -143,6 +143,16 @@ export function TaskList({
                     <p className="mt-1 text-sm text-amber-600 dark:text-amber-400">
                       Trocado por: {task.swapped_reward}
                     </p>
+                  )}
+                  {task.completion_note && (
+                    <div className="mt-2 rounded-lg border border-border bg-muted/40 px-3 py-2 text-sm">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                        Mensagem do executor
+                      </p>
+                      <p className="mt-0.5 whitespace-pre-wrap">
+                        {task.completion_note}
+                      </p>
+                    </div>
                   )}
                 </div>
                 <div className="flex flex-col items-end gap-1">
