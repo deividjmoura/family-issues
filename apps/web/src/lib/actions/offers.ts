@@ -51,13 +51,24 @@ export async function proposeOffer(input: {
   const check = canOfferPrice(task as Task, { userId: user.id, role });
   if (!check.ok) return { ok: false, error: check.error };
 
-  // Marca ofertas anteriores deste user nesta task como countered
-  await supabase
+  const { data: existingPending, error: pendingError } = await supabase
     .from("task_offers")
-    .update({ status: "countered", updated_at: new Date().toISOString() })
+    .select("id")
     .eq("task_id", input.taskId)
     .eq("user_id", user.id)
-    .eq("status", "pending");
+    .eq("status", "pending")
+    .limit(1);
+
+  if (pendingError) {
+    return { ok: false, error: "Não foi possível verificar a negociação atual." };
+  }
+
+  if (existingPending?.length) {
+    return {
+      ok: false,
+      error: "Você já tem uma proposta pendente nesta tarefa.",
+    };
+  }
 
   const { data: offer, error } = await supabase
     .from("task_offers")
@@ -152,7 +163,7 @@ export async function respondOffer(
       return { ok: false, error: "A tarefa já foi assumida por outro executor." };
     }
 
-    await supabase
+    const { error: updateError } = await supabase
       .from("task_offers")
       .update({
         status: "countered",
@@ -160,6 +171,10 @@ export async function respondOffer(
         updated_at: new Date().toISOString(),
       })
       .eq("id", offerId);
+
+    if (updateError) {
+      return { ok: false, error: "Não foi possível registrar a contra-proposta." };
+    }
 
     const { data: newOffer, error } = await supabase
       .from("task_offers")
@@ -196,7 +211,7 @@ export async function respondOffer(
       return { ok: false, error: "A tarefa já foi assumida por outro executor." };
     }
 
-    await supabase
+    const { error: updateError } = await supabase
       .from("task_offers")
       .update({
         status: "accepted",
@@ -204,6 +219,10 @@ export async function respondOffer(
         updated_at: new Date().toISOString(),
       })
       .eq("id", offerId);
+
+    if (updateError) {
+      return { ok: false, error: "Não foi possível aceitar a proposta." };
+    }
 
     // Aplica valor e, se aberta, atribui ao proponente (executor)
     const patch: Record<string, unknown> = {
@@ -232,7 +251,7 @@ export async function respondOffer(
       value_cents: offer.proposed_value_cents,
     });
   } else {
-    await supabase
+    const { error: updateError } = await supabase
       .from("task_offers")
       .update({
         status: "rejected",
@@ -240,6 +259,10 @@ export async function respondOffer(
         updated_at: new Date().toISOString(),
       })
       .eq("id", offerId);
+
+    if (updateError) {
+      return { ok: false, error: "Não foi possível recusar a proposta." };
+    }
 
     await notify(offer.user_id, "negotiation_answered", {
       task_id: task.id,
