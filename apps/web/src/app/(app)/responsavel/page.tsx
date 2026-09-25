@@ -14,6 +14,7 @@ import { listMyNotifications } from "@/lib/actions/notifications";
 import { listPendingNegotiations } from "@/lib/actions/negotiations";
 import { listPendingOffersForFamily } from "@/lib/actions/offers";
 import { getProfileNames } from "@/lib/actions/profiles";
+import { getOpenAdvancesByExecutor } from "@/lib/actions/wallet";
 import type { Task } from "@/lib/domain/types";
 import { formatBRL, balanceCents } from "@/lib/domain/money";
 
@@ -76,6 +77,8 @@ export default async function ResponsavelHomePage() {
     }
   }
 
+  const advancesByExecutor = await getOpenAdvancesByExecutor(familyId);
+
   const toVerify = taskList.filter(
     (t) => t.status === "aguardando_verificacao",
   );
@@ -94,7 +97,28 @@ export default async function ResponsavelHomePage() {
   const { offers, taskMeta } = await listPendingOffersForFamily(familyId);
   const taskTitles = Object.fromEntries(taskList.map((t) => [t.id, t.title]));
   const pendingIds = pendingNegos.map((n) => n.task_id);
-  const totalDue = [...dueByExecutor.values()].reduce((a, b) => a + b, 0);
+
+  // Saldo líquido = devido − adiantamentos
+  let totalNetDue = 0;
+  const payRows: {
+    uid: string;
+    due: number;
+    advance: number;
+    remaining: number;
+  }[] = [];
+  const seen = new Set<string>();
+  for (const [uid, due] of dueByExecutor.entries()) {
+    const adv = advancesByExecutor[uid] ?? 0;
+    const remaining = Math.max(0, due - adv);
+    totalNetDue += remaining;
+    payRows.push({ uid, due, advance: adv, remaining });
+    seen.add(uid);
+  }
+  // Executores só com crédito (sem tarefas aprovadas no momento)
+  for (const [uid, adv] of Object.entries(advancesByExecutor)) {
+    if (seen.has(uid) || adv <= 0) continue;
+    payRows.push({ uid, due: 0, advance: adv, remaining: 0 });
+  }
 
   return (
     <main className="mx-auto max-w-3xl space-y-5 px-4 py-8 pb-28 sm:px-6">
@@ -119,7 +143,7 @@ export default async function ResponsavelHomePage() {
           value={String(toVerify.length)}
           accent={toVerify.length > 0 ? "warning" : undefined}
         />
-        <Stat label="A pagar" value={formatBRL(totalDue)} />
+        <Stat label="A pagar" value={formatBRL(totalNetDue)} />
       </div>
 
       <Link
@@ -155,13 +179,13 @@ export default async function ResponsavelHomePage() {
         </>
       )}
 
-      {dueByExecutor.size > 0 && (
+      {payRows.length > 0 && (
         <section className="rounded-xl border border-border bg-card p-4 shadow-sm">
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             A pagar
           </h2>
           <ul className="space-y-3 text-sm">
-            {[...dueByExecutor.entries()].map(([uid, cents]) => (
+            {payRows.map(({ uid, due, advance, remaining }) => (
               <li
                 key={uid}
                 className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3 last:border-0 last:pb-0"
@@ -170,13 +194,21 @@ export default async function ResponsavelHomePage() {
                   <span className="font-medium">
                     {names[uid] ?? uid.slice(0, 8) + "…"}
                   </span>
-                  <strong className="ml-3 tabular-nums">{formatBRL(cents)}</strong>
+                  <strong className="ml-3 tabular-nums">
+                    {formatBRL(remaining)}
+                  </strong>
+                  {advance > 0 && (
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      Devido {formatBRL(due)} · adiantado {formatBRL(advance)}
+                    </p>
+                  )}
                 </div>
                 <PayExecutorButton
                   familyId={familyId}
                   executorId={uid}
                   executorName={names[uid] ?? "executor"}
-                  amountCents={cents}
+                  amountCents={due}
+                  advanceCents={advance}
                 />
               </li>
             ))}
