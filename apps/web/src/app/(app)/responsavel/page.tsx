@@ -121,7 +121,7 @@ export default async function ResponsavelHomePage() {
   }
 
   return (
-    <main className="mx-auto max-w-3xl space-y-5 px-4 py-8 pb-28 sm:px-6">
+    <main className="responsavel-page mx-auto max-w-5xl space-y-6 px-4 py-8 pb-28 sm:px-6">
       <FamilyRealtime userId={user.id} familyId={familyId} />
       <AppHeader
         badge="Dashboard"
@@ -135,7 +135,7 @@ export default async function ResponsavelHomePage() {
         createLabel="Nova tarefa"
       />
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="responsavel-stats grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat label="Ativas" value={String(openTasks)} />
         <Stat label="Quadro aberto" value={String(openBoard)} />
         <Stat
@@ -148,7 +148,7 @@ export default async function ResponsavelHomePage() {
 
       <Link
         href="/responsavel/tarefas"
-        className="flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3 shadow-sm transition hover:border-primary/40 hover:shadow-md"
+        className="responsavel-link-card flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3 shadow-sm transition hover:border-primary/40 hover:shadow-md"
       >
         <div>
           <p className="text-sm font-semibold">Todas as tarefas</p>
@@ -161,14 +161,16 @@ export default async function ResponsavelHomePage() {
         </span>
       </Link>
 
-      <Leaderboard
+      <section className="responsavel-section-card responsavel-leaderboard">
+        <Leaderboard
         tasks={taskList}
         nameByUserId={names}
         title="Ranking da família"
-      />
+        />
+      </section>
 
       {(offers.length > 0 || pendingNegos.length > 0) && (
-        <>
+        <div className="responsavel-pending-grid">
           <PendingOffers
             offers={offers}
             taskMeta={taskMeta}
@@ -176,11 +178,11 @@ export default async function ResponsavelHomePage() {
             currentUserId={user.id}
           />
           <PendingNegotiations items={pendingNegos} taskTitles={taskTitles} />
-        </>
+        </div>
       )}
 
       {payRows.length > 0 && (
-        <section className="rounded-xl border border-border bg-card p-4 shadow-sm">
+        <section className="responsavel-section-card rounded-xl border border-border bg-card p-4 shadow-sm">
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             A pagar
           </h2>
@@ -217,7 +219,7 @@ export default async function ResponsavelHomePage() {
       )}
 
       {toVerify.length > 0 && (
-        <section className="space-y-3">
+        <section className="responsavel-section-block space-y-3">
           <h2 className="text-lg font-semibold">
             A verificar{" "}
             <span className="text-sm text-warning">({toVerify.length})</span>
@@ -252,7 +254,7 @@ function Stat({
   accent?: "warning";
 }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-3 shadow-sm">
+    <div className="responsavel-stat rounded-xl border border-border bg-card p-3 shadow-sm">
       <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
         {label}
       </p>
