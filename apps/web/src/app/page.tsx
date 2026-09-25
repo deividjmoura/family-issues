@@ -170,7 +170,7 @@ export default function HomePage() {
           <Swords className="hero-swords" size={48} />
           <div className="hero-photo-frame">
             <div className="hero-photo">
-              <img src="https://images.unsplash.com/photo-1504150558240-0b4fdc2ee3f4?auto=format&fit=crop&w=1100&q=90" alt="Família brincando ao ar livre" />
+              <img src="https://images.unsplash.com/photo-1758874960466-fb0a3e0007bc?auto=format&fit=crop&fm=jpg&q=82&w=1200" alt="Família cozinhando e se divertindo na cozinha" />
             </div>
             <div className="hero-photo-badge"><span>✓</span><div><strong>Missão concluída!</strong><small>Aguardando aprovação</small></div></div>
             <div className="hero-reward"><Coins size={17} fill="currentColor" /><div><strong>+ R$ 10,00</strong><small>Recompensa aprovada</small></div></div>
