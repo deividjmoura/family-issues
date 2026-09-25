@@ -10,6 +10,7 @@ export function GameFeedback() {
   const [visible, setVisible] = useState(false);
   const [xp, setXp] = useState(0);
   const [levelUp, setLevelUp] = useState(false);
+  const [awaitingApproval, setAwaitingApproval] = useState(false);
   const hideTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -17,6 +18,7 @@ export function GameFeedback() {
       const detail = (event as CustomEvent<{ xp?: number }>).detail;
       setXp(Math.max(1, detail?.xp ?? 1));
       setLevelUp(false);
+      setAwaitingApproval(true);
       setVisible(true);
       if (hideTimerRef.current) window.clearTimeout(hideTimerRef.current);
       hideTimerRef.current = window.setTimeout(() => {
@@ -27,12 +29,14 @@ export function GameFeedback() {
 
     const onLevelUp = () => {
       setLevelUp(true);
+      setAwaitingApproval(false);
       sfx.success();
       setVisible(true);
       if (hideTimerRef.current) window.clearTimeout(hideTimerRef.current);
       hideTimerRef.current = window.setTimeout(() => {
         setVisible(false);
         setLevelUp(false);
+        setAwaitingApproval(false);
         hideTimerRef.current = null;
       }, 2200);
     };
@@ -57,11 +61,15 @@ export function GameFeedback() {
       </div>
       <div className="game-feedback__card">
         <span className="game-feedback__icon" aria-hidden>
-          {levelUp ? "🆙" : "✨"}
+          {levelUp ? "🆙" : awaitingApproval ? "📨" : "✨"}
         </span>
-        <strong>{levelUp ? "LEVEL UP!" : "MISSÃO COMPLETA!"}</strong>
+        <strong>{levelUp ? "LEVEL UP!" : awaitingApproval ? "MISSÃO ENVIADA!" : "MISSÃO COMPLETA!"}</strong>
         <span className="game-feedback__xp">
-          {levelUp ? "Novo nível desbloqueado!" : `+${xp} XP`}
+          {levelUp
+            ? "Novo nível desbloqueado!"
+            : awaitingApproval
+              ? `+${xp} XP após aprovação`
+              : `+${xp} XP`}
         </span>
       </div>
     </div>
