@@ -106,7 +106,7 @@ function LoginForm() {
       <Card className="w-full shrink-0 lg:max-w-md">
         <CardHeader>
           <CardTitle>Entrar</CardTitle>
-          <CardDescription>Acesse sua conta Family Tasks</CardDescription>
+          <CardDescription>Acesse sua conta Family Issues</CardDescription>
         </CardHeader>
         <form onSubmit={onSubmit}>
           <CardContent className="space-y-4">
