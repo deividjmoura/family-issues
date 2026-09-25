@@ -251,3 +251,37 @@
     opacity: 1;
   }
 }
+
+
+.theme-game__mission-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-game__mission-card::after {
+  content: "✦";
+  position: absolute;
+  top: 0.6rem;
+  right: 0.7rem;
+  color: rgba(34, 211, 238, 0.2);
+  font-size: 1rem;
+  pointer-events: none;
+}
+
+.theme-game__empty {
+  animation: kids-bounce-in 0.5s ease both;
+}
+
+.theme-game__empty-icon {
+  display: block;
+  margin-bottom: 0.7rem;
+  font-size: 2.4rem;
+  filter: drop-shadow(0 0 12px rgba(34, 211, 238, 0.45));
+  animation: kids-float 3s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-game__empty-icon {
+    animation: none;
+  }
+}
