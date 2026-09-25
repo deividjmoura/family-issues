@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+export const OPEN_CREATE_TASK_EVENT = "ft-open-create-task";
+
 interface ExecutorOption {
   user_id: string;
   label: string;
@@ -17,11 +19,14 @@ export function CreateTaskFab({
   executors = [],
   allowOpenBoard = true,
   label = "Nova tarefa",
+  showFab = false,
 }: {
   familyId: string;
   executors?: ExecutorOption[];
   allowOpenBoard?: boolean;
   label?: string;
+  /** FAB flutuante — desligado por padrão (usa o menu) */
+  showFab?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
@@ -32,6 +37,14 @@ export function CreateTaskFab({
   const [due, setDue] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+
+  useEffect(() => {
+    function onOpen() {
+      setOpen(true);
+    }
+    window.addEventListener(OPEN_CREATE_TASK_EVENT, onOpen);
+    return () => window.removeEventListener(OPEN_CREATE_TASK_EVENT, onOpen);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -82,15 +95,17 @@ export function CreateTaskFab({
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="fab-create"
-        aria-label={label}
-      >
-        <span className="fab-create__plus">+</span>
-        <span className="fab-create__label">{label}</span>
-      </button>
+      {showFab && (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="fab-create"
+          aria-label={label}
+        >
+          <span className="fab-create__plus">+</span>
+          <span className="fab-create__label">{label}</span>
+        </button>
+      )}
 
       {open && (
         <div
