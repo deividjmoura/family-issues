@@ -107,7 +107,7 @@ export default async function ExecutorHomePage() {
         notifications={notifications}
       />
 
-      <div className="grid grid-cols-1 gap-3 xs:grid-cols-3 sm:grid-cols-3">
+      <div className="hud-row">
         <div className="hud-chip glow-coin">
           <span className="cyber-corner" aria-hidden />
           <p className="text-[10px] font-bold uppercase tracking-widest text-coin">
@@ -116,9 +116,7 @@ export default async function ExecutorHomePage() {
           <p className="mt-1 text-xl font-black tabular-nums text-coin sm:text-2xl">
             {formatBRL(saldo)}
           </p>
-          <p className="mt-0.5 text-[10px] text-muted-foreground">
-            a receber (aprovada/paga)
-          </p>
+          <p className="mt-0.5 text-[10px] text-muted-foreground">a receber</p>
           <div className="status-bar">
             <div
               className="status-bar-fill warning"
@@ -152,9 +150,7 @@ export default async function ExecutorHomePage() {
           <p className="mt-1 text-xl font-black tabular-nums sm:text-2xl">
             {formatBRL(ganhos)}
           </p>
-          <p className="mt-0.5 text-[10px] text-muted-foreground">
-            confirmado
-          </p>
+          <p className="mt-0.5 text-[10px] text-muted-foreground">confirmado</p>
           <div className="card-chart" aria-hidden>
             <div className="chart-bar" style={bar("40%")} />
             <div className="chart-bar" style={bar("70%")} />
