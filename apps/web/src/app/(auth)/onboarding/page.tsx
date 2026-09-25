@@ -32,7 +32,6 @@ export default function OnboardingPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
-  /** true enquanto verifica se já tem família — evita flash do formulário */
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
@@ -48,6 +47,7 @@ export default function OnboardingPage() {
       if (cancelled) return;
       setUserId(data.user.id);
 
+      // Já tem família? Uma conta = um papel (1 membership)
       const { data: members } = await supabase
         .from("family_members")
         .select("id, role")
@@ -69,11 +69,35 @@ export default function OnboardingPage() {
     };
   }, [router]);
 
+  async function ensureNoMembership(userId: string) {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("family_members")
+      .select("id, role")
+      .eq("user_id", userId)
+      .limit(1);
+    if (data && data.length > 0) {
+      return data[0].role as "responsavel" | "executor";
+    }
+    return null;
+  }
+
   async function createFamily(e: React.FormEvent) {
     e.preventDefault();
     if (!userId) return;
     setError(null);
     setLoading(true);
+
+    const existing = await ensureNoMembership(userId);
+    if (existing) {
+      setLoading(false);
+      setError(
+        "Esta conta já está em uma família. Use outra conta para o outro papel.",
+      );
+      router.replace(existing === "responsavel" ? "/responsavel" : "/executor");
+      return;
+    }
+
     const supabase = createClient();
     const code = generateInviteCode();
 
@@ -109,6 +133,19 @@ export default function OnboardingPage() {
     if (!userId) return;
     setError(null);
     setLoading(true);
+
+    const existing = await ensureNoMembership(userId);
+    if (existing) {
+      setLoading(false);
+      setError(
+        "Esta conta já está em uma família como " +
+          (existing === "responsavel" ? "responsável" : "executor") +
+          ". Para o outro papel, use outra conta (ex: e-mail da criança).",
+      );
+      router.replace(existing === "responsavel" ? "/responsavel" : "/executor");
+      return;
+    }
+
     const supabase = createClient();
 
     const { data: family, error: findErr } = await supabase
@@ -123,6 +160,21 @@ export default function OnboardingPage() {
       return;
     }
 
+    // Não pode ser o dono entrando de novo como executor
+    const { data: fam } = await supabase
+      .from("families")
+      .select("created_by")
+      .eq("id", family.id)
+      .single();
+
+    if (fam?.created_by === userId) {
+      setLoading(false);
+      setError(
+        "Você criou esta família como responsável. Use outra conta para o executor.",
+      );
+      return;
+    }
+
     const { error: memErr } = await supabase.from("family_members").insert({
       family_id: family.id,
       user_id: userId,
@@ -131,7 +183,11 @@ export default function OnboardingPage() {
 
     setLoading(false);
     if (memErr) {
-      setError(memErr.message);
+      if (memErr.message.includes("unique") || memErr.code === "23505") {
+        setError("Esta conta já está nesta família.");
+      } else {
+        setError(memErr.message);
+      }
       return;
     }
     router.push("/executor");
@@ -154,7 +210,8 @@ export default function OnboardingPage() {
           <CardHeader>
             <CardTitle>Bem-vindo</CardTitle>
             <CardDescription>
-              Crie uma família ou entre com o código de convite
+              Cada conta tem um papel: responsável <strong>ou</strong> executor.
+              Use contas diferentes (ex: seu e-mail e o da criança).
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
@@ -181,7 +238,8 @@ export default function OnboardingPage() {
           <CardHeader>
             <CardTitle>Criar família</CardTitle>
             <CardDescription>
-              Você será o responsável. Depois compartilhe o código de convite.
+              Você será o responsável. Depois compartilhe o código de convite
+              com a conta do executor.
             </CardDescription>
           </CardHeader>
           <form onSubmit={createFamily}>
@@ -226,7 +284,8 @@ export default function OnboardingPage() {
         <CardHeader>
           <CardTitle>Entrar na família</CardTitle>
           <CardDescription>
-            Digite o código de 8 caracteres que o responsável compartilhou
+            Use a conta do executor (outra conta). Digite o código de 8
+            caracteres.
           </CardDescription>
         </CardHeader>
         <form onSubmit={joinFamily}>

@@ -16,15 +16,17 @@ export type TaskAction =
 interface Transition {
   from: TaskStatus[];
   to: TaskStatus;
-  role?: Role; // undefined = qualquer membro da família (claim)
+  role?: Role;
   mustBeAssignee?: boolean;
-  mustBeOpen?: boolean; // assignee null
+  mustBeOpen?: boolean;
 }
 
 export const TRANSITIONS: Record<TaskAction, Transition> = {
+  // Só executor assume missão do quadro aberto
   claim: {
     from: ["criada"],
     to: "atribuida",
+    role: "executor",
     mustBeOpen: true,
   },
   assign: { from: ["criada"], to: "atribuida", role: "responsavel" },
@@ -77,7 +79,6 @@ export function canTransition(
   if (t.mustBeAssignee && task.assignee_id !== actor.userId) {
     return { ok: false, error: `Só o executor atribuído pode "${action}".` };
   }
-  // complete: assignee ou criador (auto-tarefa) ou claim implícito em criada
   if (action === "complete") {
     const isAssignee = task.assignee_id === actor.userId;
     const isOpen = task.assignee_id == null && task.status === "criada";
@@ -113,9 +114,11 @@ export function canNegotiate(
   actor: Actor,
   hasPendingNegotiation: boolean,
 ): TransitionResult {
-  // Pós-aprovação (troca por experiência) — mantido
   if (actor.role !== "executor" || task.assignee_id !== actor.userId) {
-    return { ok: false, error: "Só o executor atribuído pode negociar recompensa." };
+    return {
+      ok: false,
+      error: "Só o executor atribuído pode negociar recompensa.",
+    };
   }
   if (task.status !== "aprovada") {
     return {
@@ -132,15 +135,24 @@ export function canNegotiate(
   return { ok: true, to: task.status };
 }
 
-/** Oferta de valor (rebate) em tarefa aberta ou atribuída */
+/** Oferta de valor (rebate) — só executor */
 export function canOfferPrice(
   task: Pick<Task, "status" | "assignee_id">,
   actor: Actor,
 ): TransitionResult {
-  if (task.status !== "criada" && task.status !== "atribuida") {
-    return { ok: false, error: "Só dá para negociar valor em tarefas abertas/atribuídas." };
+  if (actor.role !== "executor") {
+    return {
+      ok: false,
+      error: "Só o executor pode propor valor.",
+    };
   }
-  if (task.status === "atribuida" && task.assignee_id !== actor.userId && actor.role !== "responsavel") {
+  if (task.status !== "criada" && task.status !== "atribuida") {
+    return {
+      ok: false,
+      error: "Só dá para negociar valor em tarefas abertas/atribuídas.",
+    };
+  }
+  if (task.status === "atribuida" && task.assignee_id !== actor.userId) {
     return { ok: false, error: "Tarefa já assumida por outro." };
   }
   return { ok: true, to: task.status };
