@@ -10,6 +10,7 @@ import { PendingOffers } from "@/components/offers/pending-offers";
 import { ConfirmAllButton } from "@/components/wallet/confirm-all-button";
 import { SideMenu } from "@/components/layout/side-menu";
 import { OPEN_CREATE_TASK_EVENT } from "@/components/tasks/create-task-fab";
+import { GAME_LEVEL_UP_EVENT } from "@/components/executor/game-feedback";
 import { formatBRL } from "@/lib/domain/money";
 
 type PanelId =
@@ -107,6 +108,25 @@ export function GameLobby({
   ];
 
   useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    const key = `family-game:last-level:${userId}`;
+    const previous = window.localStorage.getItem(key);
+    if (previous === null) {
+      window.localStorage.setItem(key, String(level));
+      return;
+    }
+
+    const previousLevel = Number(previous);
+    if (Number.isFinite(previousLevel) && level > previousLevel) {
+      window.dispatchEvent(
+        new CustomEvent(GAME_LEVEL_UP_EVENT, {
+          detail: { from: previousLevel, to: level },
+        }),
+      );
+    }
+    window.localStorage.setItem(key, String(level));
+  }, [level, userId]);
 
   useEffect(() => {
     if (!panel) return;
