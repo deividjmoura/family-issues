@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { CreateTaskForm } from "@/components/tasks/create-task-form";
+import { CreateTaskFab } from "@/components/tasks/create-task-fab";
 import { TaskList } from "@/components/tasks/task-list";
 import { TaskFilters } from "@/components/tasks/task-filters";
 import { NotificationList } from "@/components/notifications/notification-list";
@@ -98,10 +98,10 @@ export default async function ResponsavelHomePage() {
   const totalDue = [...dueByExecutor.values()].reduce((a, b) => a + b, 0);
 
   return (
-    <main className="mx-auto max-w-3xl space-y-6 px-4 py-8 sm:px-6">
+    <main className="mx-auto max-w-3xl space-y-5 px-4 py-8 pb-28 sm:px-6">
       <RealtimeNotifications userId={user.id} />
       <AppHeader
-        badge="Painel do responsável"
+        badge="Dashboard"
         title={family.name}
         subtitle={
           <>
@@ -167,8 +167,6 @@ export default async function ResponsavelHomePage() {
         </section>
       )}
 
-      <CreateTaskForm familyId={familyId} executors={executors} />
-
       {toVerify.length > 0 && (
         <section className="space-y-3">
           <h2 className="text-lg font-semibold">
@@ -195,6 +193,13 @@ export default async function ResponsavelHomePage() {
           nameByUserId={names}
         />
       </section>
+
+      <CreateTaskFab
+        familyId={familyId}
+        executors={executors}
+        allowOpenBoard
+        label="Nova tarefa"
+      />
     </main>
   );
 }

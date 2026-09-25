@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { TaskList } from "@/components/tasks/task-list";
-import { CreateTaskForm } from "@/components/tasks/create-task-form";
+import { CreateTaskFab } from "@/components/tasks/create-task-fab";
 import { NotificationList } from "@/components/notifications/notification-list";
 import { RealtimeNotifications } from "@/components/notifications/realtime-badge";
 import { ConfirmAllButton } from "@/components/wallet/confirm-all-button";
@@ -85,45 +85,45 @@ export default async function ExecutorHomePage() {
   const { offers, taskMeta } = await listPendingOffersForFamily(familyId);
 
   return (
-    <main className="mx-auto max-w-3xl space-y-6 px-4 py-8 sm:px-6">
+    <main className="mx-auto max-w-3xl space-y-5 px-4 py-8 pb-28 sm:px-6">
       <RealtimeNotifications userId={user.id} />
       <AppHeader
-        badge="⚔️ Modo missão"
-        title="Lobby de missões"
+        badge="⚔️ MISSION LOBBY"
+        title="Suas missões"
         subtitle={family.name}
       />
 
       <div className="grid grid-cols-3 gap-3">
-        <div className="glow-coin rounded-2xl border border-border bg-card p-4">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-coin">
-            Saldo
+        <div className="hud-chip glow-coin">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-coin">
+            💰 Gold
           </p>
-          <p className="mt-1 text-xl font-extrabold text-coin sm:text-2xl">
+          <p className="mt-1 text-xl font-black tabular-nums text-coin sm:text-2xl">
             {formatBRL(saldo)}
           </p>
         </div>
-        <div className="glow-xp rounded-2xl border border-border bg-card p-4">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-xp">
-            Pontos
+        <div className="hud-chip glow-xp">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-xp">
+            ⭐ XP
           </p>
-          <p className="mt-1 text-xl font-extrabold text-xp sm:text-2xl">
-            ⭐ {myPoints}
+          <p className="mt-1 text-xl font-black tabular-nums text-xp sm:text-2xl">
+            {myPoints}
           </p>
         </div>
-        <div className="rounded-2xl border border-border bg-card p-4">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Recebido
+        <div className="hud-chip">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+            🏆 Total
           </p>
-          <p className="mt-1 text-xl font-extrabold sm:text-2xl">
+          <p className="mt-1 text-xl font-black tabular-nums sm:text-2xl">
             {formatBRL(ganhos)}
           </p>
         </div>
       </div>
 
       {awaitingConfirm.length > 0 && (
-        <div className="rounded-2xl border-2 border-success/40 bg-card p-4">
+        <div className="rounded-2xl border-2 border-success/50 bg-card/80 p-4">
           <p className="mb-3 text-sm text-muted-foreground">
-            Pagamento registrado — confirme o recebimento:
+            💵 Pagamento na conta — confirme o loot:
           </p>
           <ConfirmAllButton
             familyId={familyId}
@@ -136,7 +136,7 @@ export default async function ExecutorHomePage() {
       <Leaderboard
         tasks={familyTasks}
         nameByUserId={names}
-        title="🏆 Ranking da família"
+        title="🏆 Ranking"
       />
 
       <PendingOffers
@@ -150,9 +150,9 @@ export default async function ExecutorHomePage() {
 
       {openBoard.length > 0 && (
         <section className="space-y-3">
-          <h2 className="flex items-center gap-2 text-lg font-bold">
-            <span className="text-warning">◆</span> Quadro aberto
-            <span className="rounded-full bg-warning/20 px-2 text-xs text-warning">
+          <h2 className="flex items-center gap-2 text-lg font-black tracking-tight text-warning">
+            ◆ QUEST BOARD
+            <span className="rounded-full border border-warning/40 bg-warning/15 px-2 text-xs font-bold">
               {openBoard.length}
             </span>
           </h2>
@@ -167,9 +167,13 @@ export default async function ExecutorHomePage() {
       )}
 
       <section className="space-y-3">
-        <h2 className="text-lg font-bold">Minhas missões</h2>
+        <h2 className="text-lg font-black tracking-tight">▶ ACTIVE QUESTS</h2>
         <TaskList
-          tasks={active.length ? active : myTasks.filter((t) => !done.includes(t))}
+          tasks={
+            active.length
+              ? active
+              : myTasks.filter((t) => !done.includes(t))
+          }
           role="executor"
           userId={user.id}
           pendingNegotiationTaskIds={pendingIds}
@@ -177,12 +181,10 @@ export default async function ExecutorHomePage() {
         />
       </section>
 
-      <CreateTaskForm familyId={familyId} executors={[]} allowOpenBoard={false} />
-
       {done.length > 0 && (
-        <section className="space-y-3 opacity-80">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-            Histórico
+        <section className="space-y-3 opacity-75">
+          <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+            Completed
           </h2>
           <TaskList
             tasks={done}
@@ -193,6 +195,13 @@ export default async function ExecutorHomePage() {
           />
         </section>
       )}
+
+      <CreateTaskFab
+        familyId={familyId}
+        executors={[]}
+        allowOpenBoard={false}
+        label="Nova missão"
+      />
     </main>
   );
 }
