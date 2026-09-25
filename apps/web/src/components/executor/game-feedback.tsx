@@ -27,6 +27,7 @@ export function GameFeedback() {
 
     const onLevelUp = () => {
       setLevelUp(true);
+      sfx.success();
       setVisible(true);
       if (hideTimerRef.current) window.clearTimeout(hideTimerRef.current);
       hideTimerRef.current = window.setTimeout(() => {
@@ -55,9 +56,13 @@ export function GameFeedback() {
         ))}
       </div>
       <div className="game-feedback__card">
-        <span className="game-feedback__icon" aria-hidden>✨</span>
-        <strong>MISSÃO COMPLETA!</strong>
-        <span className="game-feedback__xp">+{xp} XP</span>
+        <span className="game-feedback__icon" aria-hidden>
+          {levelUp ? "🆙" : "✨"}
+        </span>
+        <strong>{levelUp ? "LEVEL UP!" : "MISSÃO COMPLETA!"}</strong>
+        <span className="game-feedback__xp">
+          {levelUp ? "Novo nível desbloqueado!" : `+${xp} XP`}
+        </span>
       </div>
     </div>
   );
