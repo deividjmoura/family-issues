@@ -111,7 +111,9 @@ export default function HomePage() {
   const [activeStep, setActiveStep] = useState(0);
 
   useEffect(() => {
+    const container = document.querySelector<HTMLElement>(".responsible-steps");
     const nodes = Array.from(document.querySelectorAll<HTMLElement>("[data-step-index]"));
+    const isMobile = window.matchMedia("(max-width: 900px)").matches;
     const observer = new IntersectionObserver(
       (entries) => {
         const visible = entries
@@ -119,7 +121,9 @@ export default function HomePage() {
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
         if (visible) setActiveStep(Number((visible.target as HTMLElement).dataset.stepIndex ?? 0));
       },
-      { threshold: [0.35, 0.6], rootMargin: "-35% 0px -35% 0px" }
+      isMobile
+        ? { root: container, threshold: [0.55, 0.75], rootMargin: "0px" }
+        : { threshold: [0.35, 0.6], rootMargin: "-35% 0px -35% 0px" }
     );
     nodes.forEach((node) => observer.observe(node));
     return () => observer.disconnect();
@@ -162,7 +166,7 @@ export default function HomePage() {
           <Swords className="hero-swords" size={48} />
           <div className="hero-photo-frame">
             <div className="hero-photo">
-              <img src="https://images.unsplash.com/photo-1758874960466-fb0a3e0007bc?auto=format&fit=crop&fm=jpg&q=82&w=1200" alt="Família cozinhando e se divertindo na cozinha" />
+              <img src="/family/16x9-shutterstock_1660546018.jpg" alt="Família cozinhando e se divertindo na cozinha" />
             </div>
             <div className="hero-photo-badge"><span>✓</span><div><strong>Missão concluída!</strong><small>Aguardando aprovação</small></div></div>
             <div className="hero-reward"><Coins size={17} fill="currentColor" /><div><strong>+ R$ 10,00</strong><small>Recompensa aprovada</small></div></div>
