@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC = ["/", "/login", "/signup"];
+const PUBLIC = ["/", "/login", "/signup", "/politica"];
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -49,7 +49,7 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
-  const isPublic = PUBLIC.includes(path);
+  const isPublic = PUBLIC.includes(path) || path.startsWith("/auth/");
 
   if (!user && !isPublic && path !== "/onboarding") {
     const redirectUrl = request.nextUrl.clone();
