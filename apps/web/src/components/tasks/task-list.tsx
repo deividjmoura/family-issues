@@ -82,13 +82,25 @@ export function TaskList({
 
   if (tasks.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-border bg-muted/30 px-6 py-10 text-center">
-        <p className="text-sm font-medium text-foreground">Nenhuma tarefa</p>
+      <div className={role === "executor"
+        ? "theme-game__empty rounded-2xl border border-dashed border-cyan-400/30 bg-cyan-950/10 px-6 py-12 text-center"
+        : "rounded-xl border border-dashed border-border bg-muted/30 px-6 py-10 text-center"}>
+        {role === "executor" && (
+          <span className="theme-game__empty-icon" aria-hidden>🗺️</span>
+        )}
+        <p className="text-sm font-medium text-foreground">
+          {role === "executor" ? "Mapa limpo!" : "Nenhuma tarefa"}
+        </p>
         <p className="mt-1 text-xs text-muted-foreground">
           {role === "responsavel"
             ? "Crie uma tarefa pelo menu (☰)."
             : "Missões abertas ou atribuídas a você aparecem aqui."}
         </p>
+        {role === "executor" && (
+          <p className="mt-3 text-[11px] font-semibold uppercase tracking-wider text-cyan-300/60">
+            Nova missão desbloqueada em breve
+          </p>
+        )}
       </div>
     );
   }
