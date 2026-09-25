@@ -248,8 +248,10 @@ export function SideMenu({
                   </div>
                 )}
 
-                {tab === "opcoes" && (
-                  <div className="space-y-5">
+                <div
+                  className={tab === "opcoes" ? "space-y-5" : "hidden"}
+                  aria-hidden={tab !== "opcoes"}
+                >
                     <div className="space-y-2">
                       <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                         Aparência
@@ -276,7 +278,7 @@ export function SideMenu({
                       </form>
                     </div>
                   </div>
-                )}
+                </div>
               </div>
             </aside>
           </div>,
