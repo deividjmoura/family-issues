@@ -75,6 +75,7 @@ export function GameLobby({
   const [mounted, setMounted] = useState(false);
   const level = Math.floor(xp / 100) + 1;
   const levelProgress = xp % 100;
+  const xpToNextLevel = 100 - levelProgress;
   const dateKey = (date: Date) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -315,7 +316,7 @@ export function GameLobby({
           />
         </div>
         <p className="text-center text-xs text-muted-foreground">
-          Próximo nível: {100 - (xp % 100)} XP
+          Próximo nível: {xpToNextLevel} XP
         </p>
       </div>
     ) : panel === "done" ? (
