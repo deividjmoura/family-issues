@@ -7,6 +7,7 @@ const KEY = "ft-color-scheme";
 
 export function ThemeToggle() {
   const [mode, setMode] = useState<"light" | "dark">("dark");
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     try {
@@ -20,6 +21,7 @@ export function ThemeToggle() {
     } catch {
       /* ignore */
     }
+    setReady(true);
   }, []);
 
   function toggle() {
@@ -33,8 +35,23 @@ export function ThemeToggle() {
     }
   }
 
+  if (!ready) {
+    return (
+      <Button type="button" size="sm" variant="secondary" disabled>
+        …
+      </Button>
+    );
+  }
+
   return (
-    <Button type="button" size="sm" variant="secondary" onClick={toggle}>
+    <Button
+      type="button"
+      size="sm"
+      variant="secondary"
+      onClick={toggle}
+      aria-label={mode === "dark" ? "Ativar tema claro" : "Ativar tema escuro"}
+      title="Alternar tema claro/escuro"
+    >
       {mode === "dark" ? "☀️ Claro" : "🌙 Escuro"}
     </Button>
   );
