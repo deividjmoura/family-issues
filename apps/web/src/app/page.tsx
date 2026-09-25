@@ -7,8 +7,7 @@ import {
   Check,
   ClipboardCheck,
   Coins,
-  CrossedSwords,
-  Gift,
+  Swords,
   Mail,
   PiggyBank,
   ShieldCheck,
@@ -16,8 +15,6 @@ import {
   Target,
   UserPlus,
   Users,
-  WalletCards,
-  X,
 } from "lucide-react";
 
 const steps = [
@@ -170,7 +167,7 @@ export default function HomePage() {
 
         <div className="hero-art" aria-label="Exemplo de uma missão concluída">
           <div className="hero-blob" />
-          <CrossedSwords className="hero-swords" size={48} />
+          <Swords className="hero-swords" size={48} />
           <div className="hero-photo-frame">
             <div className="hero-photo">
               <img src="https://images.unsplash.com/photo-1504150558240-0b4fdc2ee3f4?auto=format&fit=crop&w=1100&q=90" alt="Família brincando ao ar livre" />
@@ -241,14 +238,14 @@ export default function HomePage() {
 
       <section id="para-quem-joga" className="landing-section player-section">
         <div className="player-heading">
-          <span className="section-eyebrow orange"><CrossedSwords size={14} /> PARA QUEM JOGA</span>
+          <span className="section-eyebrow orange"><Swords size={14} /> PARA QUEM JOGA</span>
           <h2>Sua rotina. Seus objetivos. Sua próxima <span>conquista.</span></h2>
           <p>Para quem executa, cada tarefa vira uma missão clara e cada aprovação vira progresso.</p>
         </div>
 
         <div className="player-feature-grid">
           <article className="player-feature purple-card">
-            <CrossedSwords size={32} />
+            <Swords size={32} />
             <h3>Aceite missões</h3>
             <p>Receba tarefas, conclua os objetivos e envie cada conquista para verificação.</p>
           </article>
@@ -278,7 +275,7 @@ export default function HomePage() {
 
       <section className="landing-section cta-section">
         <div className="cta-panel">
-          <CrossedSwords className="cta-swords" size={52} />
+          <Swords className="cta-swords" size={52} />
           <Target className="cta-target" size={45} />
           <Sparkles className="cta-stars cta-stars-one" size={28} />
           <Sparkles className="cta-stars cta-stars-two" size={20} />
