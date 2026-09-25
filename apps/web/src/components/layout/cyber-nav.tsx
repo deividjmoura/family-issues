@@ -20,7 +20,7 @@ export function CyberNav({ title = "MISSION CONTROL" }: { title?: string }) {
   }, []);
 
   return (
-    <>
+    <div className="cyber-nav-wrap">
       <div className="cyber-nav">
         <span className="cyber-nav__title">{title}</span>
         <span className="cyber-nav__clock" suppressHydrationWarning>
@@ -28,6 +28,6 @@ export function CyberNav({ title = "MISSION CONTROL" }: { title?: string }) {
         </span>
       </div>
       <div className="cyber-nav-bottom" aria-hidden />
-    </>
+    </div>
   );
 }
