@@ -3,7 +3,6 @@ import { createClient } from "@/lib/supabase/server";
 import { CreateTaskFab } from "@/components/tasks/create-task-fab";
 import { TaskList } from "@/components/tasks/task-list";
 import { TaskFilters } from "@/components/tasks/task-filters";
-import { NotificationList } from "@/components/notifications/notification-list";
 import { RealtimeNotifications } from "@/components/notifications/realtime-badge";
 import { PendingNegotiations } from "@/components/negotiations/pending-list";
 import { PendingOffers } from "@/components/offers/pending-offers";
@@ -108,6 +107,7 @@ export default async function ResponsavelHomePage() {
             Convite: <CopyInvite code={family.invite_code} />
           </>
         }
+        notifications={notifications}
       />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -127,16 +127,17 @@ export default async function ResponsavelHomePage() {
         title="Ranking da família"
       />
 
-      <PendingOffers
-        offers={offers}
-        taskMeta={taskMeta}
-        nameByUserId={names}
-        currentUserId={user.id}
-      />
-
-      <PendingNegotiations items={pendingNegos} taskTitles={taskTitles} />
-
-      <NotificationList items={notifications} />
+      {(offers.length > 0 || pendingNegos.length > 0) && (
+        <>
+          <PendingOffers
+            offers={offers}
+            taskMeta={taskMeta}
+            nameByUserId={names}
+            currentUserId={user.id}
+          />
+          <PendingNegotiations items={pendingNegos} taskTitles={taskTitles} />
+        </>
+      )}
 
       {dueByExecutor.size > 0 && (
         <section className="rounded-xl border border-border bg-card p-4 shadow-sm">
