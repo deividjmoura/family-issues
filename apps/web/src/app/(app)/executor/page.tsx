@@ -6,6 +6,7 @@ import { NotificationList } from "@/components/notifications/notification-list";
 import { RealtimeNotifications } from "@/components/notifications/realtime-badge";
 import { ConfirmAllButton } from "@/components/wallet/confirm-all-button";
 import { AppHeader } from "@/components/layout/app-header";
+import { CyberNav } from "@/components/layout/cyber-nav";
 import { Leaderboard } from "@/components/leaderboard/leaderboard";
 import { PendingOffers } from "@/components/offers/pending-offers";
 import { listMyNotifications } from "@/lib/actions/notifications";
@@ -84,9 +85,15 @@ export default async function ExecutorHomePage() {
 
   const { offers, taskMeta } = await listPendingOffersForFamily(familyId);
 
+  const activePct = familyTasks.length
+    ? Math.round((active.length / Math.max(familyTasks.length, 1)) * 100)
+    : 0;
+
   return (
     <main className="mx-auto max-w-3xl space-y-5 px-4 py-8 pb-28 sm:px-6">
       <RealtimeNotifications userId={user.id} />
+      <CyberNav title="CYBER MISSION LOBBY" />
+
       <AppHeader
         badge="⚔️ MISSION LOBBY"
         title="Suas missões"
@@ -95,33 +102,77 @@ export default async function ExecutorHomePage() {
 
       <div className="grid grid-cols-3 gap-3">
         <div className="hud-chip glow-coin">
+          <span className="cyber-corner" aria-hidden />
           <p className="text-[10px] font-bold uppercase tracking-widest text-coin">
             💰 Gold
           </p>
           <p className="mt-1 text-xl font-black tabular-nums text-coin sm:text-2xl">
             {formatBRL(saldo)}
           </p>
+          <div className="status-bar">
+            <div
+              className="status-bar-fill warning"
+              style={{ width: `${Math.min(100, saldo > 0 ? 70 : 15)}%` }}
+            />
+          </div>
         </div>
         <div className="hud-chip glow-xp">
+          <span className="cyber-corner" aria-hidden />
           <p className="text-[10px] font-bold uppercase tracking-widest text-xp">
             ⭐ XP
           </p>
           <p className="mt-1 text-xl font-black tabular-nums text-xp sm:text-2xl">
             {myPoints}
           </p>
+          <div className="status-bar">
+            <div
+              className="status-bar-fill"
+              style={{
+                width: `${Math.min(100, Math.max(12, myPoints % 100))}%`,
+                background: "var(--neon-purple)",
+              }}
+            />
+          </div>
         </div>
         <div className="hud-chip">
+          <span className="cyber-corner" aria-hidden />
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
             🏆 Total
           </p>
           <p className="mt-1 text-xl font-black tabular-nums sm:text-2xl">
             {formatBRL(ganhos)}
           </p>
+          <div className="card-chart" aria-hidden>
+            <div className="chart-bar" style={{ "--height": "40%" } as React.CSSProperties} />
+            <div className="chart-bar" style={{ "--height": "70%" } as React.CSSProperties} />
+            <div className="chart-bar" style={{ "--height": "50%" } as React.CSSProperties} />
+            <div className="chart-bar" style={{ "--height": "85%" } as React.CSSProperties} />
+            <div className="chart-bar" style={{ "--height": "60%" } as React.CSSProperties} />
+          </div>
+        </div>
+      </div>
+
+      <div className="cyber-card glassmorphism p-4">
+        <p className="card-title text-xs">System Performance</p>
+        <p className="text-2xl font-black text-[var(--neon-cyan)]">
+          {activePct}%
+        </p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          QUEST LOAD · {active.length} ativas / {done.length} concluídas
+        </p>
+        <div className="card-chart" aria-hidden>
+          <div className="chart-bar" style={{ "--height": "35%" } as React.CSSProperties} />
+          <div className="chart-bar" style={{ "--height": "55%" } as React.CSSProperties} />
+          <div className="chart-bar" style={{ "--height": "45%" } as React.CSSProperties} />
+          <div className="chart-bar" style={{ "--height": "75%" } as React.CSSProperties} />
+          <div className="chart-bar" style={{ "--height": "65%" } as React.CSSProperties} />
+          <div className="chart-bar" style={{ "--height": "90%" } as React.CSSProperties} />
+          <div className="chart-bar" style={{ "--height": "50%" } as React.CSSProperties} />
         </div>
       </div>
 
       {awaitingConfirm.length > 0 && (
-        <div className="rounded-2xl border-2 border-success/50 bg-card/80 p-4">
+        <div className="cyber-card border-2 border-[var(--console-green)]/50 p-4">
           <p className="mb-3 text-sm text-muted-foreground">
             💵 Pagamento na conta — confirme o loot:
           </p>
@@ -150,9 +201,9 @@ export default async function ExecutorHomePage() {
 
       {openBoard.length > 0 && (
         <section className="space-y-3">
-          <h2 className="flex items-center gap-2 text-lg font-black tracking-tight text-warning">
+          <h2 className="flex items-center gap-2 text-lg font-black tracking-tight">
             ◆ QUEST BOARD
-            <span className="rounded-full border border-warning/40 bg-warning/15 px-2 text-xs font-bold">
+            <span className="rounded-full border border-warning/40 bg-warning/15 px-2 text-xs font-bold text-warning">
               {openBoard.length}
             </span>
           </h2>
