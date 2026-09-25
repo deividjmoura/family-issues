@@ -110,7 +110,7 @@ export async function notify(
   void (async () => {
     try {
       const copy = PUSH_COPY[type]?.(payload) ?? {
-        title: "Family Tasks",
+        title: "Family Issues",
         body: "Nova atualização",
       };
       await sendPushToUser(userId, {
