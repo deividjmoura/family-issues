@@ -1,22 +1,25 @@
-/* Modal de conclusão — mobile-first, sem clip-path cortando o conteúdo */
+/* Modal flutuante — centrado, efeito de jogo (bounce + glow) */
 .complete-modal-root {
   position: fixed;
   inset: 0;
   z-index: 10000;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  padding: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 1rem;
   overscroll-behavior: contain;
+  animation: modal-backdrop-in 0.28s ease both;
 }
 
-@media (min-width: 640px) {
-  .complete-modal-root {
-    align-items: center;
-    padding: 1rem;
+@keyframes modal-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
@@ -25,22 +28,45 @@
   flex-direction: column;
   width: 100%;
   max-width: 28rem;
-  max-height: min(92dvh, 100%);
+  max-height: min(88dvh, 100%);
   background: #0d1f2d;
   color: #e8f4ff;
-  border: 1px solid rgba(0, 240, 255, 0.35);
-  border-radius: 1.25rem 1.25rem 0 0;
-  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.5);
-  /* SEM clip-path — era o que cortava o textarea no mobile */
+  border: 1px solid rgba(0, 240, 255, 0.45);
+  border-radius: 1.25rem;
+  box-shadow:
+    0 0 0 1px rgba(0, 240, 255, 0.12),
+    0 0 40px rgba(0, 240, 255, 0.2),
+    0 24px 64px rgba(0, 0, 0, 0.55);
   overflow: hidden;
-  animation: complete-modal-up 0.25s ease;
+  animation: complete-modal-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   padding-bottom: env(safe-area-inset-bottom, 0);
+  transform-origin: center center;
+}
+
+/* partículas decorativas no painel */
+.complete-modal-panel::before {
+  content: "✦  ★  ◆";
+  position: absolute;
+  top: 0.75rem;
+  right: 3rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.6rem;
+  color: rgba(0, 240, 255, 0.35);
+  pointer-events: none;
+  animation: kids-sparkle 2.5s ease-in-out infinite;
 }
 
 body:has(.theme-resp) .complete-modal-panel {
   background: #ffffff;
   color: #0f172a;
   border-color: #cbd5e1;
+  box-shadow:
+    0 0 0 1px rgba(37, 99, 235, 0.08),
+    0 20px 50px rgba(15, 23, 42, 0.18);
+}
+
+body:has(.theme-resp) .complete-modal-panel::before {
+  color: rgba(37, 99, 235, 0.25);
 }
 
 html[data-scheme="dark"] body:has(.theme-resp) .complete-modal-panel {
@@ -49,21 +75,21 @@ html[data-scheme="dark"] body:has(.theme-resp) .complete-modal-panel {
   border-color: #334155;
 }
 
-@media (min-width: 640px) {
-  .complete-modal-panel {
-    border-radius: 1.25rem;
-    max-height: 85vh;
-  }
-}
-
-@keyframes complete-modal-up {
-  from {
+@keyframes complete-modal-pop {
+  0% {
     opacity: 0;
-    transform: translateY(24px);
+    transform: scale(0.72) translateY(28px) rotate(-1.5deg);
   }
-  to {
+  55% {
     opacity: 1;
-    transform: translateY(0);
+    transform: scale(1.04) translateY(-4px) rotate(0.5deg);
+  }
+  75% {
+    transform: scale(0.98) translateY(2px) rotate(-0.3deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0) rotate(0);
   }
 }
 
@@ -74,6 +100,7 @@ html[data-scheme="dark"] body:has(.theme-resp) .complete-modal-panel {
   gap: 0.75rem;
   padding: 1rem 1rem 0.5rem;
   flex-shrink: 0;
+  position: relative;
 }
 
 .complete-modal-title {
@@ -89,7 +116,6 @@ body:has(.theme-game) .complete-modal-title {
   letter-spacing: 0.04em;
   color: #00f0ff;
   text-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
-  /* sem wiggle — legível no modal */
   animation: none !important;
 }
 
@@ -106,6 +132,12 @@ body:has(.theme-game) .complete-modal-title {
   line-height: 1;
   cursor: pointer;
   flex-shrink: 0;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.complete-modal-close:hover {
+  transform: scale(1.08) rotate(90deg);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .complete-modal-body {
@@ -144,10 +176,10 @@ body:has(.theme-resp) .complete-modal-hint {
   margin-bottom: 1rem;
   padding: 0.75rem 0.85rem;
   border-radius: 0.75rem;
-  border: 1px solid rgba(0, 240, 255, 0.35);
+  border: 1px solid rgba(0, 240, 255, hid 0.35);
   background: rgba(10, 11, 16, 0.85);
   color: #e8f4ff;
-  font-size: 16px; /* evita zoom no iOS */
+  font-size: 16px;
   line-height: 1.45;
   resize: vertical;
   box-sizing: border-box;
