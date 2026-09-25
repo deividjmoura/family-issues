@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { createPortal } from "react-dom";
 import type { Task, TaskOffer } from "@/lib/domain/types";
 import type { AppNotification } from "@/lib/actions/notifications";
@@ -272,10 +272,7 @@ export function GameLobby({
     },
   ];
 
-  function onTile(
-    id: PanelId | "new",
-    event: React.MouseEvent<HTMLButtonElement>,
-  ) {
+  function onTile(id: PanelId | "new", event: MouseEvent<HTMLButtonElement>) {
     const rect = event.currentTarget.getBoundingClientRect();
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
