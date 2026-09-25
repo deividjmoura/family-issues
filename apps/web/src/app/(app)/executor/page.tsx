@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { CreateTaskFab } from "@/components/tasks/create-task-fab";
-import { RealtimeNotifications } from "@/components/notifications/realtime-badge";
+import { FamilyRealtime } from "@/components/realtime/family-realtime";
 import { GameLobby } from "@/components/executor/game-lobby";
 import { listMyNotifications } from "@/lib/actions/notifications";
 import { listPendingOffersForFamily } from "@/lib/actions/offers";
@@ -87,7 +87,7 @@ export default async function ExecutorHomePage() {
 
   return (
     <main className="w-full pb-8">
-      <RealtimeNotifications userId={user.id} />
+      <FamilyRealtime userId={user.id} familyId={familyId} />
       <GameLobby
         familyName={family.name}
         familyId={familyId}
@@ -101,7 +101,9 @@ export default async function ExecutorHomePage() {
         doneCount={done.length}
         offersCount={offers.filter((o) => o.user_id !== user.id).length}
         notifications={notifications}
-        activeTasks={active.length ? active : myTasks.filter((t) => !done.includes(t))}
+        activeTasks={
+          active.length ? active : myTasks.filter((t) => !done.includes(t))
+        }
         boardTasks={openBoard}
         doneTasks={done}
         familyTasks={familyTasks}
