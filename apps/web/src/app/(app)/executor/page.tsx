@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import type { CSSProperties } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { TaskList } from "@/components/tasks/task-list";
 import { CreateTaskFab } from "@/components/tasks/create-task-fab";
@@ -14,6 +15,10 @@ import { listPendingOffersForFamily } from "@/lib/actions/offers";
 import { getProfileNames } from "@/lib/actions/profiles";
 import type { Task } from "@/lib/domain/types";
 import { formatBRL, balanceCents, earnedCents } from "@/lib/domain/money";
+
+function bar(height: string): CSSProperties {
+  return { ["--height" as string]: height } as CSSProperties;
+}
 
 export default async function ExecutorHomePage() {
   const supabase = await createClient();
@@ -143,11 +148,11 @@ export default async function ExecutorHomePage() {
             {formatBRL(ganhos)}
           </p>
           <div className="card-chart" aria-hidden>
-            <div className="chart-bar" style={{ "--height": "40%" } as React.CSSProperties} />
-            <div className="chart-bar" style={{ "--height": "70%" } as React.CSSProperties} />
-            <div className="chart-bar" style={{ "--height": "50%" } as React.CSSProperties} />
-            <div className="chart-bar" style={{ "--height": "85%" } as React.CSSProperties} />
-            <div className="chart-bar" style={{ "--height": "60%" } as React.CSSProperties} />
+            <div className="chart-bar" style={bar("40%")} />
+            <div className="chart-bar" style={bar("70%")} />
+            <div className="chart-bar" style={bar("50%")} />
+            <div className="chart-bar" style={bar("85%")} />
+            <div className="chart-bar" style={bar("60%")} />
           </div>
         </div>
       </div>
@@ -161,13 +166,13 @@ export default async function ExecutorHomePage() {
           QUEST LOAD · {active.length} ativas / {done.length} concluídas
         </p>
         <div className="card-chart" aria-hidden>
-          <div className="chart-bar" style={{ "--height": "35%" } as React.CSSProperties} />
-          <div className="chart-bar" style={{ "--height": "55%" } as React.CSSProperties} />
-          <div className="chart-bar" style={{ "--height": "45%" } as React.CSSProperties} />
-          <div className="chart-bar" style={{ "--height": "75%" } as React.CSSProperties} />
-          <div className="chart-bar" style={{ "--height": "65%" } as React.CSSProperties} />
-          <div className="chart-bar" style={{ "--height": "90%" } as React.CSSProperties} />
-          <div className="chart-bar" style={{ "--height": "50%" } as React.CSSProperties} />
+          <div className="chart-bar" style={bar("35%")} />
+          <div className="chart-bar" style={bar("55%")} />
+          <div className="chart-bar" style={bar("45%")} />
+          <div className="chart-bar" style={bar("75%")} />
+          <div className="chart-bar" style={bar("65%")} />
+          <div className="chart-bar" style={bar("90%")} />
+          <div className="chart-bar" style={bar("50%")} />
         </div>
       </div>
 
