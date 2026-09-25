@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { CreateTaskFab } from "@/components/tasks/create-task-fab";
 import { TaskList } from "@/components/tasks/task-list";
 import { TaskFilters } from "@/components/tasks/task-filters";
-import { RealtimeNotifications } from "@/components/notifications/realtime-badge";
+import { FamilyRealtime } from "@/components/realtime/family-realtime";
 import { PendingNegotiations } from "@/components/negotiations/pending-list";
 import { PendingOffers } from "@/components/offers/pending-offers";
 import { PayExecutorButton } from "@/components/wallet/pay-executor-button";
@@ -98,7 +98,7 @@ export default async function ResponsavelHomePage() {
 
   return (
     <main className="mx-auto max-w-3xl space-y-5 px-4 py-8 pb-28 sm:px-6">
-      <RealtimeNotifications userId={user.id} />
+      <FamilyRealtime userId={user.id} familyId={familyId} />
       <AppHeader
         badge="Dashboard"
         title={family.name}
