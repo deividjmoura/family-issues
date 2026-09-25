@@ -16,6 +16,13 @@ export type TaskStatus = (typeof TASK_STATUSES)[number];
 
 export type NegotiationStatus = "pending" | "accepted" | "rejected";
 
+export type OfferStatus =
+  | "pending"
+  | "accepted"
+  | "rejected"
+  | "withdrawn"
+  | "countered";
+
 export interface Family {
   id: string;
   name: string;
@@ -39,6 +46,7 @@ export interface Task {
   title: string;
   description: string | null;
   value_cents: number;
+  points: number;
   payment_due_date: string | null;
   assignee_id: string | null;
   status: TaskStatus;
@@ -65,4 +73,18 @@ export interface Negotiation {
   responded_at: string | null;
   response_note: string | null;
   created_at: string;
+}
+
+export interface TaskOffer {
+  id: string;
+  task_id: string;
+  user_id: string;
+  proposed_value_cents: number;
+  proposed_points: number;
+  message: string | null;
+  status: OfferStatus;
+  parent_offer_id: string | null;
+  responded_by: string | null;
+  created_at: string;
+  updated_at: string;
 }

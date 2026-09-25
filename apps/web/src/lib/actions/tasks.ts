@@ -36,10 +36,7 @@ async function getTask(taskId: string) {
 const ACTION_NOTIFY: Partial<
   Record<
     TaskAction,
-    {
-      type: NotificationType;
-      to: "assignee" | "creator";
-    }
+    { type: NotificationType; to: "assignee" | "creator" }
   >
 > = {
   complete: { type: "task_completed", to: "creator" },
@@ -54,8 +51,9 @@ export async function createTask(input: {
   title: string;
   description?: string;
   valueCents: number;
+  points?: number;
   paymentDueDate?: string;
-  assigneeId: string;
+  assigneeId?: string | null;
 }): Promise<ActionResult> {
   const supabase = await createClient();
   const {
@@ -65,25 +63,33 @@ export async function createTask(input: {
 
   if (!input.title.trim()) return { ok: false, error: "Título obrigatório." };
   if (!Number.isInteger(input.valueCents) || input.valueCents < 0) {
-    return { ok: false, error: "Valor inválido (use centavos inteiros)." };
+    return { ok: false, error: "Valor inválido." };
   }
+  const points = Math.max(0, Math.floor(input.points ?? 0));
 
   const role = await getMembership(input.familyId, user.id);
-  if (role !== "responsavel") {
-    return { ok: false, error: "Só o responsável pode criar tarefas." };
+  if (!role) return { ok: false, error: "Você não é membro desta família." };
+
+  let assigneeId: string | null = input.assigneeId?.trim() || null;
+  let status: "criada" | "atribuida" = "criada";
+
+  if (assigneeId) {
+    const { data: assigneeMem } = await supabase
+      .from("family_members")
+      .select("role")
+      .eq("family_id", input.familyId)
+      .eq("user_id", assigneeId)
+      .maybeSingle();
+    if (!assigneeMem) {
+      return { ok: false, error: "Executor precisa ser da mesma família." };
+    }
+    status = "atribuida";
   }
 
-  const { data: assigneeMem } = await supabase
-    .from("family_members")
-    .select("role")
-    .eq("family_id", input.familyId)
-    .eq("user_id", input.assigneeId)
-    .maybeSingle();
-  if (!assigneeMem || assigneeMem.role !== "executor") {
-    return {
-      ok: false,
-      error: "Assignee precisa ser executor da mesma família.",
-    };
+  // Executor criando: pode auto-atribuir
+  if (role === "executor" && !assigneeId) {
+    assigneeId = user.id;
+    status = "atribuida";
   }
 
   const { data: task, error } = await supabase
@@ -94,9 +100,10 @@ export async function createTask(input: {
       title: input.title.trim(),
       description: input.description?.trim() || null,
       value_cents: input.valueCents,
+      points,
       payment_due_date: input.paymentDueDate || null,
-      assignee_id: input.assigneeId,
-      status: "atribuida",
+      assignee_id: assigneeId,
+      status,
     })
     .select("*")
     .single();
@@ -105,15 +112,62 @@ export async function createTask(input: {
     return { ok: false, error: error?.message ?? "Erro ao criar tarefa." };
   }
 
-  await notify(input.assigneeId, "task_assigned", {
-    task_id: task.id,
-    title: task.title,
-    value_cents: task.value_cents,
-  });
+  if (assigneeId && assigneeId !== user.id) {
+    await notify(assigneeId, "task_assigned", {
+      task_id: task.id,
+      title: task.title,
+      value_cents: task.value_cents,
+      points: task.points,
+    });
+  }
 
   revalidatePath("/responsavel");
   revalidatePath("/executor");
   return { ok: true, task: task as Task };
+}
+
+export async function claimTask(taskId: string): Promise<ActionResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Não autenticado." };
+
+  const task = await getTask(taskId);
+  if (!task) return { ok: false, error: "Tarefa não encontrada." };
+
+  const role = await getMembership(task.family_id, user.id);
+  if (!role) return { ok: false, error: "Você não é membro desta família." };
+
+  const check = canTransition(task, "claim", { userId: user.id, role });
+  if (!check.ok) return { ok: false, error: check.error };
+
+  const { data: updated, error } = await supabase
+    .from("tasks")
+    .update({
+      assignee_id: user.id,
+      status: "atribuida",
+    })
+    .eq("id", taskId)
+    .is("assignee_id", null)
+    .select("*")
+    .single();
+
+  if (error || !updated) {
+    return { ok: false, error: error?.message ?? "Não foi possível assumir." };
+  }
+
+  if (task.created_by !== user.id) {
+    await notify(task.created_by, "task_assigned", {
+      task_id: task.id,
+      title: task.title,
+      claimed_by: user.id,
+    });
+  }
+
+  revalidatePath("/responsavel");
+  revalidatePath("/executor");
+  return { ok: true, task: updated as Task };
 }
 
 async function transitionTask(
@@ -140,6 +194,11 @@ async function transitionTask(
     status: check.to,
     ...extra,
   };
+
+  // complete em tarefa aberta → assume automaticamente
+  if (action === "complete" && !task.assignee_id) {
+    patch.assignee_id = user.id;
+  }
 
   if (action === "complete") {
     patch.completed_at = new Date().toISOString();
@@ -181,12 +240,15 @@ async function transitionTask(
   const meta = ACTION_NOTIFY[action];
   if (meta) {
     const targetId =
-      meta.to === "assignee" ? task.assignee_id : task.created_by;
+      meta.to === "assignee"
+        ? (updated.assignee_id as string | null) ?? task.assignee_id
+        : task.created_by;
     if (targetId && targetId !== user.id) {
       await notify(targetId, meta.type, {
         task_id: task.id,
         title: task.title,
         value_cents: task.value_cents,
+        points: task.points,
         status: check.to,
       });
     }

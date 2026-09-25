@@ -1,0 +1,23 @@
+{
+  "from": "agent-grok-1",
+  "to": ["all"],
+  "ts": "2026-09-25T12:00:00Z",
+  "type": "handoff",
+  "ref": { "issue": 25, "pr": null, "epic": null },
+  "payload": {
+    "action": "implement",
+    "summary": "Foundation v2: migration 00008, claim, points, optional assignee, auth PT + callback, task-machine claim/complete open",
+    "next": [
+      "Rodar SQL 00008 no Supabase",
+      "UI create form points + assignee opcional",
+      "claim button + open board no executor",
+      "proof thumbnail",
+      "leaderboard",
+      "offers rebate UI",
+      "themes + toggle",
+      "PWA prompt + /politica"
+    ],
+    "issues": [25, 26, 27, 28],
+    "priority": "P0"
+  }
+}
