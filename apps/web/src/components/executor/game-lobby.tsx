@@ -10,6 +10,7 @@ import { PendingOffers } from "@/components/offers/pending-offers";
 import { ConfirmAllButton } from "@/components/wallet/confirm-all-button";
 import { SideMenu } from "@/components/layout/side-menu";
 import { OPEN_CREATE_TASK_EVENT } from "@/components/tasks/create-task-fab";
+import { GAME_LEVEL_UP_EVENT } from "@/components/executor/game-feedback";
 import { formatBRL } from "@/lib/domain/money";
 
 type PanelId =
@@ -20,6 +21,7 @@ type PanelId =
   | "stats"
   | "done"
   | "offers"
+  | "achievements"
   | null;
 
 export function GameLobby({
@@ -71,8 +73,61 @@ export function GameLobby({
 }) {
   const [panel, setPanel] = useState<PanelId>(null);
   const [mounted, setMounted] = useState(false);
+  const level = Math.floor(xp / 100) + 1;
+  const levelProgress = xp % 100;
+  const xpToNextLevel = 100 - levelProgress;
+  const dateKey = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+  const completedDates = new Set(
+    doneTasks
+      .map((task) => task.completed_at)
+      .filter((date): date is string => Boolean(date))
+      .map((date) => dateKey(new Date(date))),
+  );
+  const today = new Date();
+  let streak = 0;
+  for (let i = 0; i < 365; i += 1) {
+    const day = new Date(today);
+    day.setDate(today.getDate() - i);
+    if (!completedDates.has(dateKey(day))) break;
+    streak += 1;
+  }
+  const todayKey = dateKey(today);
+  const todayCompleted = doneTasks.filter(
+    (task) => task.completed_at && dateKey(new Date(task.completed_at)) === todayKey,
+  ).length;
+  const achievements = [
+    { icon: "🌟", title: "Primeira missão", unlocked: doneTasks.length >= 1, text: "Conclua sua primeira missão." },
+    { icon: "🔥", title: "Em sequência", unlocked: streak >= 3, text: "Mantenha 3 dias seguidos." },
+    { icon: "⚡", title: "Caçador de XP", unlocked: xp >= 100, text: "Alcance 100 XP." },
+    { icon: "🏅", title: "Veterano", unlocked: doneTasks.length >= 10, text: "Conclua 10 missões." },
+    { icon: "🚀", title: "Combo diário", unlocked: todayCompleted >= 3, text: "Complete 3 missões no mesmo dia." },
+  ];
 
   useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    const key = `family-game:last-level:${userId}`;
+    const previous = window.localStorage.getItem(key);
+    if (previous === null) {
+      window.localStorage.setItem(key, String(level));
+      return;
+    }
+
+    const previousLevel = Number(previous);
+    if (Number.isFinite(previousLevel) && level > previousLevel) {
+      window.dispatchEvent(
+        new CustomEvent(GAME_LEVEL_UP_EVENT, {
+          detail: { from: previousLevel, to: level },
+        }),
+      );
+    }
+    window.localStorage.setItem(key, String(level));
+  }, [level, userId]);
 
   useEffect(() => {
     if (!panel) return;
@@ -149,6 +204,13 @@ export function GameLobby({
       color: "tile-pink",
     },
     {
+      id: "achievements",
+      icon: "🏅",
+      label: "Conquistas",
+      sub: `${achievements.filter((item) => item.unlocked).length}/${achievements.length}`,
+      color: "tile-purple",
+    },
+    {
       id: "new",
       icon: "➕",
       label: "Nova",
@@ -173,6 +235,7 @@ export function GameLobby({
     stats: "📊 System stats",
     done: "✅ Missões concluídas",
     offers: "📢 Ofertas pendentes",
+    achievements: "🏅 Conquistas desbloqueáveis",
   };
 
   const panelBody =
@@ -253,7 +316,7 @@ export function GameLobby({
           />
         </div>
         <p className="text-center text-xs text-muted-foreground">
-          Próximo nível: {100 - (xp % 100)} XP
+          Próximo nível: {xpToNextLevel} XP
         </p>
       </div>
     ) : panel === "done" ? (
@@ -277,6 +340,25 @@ export function GameLobby({
           Nenhuma oferta no momento.
         </p>
       )
+    ) : panel === "achievements" ? (
+      <div className="game-achievements">
+        <div className="game-streak">
+          <span className="game-streak__flame">🔥</span>
+          <div>
+            <strong>{streak} {streak === 1 ? "dia" : "dias"} de sequência</strong>
+            <span>Complete uma missão hoje para manter seu ritmo.</span>
+          </div>
+        </div>
+        <div className="game-achievements__grid">
+          {achievements.map((item) => (
+            <div key={item.title} className={`game-achievement ${item.unlocked ? "is-unlocked" : "is-locked"}`}>
+              <span className="game-achievement__icon" aria-hidden>{item.unlocked ? item.icon : "🔒"}</span>
+              <strong>{item.title}</strong>
+              <span>{item.unlocked ? "DESBLOQUEADA" : item.text}</span>
+            </div>
+          ))}
+        </div>
+      </div>
     ) : null;
 
   const modal =
@@ -322,8 +404,14 @@ export function GameLobby({
           <span className="game-pill game-pill--gold" title="Gold a receber">
             💰 {formatBRL(gold)}
           </span>
-          <span className="game-pill game-pill--xp" title="XP">
-            ⭐ {xp}
+          <span className="game-pill game-pill--xp" title={`${xp} XP`}>
+            ⭐ {xp} XP
+          </span>
+          <span className="game-pill game-pill--level" title={`Nível ${level}`}>
+            LVL {level}
+          </span>
+          <span className="game-pill game-pill--streak" title="Sequência atual">
+            🔥 {streak}
           </span>
         </div>
         <SideMenu notifications={notifications} createLabel="Nova missão" />
@@ -331,11 +419,25 @@ export function GameLobby({
 
       <div className="game-hero">
         <div className="game-hero__avatar" aria-hidden>
-          🎮
+          <span className="game-avatar__emoji">
+            {streak >= 3 ? "🦸" : level >= 5 ? "🧙" : activeCount > 0 ? "🎮" : "😎"}
+          </span>
+          <span className="game-avatar__orbit" aria-hidden />
         </div>
         <div className="game-hero__info">
-          <p className="game-hero__title">Pronto pra jogar?</p>
-          <p className="game-hero__sub">
+          <p className="game-hero__title">
+            {streak >= 3 ? "🔥 Sequência ativa!" : activeCount > 0 ? "Pronto pra jogar?" : "Base segura!"}
+          </p>
+          <div className="game-level">
+            <div className="game-level__row">
+            <span>NÍVEL {level}</span>
+            <span>{levelProgress}/100 XP</span>
+          </div>
+          <div className="game-level__track" aria-label={`${levelProgress}% para o próximo nível`}>
+            <div className="game-level__fill" style={{ width: `${Math.max(3, levelProgress)}%` }} />
+          </div>
+        </div>
+        <p className="game-hero__sub">
             {activeCount > 0
               ? `${activeCount} missão${activeCount === 1 ? "" : "ões"} te esperando`
               : boardCount > 0

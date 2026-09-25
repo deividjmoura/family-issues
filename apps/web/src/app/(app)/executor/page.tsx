@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { CreateTaskFab } from "@/components/tasks/create-task-fab";
 import { FamilyRealtime } from "@/components/realtime/family-realtime";
 import { GameLobby } from "@/components/executor/game-lobby";
+import { GameFeedback } from "@/components/executor/game-feedback";
 import { listMyNotifications } from "@/lib/actions/notifications";
 import { listPendingOffersForFamily } from "@/lib/actions/offers";
 import { getProfileNames } from "@/lib/actions/profiles";
@@ -88,6 +89,7 @@ export default async function ExecutorHomePage() {
   return (
     <main className="w-full pb-8">
       <FamilyRealtime userId={user.id} familyId={familyId} />
+      <GameFeedback />
       <GameLobby
         familyName={family.name}
         familyId={familyId}

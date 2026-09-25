@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { sfx } from "@/lib/sounds";
 import {
   approveTask,
   claimTask,
@@ -16,6 +17,7 @@ import {
   canOfferPrice,
 } from "@/lib/domain/task-machine";
 import { formatBRL } from "@/lib/domain/money";
+import { effectivePoints } from "@/lib/domain/points";
 import type { Role, Task } from "@/lib/domain/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -70,19 +72,35 @@ export function TaskList({
   function run(fn: () => Promise<{ ok: boolean; error?: string }>) {
     startTransition(async () => {
       const res = await fn();
-      if (!res.ok && res.error) alert(res.error);
+      if (res.ok) sfx.success();
+      else if (res.error) {
+        sfx.close();
+        alert(res.error);
+      }
     });
   }
 
   if (tasks.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-border bg-muted/30 px-6 py-10 text-center">
-        <p className="text-sm font-medium text-foreground">Nenhuma tarefa</p>
+      <div className={role === "executor"
+        ? "theme-game__empty rounded-2xl border border-dashed border-cyan-400/30 bg-cyan-950/10 px-6 py-12 text-center"
+        : "rounded-xl border border-dashed border-border bg-muted/30 px-6 py-10 text-center"}>
+        {role === "executor" && (
+          <span className="theme-game__empty-icon" aria-hidden>🗺️</span>
+        )}
+        <p className="text-sm font-medium text-foreground">
+          {role === "executor" ? "Mapa limpo!" : "Nenhuma tarefa"}
+        </p>
         <p className="mt-1 text-xs text-muted-foreground">
           {role === "responsavel"
             ? "Crie uma tarefa pelo menu (☰)."
             : "Missões abertas ou atribuídas a você aparecem aqui."}
         </p>
+        {role === "executor" && (
+          <p className="mt-3 text-[11px] font-semibold uppercase tracking-wider text-cyan-300/60">
+            Nova missão desbloqueada em breve
+          </p>
+        )}
       </div>
     );
   }
@@ -114,10 +132,11 @@ export function TaskList({
           const assigneeName = task.assignee_id
             ? nameByUserId[task.assignee_id]
             : null;
-          const pts = task.points ?? 0;
+          const pts = effectivePoints(task);
+          const isAwaitingVerification = task.status === "aguardando_verificacao";
 
           return (
-            <Card key={task.id}>
+            <Card key={task.id} className={role === "executor" ? `theme-game__mission-card ${isAwaitingVerification ? "theme-game__mission-card--pending" : ""}` : undefined}>
               <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0 pb-2">
                 <div className="min-w-0 flex-1">
                   <CardTitle className="text-base">{task.title}</CardTitle>
@@ -156,6 +175,11 @@ export function TaskList({
                   )}
                 </div>
                 <div className="flex flex-col items-end gap-1">
+                  {role === "executor" && isAwaitingVerification && (
+                    <span className="theme-game__pending-xp" title="O XP entra após a aprovação da missão">
+                      ⏳ XP pendente
+                    </span>
+                  )}
                   <Badge variant={STATUS_VARIANT[task.status] ?? "outline"}>
                     {STATUS_LABEL[task.status] ?? task.status}
                   </Badge>
@@ -183,8 +207,13 @@ export function TaskList({
                   </span>
                   {pts > 0 && (
                     <span className="rounded-full bg-xp/15 px-2 py-0.5 text-xs font-semibold text-xp">
-                      ⭐ {pts} pts
+                      ⭐ {pts} XP
                     </span>
+                  )}
+                  {role === "executor" && isAwaitingVerification && (
+                    <p className="theme-game__pending-copy">
+                      Missão enviada! Aguarde a aprovação para receber o XP.
+                    </p>
                   )}
                   {task.payment_due_date && (
                     <span className="text-xs text-muted-foreground">
@@ -216,7 +245,7 @@ export function TaskList({
                       />
                     )}
                     {actions.includes("complete") && (
-                      <CompleteTaskButton taskId={task.id} />
+                      <CompleteTaskButton taskId={task.id} xp={effectivePoints(task)} />
                     )}
                     {actions.includes("approve") && (
                       <Button

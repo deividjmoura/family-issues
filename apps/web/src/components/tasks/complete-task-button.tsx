@@ -6,8 +6,9 @@ import { createClient } from "@/lib/supabase/client";
 import { markCompleted } from "@/lib/actions/tasks";
 import { Button } from "@/components/ui/button";
 import { sfx } from "@/lib/sounds";
+import { GAME_MISSION_COMPLETE_EVENT } from "@/components/executor/game-feedback";
 
-export function CompleteTaskButton({ taskId }: { taskId: string }) {
+export function CompleteTaskButton({ taskId, xp = 1 }: { taskId: string; xp?: number }) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [note, setNote] = useState("");
@@ -96,7 +97,9 @@ export function CompleteTaskButton({ taskId }: { taskId: string }) {
         setError(res.error ?? "Erro ao concluir");
         return;
       }
-      sfx.success();
+      window.dispatchEvent(
+        new CustomEvent(GAME_MISSION_COMPLETE_EVENT, { detail: { xp } }),
+      );
       setOpen(false);
       setNote("");
       clearPhoto();
