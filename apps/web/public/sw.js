@@ -1,5 +1,5 @@
-/* Family Tasks — service worker (cache de shell + push) */
-const CACHE = "ft-shell-v2";
+/* Family Issues — service worker (cache de shell + push) */
+const CACHE = "fi-shell-v3";
 const SHELL = ["/", "/login", "/signup", "/icons/192", "/icons/512"];
 
 self.addEventListener("install", (event) => {
@@ -45,7 +45,7 @@ self.addEventListener("fetch", (event) => {
 });
 
 self.addEventListener("push", (event) => {
-  let data = { title: "Family Tasks", body: "Nova atualização", url: "/" };
+  let data = { title: "Family Issues", body: "Nova atualização", url: "/" };
   try {
     if (event.data) data = { ...data, ...event.data.json() };
   } catch {
