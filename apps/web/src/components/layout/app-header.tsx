@@ -7,11 +7,13 @@ export function AppHeader({
   subtitle,
   badge,
   notifications = [],
+  createLabel = "Nova missão",
 }: {
   title: string;
   subtitle?: ReactNode;
   badge?: string;
   notifications?: AppNotification[];
+  createLabel?: string;
 }) {
   return (
     <header className="flex flex-wrap items-start justify-between gap-3 border-b border-border pb-5">
@@ -28,7 +30,7 @@ export function AppHeader({
           <div className="text-sm text-muted-foreground">{subtitle}</div>
         )}
       </div>
-      <SideMenu notifications={notifications} />
+      <SideMenu notifications={notifications} createLabel={createLabel} />
     </header>
   );
 }

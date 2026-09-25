@@ -9,6 +9,7 @@ import {
   markNotificationRead,
   type AppNotification,
 } from "@/lib/actions/notifications";
+import { OPEN_CREATE_TASK_EVENT } from "@/components/tasks/create-task-fab";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { PushOptIn } from "@/components/pwa/push-opt-in";
 import { Button } from "@/components/ui/button";
@@ -28,8 +29,10 @@ type Tab = "notificacoes" | "opcoes";
 
 export function SideMenu({
   notifications,
+  createLabel = "Nova missão",
 }: {
   notifications: AppNotification[];
+  createLabel?: string;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -67,6 +70,11 @@ export function SideMenu({
       await action();
       router.refresh();
     });
+  }
+
+  function openCreateTask() {
+    setOpen(false);
+    window.dispatchEvent(new Event(OPEN_CREATE_TASK_EVENT));
   }
 
   const drawer =
@@ -117,6 +125,16 @@ export function SideMenu({
               </div>
 
               <div className="side-menu-body">
+                <div className="mb-4">
+                  <Button
+                    type="button"
+                    className="w-full min-h-[48px] text-base font-bold"
+                    onClick={openCreateTask}
+                  >
+                    ＋ {createLabel}
+                  </Button>
+                </div>
+
                 {tab === "notificacoes" && (
                   <div className="space-y-3">
                     {unread > 0 && (

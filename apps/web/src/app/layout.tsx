@@ -5,6 +5,7 @@ import { InstallPrompt } from "@/components/pwa/install-prompt";
 import "./globals.css";
 import "./side-menu.css";
 import "./cyber-nav.css";
+import "./kids-fx.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
