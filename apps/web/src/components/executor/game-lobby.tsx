@@ -74,9 +74,19 @@ export function GameLobby({
   const [mounted, setMounted] = useState(false);
   const level = Math.floor(xp / 100) + 1;
   const levelProgress = xp % 100;
-  const completedDates = new Set(doneTasks.map((task) => task.completed_at?.slice(0, 10)).filter((date): date is string => Boolean(date)));
+  const dateKey = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+  const completedDates = new Set(
+    doneTasks
+      .map((task) => task.completed_at)
+      .filter((date): date is string => Boolean(date))
+      .map((date) => dateKey(new Date(date))),
+  );
   const today = new Date();
-  const dateKey = (date: Date) => date.toISOString().slice(0, 10);
   let streak = 0;
   for (let i = 0; i < 365; i += 1) {
     const day = new Date(today);
@@ -84,7 +94,10 @@ export function GameLobby({
     if (!completedDates.has(dateKey(day))) break;
     streak += 1;
   }
-  const todayCompleted = doneTasks.filter((task) => task.completed_at?.slice(0, 10) === dateKey(today)).length;
+  const todayKey = dateKey(today);
+  const todayCompleted = doneTasks.filter(
+    (task) => task.completed_at && dateKey(new Date(task.completed_at)) === todayKey,
+  ).length;
   const achievements = [
     { icon: "🌟", title: "Primeira missão", unlocked: doneTasks.length >= 1, text: "Conclua sua primeira missão." },
     { icon: "🔥", title: "Em sequência", unlocked: streak >= 3, text: "Mantenha 3 dias seguidos." },
@@ -395,7 +408,7 @@ export function GameLobby({
             {streak >= 3 ? "🔥 Sequência ativa!" : activeCount > 0 ? "Pronto pra jogar?" : "Base segura!"}
           </p>
           <div className="game-level">
-          <div className="game-level__row">
+            <div className="game-level__row">
             <span>NÍVEL {level}</span>
             <span>{levelProgress}/100 XP</span>
           </div>
