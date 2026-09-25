@@ -6,6 +6,7 @@ import { parseBRL } from "@/lib/domain/money";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { sfx } from "@/lib/sounds";
 
 export const OPEN_CREATE_TASK_EVENT = "ft-open-create-task";
 
@@ -41,6 +42,7 @@ export function CreateTaskFab({
   useEffect(() => {
     function onOpen() {
       setOpen(true);
+      sfx.open();
     }
     window.addEventListener(OPEN_CREATE_TASK_EVENT, onOpen);
     return () => window.removeEventListener(OPEN_CREATE_TASK_EVENT, onOpen);
@@ -49,10 +51,17 @@ export function CreateTaskFab({
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") {
+        sfx.close();
+        setOpen(false);
+      }
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
   }, [open]);
 
   function reset() {
@@ -63,6 +72,11 @@ export function CreateTaskFab({
     setAssigneeId("");
     setDue("");
     setError(null);
+  }
+
+  function closeModal() {
+    sfx.close();
+    setOpen(false);
   }
 
   function onSubmit(e: React.FormEvent) {
@@ -88,6 +102,7 @@ export function CreateTaskFab({
         setError(res.error);
         return;
       }
+      sfx.success();
       reset();
       setOpen(false);
     });
@@ -98,7 +113,11 @@ export function CreateTaskFab({
       {showFab && (
         <button
           type="button"
-          onClick={() => setOpen(true)}
+          onClick={() => {
+            sfx.click();
+            setOpen(true);
+            sfx.open();
+          }}
           className="fab-create"
           aria-label={label}
         >
@@ -110,7 +129,7 @@ export function CreateTaskFab({
       {open && (
         <div
           className="modal-backdrop"
-          onClick={() => setOpen(false)}
+          onClick={closeModal}
           role="presentation"
         >
           <div
@@ -127,7 +146,7 @@ export function CreateTaskFab({
               <button
                 type="button"
                 className="modal-close"
-                onClick={() => setOpen(false)}
+                onClick={closeModal}
                 aria-label="Fechar"
               >
                 ×
@@ -213,11 +232,7 @@ export function CreateTaskFab({
                 </p>
               )}
               <div className="flex justify-end gap-2 pt-2">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => setOpen(false)}
-                >
+                <Button type="button" variant="secondary" onClick={closeModal}>
                   Cancelar
                 </Button>
                 <Button type="submit" disabled={pending}>

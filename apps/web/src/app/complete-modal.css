@@ -24,6 +24,7 @@
 }
 
 .complete-modal-panel {
+  position: relative;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -176,7 +177,7 @@ body:has(.theme-resp) .complete-modal-hint {
   margin-bottom: 1rem;
   padding: 0.75rem 0.85rem;
   border-radius: 0.75rem;
-  border: 1px solid rgba(0, 240, 255, hid 0.35);
+  border: 1px solid rgba(0, 240, 255, 0.35);
   background: rgba(10, 11, 16, 0.85);
   color: #e8f4ff;
   font-size: 16px;
