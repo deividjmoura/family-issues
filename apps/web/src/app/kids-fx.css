@@ -285,3 +285,44 @@
     animation: none;
   }
 }
+
+
+.theme-game__mission-card--pending {
+  border-color: rgba(251, 191, 36, 0.45);
+  box-shadow: 0 0 18px rgba(251, 191, 36, 0.08);
+}
+
+.theme-game__pending-xp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  margin-bottom: 0.15rem;
+  padding: 0.2rem 0.45rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  background: rgba(251, 191, 36, 0.08);
+  color: #fbbf24;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.theme-game__pending-copy {
+  width: 100%;
+  margin: 0.15rem 0 0;
+  padding: 0.45rem 0.6rem;
+  border-left: 2px solid rgba(251, 191, 36, 0.55);
+  border-radius: 0.25rem;
+  background: rgba(251, 191, 36, 0.06);
+  color: rgba(253, 230, 138, 0.78);
+  font-size: 0.68rem;
+  line-height: 1.35;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-game__mission-card,
+  .theme-game__mission-card:hover {
+    transition: none;
+  }
+}
