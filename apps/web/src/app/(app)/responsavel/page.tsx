@@ -121,7 +121,7 @@ export default async function ResponsavelHomePage() {
   }
 
   return (
-    <main className="responsavel-page mx-auto max-w-5xl space-y-6 px-4 py-8 pb-28 sm:px-6">
+    <main className="responsavel-page w-full space-y-6 px-4 py-8 pb-28 sm:px-6">
       <FamilyRealtime userId={user.id} familyId={familyId} />
       <AppHeader
         badge="Dashboard"
