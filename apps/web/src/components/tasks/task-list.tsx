@@ -10,7 +10,11 @@ import {
   reopenTask,
 } from "@/lib/actions/tasks";
 import { proposeNegotiation } from "@/lib/actions/negotiations";
-import { availableActions, canNegotiate } from "@/lib/domain/task-machine";
+import {
+  availableActions,
+  canNegotiate,
+  canOfferPrice,
+} from "@/lib/domain/task-machine";
 import { formatBRL } from "@/lib/domain/money";
 import type { Role, Task } from "@/lib/domain/types";
 import { Button } from "@/components/ui/button";
@@ -22,6 +26,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { CompleteTaskButton } from "@/components/tasks/complete-task-button";
+import { ProposeOfferButton } from "@/components/offers/propose-offer-button";
 
 const STATUS_LABEL: Record<string, string> = {
   criada: "Aberta",
@@ -105,6 +110,7 @@ export function TaskList({
           const actions = availableActions(task, { userId, role });
           const hasPending = pendingNegotiationTaskIds.includes(task.id);
           const nego = canNegotiate(task, { userId, role }, hasPending);
+          const offerOk = canOfferPrice(task, { userId, role }).ok;
           const assigneeName = task.assignee_id
             ? nameByUserId[task.assignee_id]
             : null;
@@ -192,6 +198,12 @@ export function TaskList({
                       >
                         Assumir
                       </Button>
+                    )}
+                    {offerOk && (
+                      <ProposeOfferButton
+                        taskId={task.id}
+                        currentValueCents={task.value_cents}
+                      />
                     )}
                     {actions.includes("complete") && (
                       <CompleteTaskButton taskId={task.id} />
