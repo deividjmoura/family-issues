@@ -6,10 +6,12 @@ import { createTask } from "@/lib/actions/tasks";
 import type { DailyChallenge } from "@/lib/domain/types";
 
 export function DailyChallenges({
+  familyId,
   challenges,
   acceptedIds,
   date,
 }: {
+  familyId: string;
   challenges: DailyChallenge[];
   acceptedIds: string[];
   date: string;
@@ -21,7 +23,7 @@ export function DailyChallenges({
   function accept(challenge: DailyChallenge) {
     startTransition(async () => {
       const result = await createTask({
-        familyId: "",
+        familyId,
         title: challenge.title,
         description: challenge.description,
         valueCents: challenge.value_cents,
