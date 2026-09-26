@@ -843,3 +843,17 @@
     gap: 0.9rem;
   }
 }
+
+
+/* V3 character shop: use the extra desktop width for the catalog. */
+.game-panel:has(.game-shop) {
+  max-width: min(72rem, calc(100vw - 2rem));
+}
+.game-shop {
+  min-width: 0;
+}
+@media (max-width: 700px) {
+  .game-panel:has(.game-shop) {
+    max-height: 92dvh;
+  }
+}
