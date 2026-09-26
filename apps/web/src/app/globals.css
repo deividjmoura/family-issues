@@ -20,6 +20,43 @@
   --radius: 0.75rem;
 }
 
+/* Global color schemes — balanced contrast without pure white/black surfaces. */
+html[data-scheme="light"] {
+  --background: #f3f5f8;
+  --foreground: #17213b;
+  --card: #fbfcfe;
+  --card-foreground: #17213b;
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --muted: #e9eef5;
+  --muted-foreground: #5f6b80;
+  --border: #d7e0ea;
+  --ring: #2563eb;
+  --success: #15803d;
+  --warning: #c2410c;
+  --destructive: #b91c1c;
+  --coin: #a16207;
+  --xp: #6d28d9;
+}
+
+html[data-scheme="dark"] {
+  --background: #0d1422;
+  --foreground: #e8eef8;
+  --card: #131c2d;
+  --card-foreground: #e8eef8;
+  --primary: #60a5fa;
+  --primary-foreground: #0f172a;
+  --muted: #1a2639;
+  --muted-foreground: #aab6c8;
+  --border: #2d3d55;
+  --ring: #60a5fa;
+  --success: #4ade80;
+  --warning: #fb923c;
+  --destructive: #f87171;
+  --coin: #facc15;
+  --xp: #a78bfa;
+}
+
 /* ==========================================================================
    RESPONSÁVEL — dashboard admin limpo (inspirado em painéis corporativos)
    cores sóbrias azul-slate que combinam com o ciano do game
