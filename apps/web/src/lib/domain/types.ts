@@ -61,6 +61,8 @@ export interface Task {
   proof_image_url: string | null;
   /** Mensagem do executor ao concluir (resumo, observação…) */
   completion_note: string | null;
+  daily_challenge_id: string | null;
+  daily_challenge_date: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -89,4 +91,56 @@ export interface TaskOffer {
   responded_by: string | null;
   created_at: string;
   updated_at: string;
+}
+
+
+export type GameItemSlot =
+  | "skin"
+  | "hair"
+  | "hat"
+  | "outfit"
+  | "shoes"
+  | "face"
+  | "accessory"
+  | "pet"
+  | "aura"
+  | "background";
+
+export type GameRarity = "common" | "rare" | "epic" | "legendary" | "mythic";
+
+export interface GameItem {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  slot: GameItemSlot;
+  emoji: string;
+  color: string;
+  rarity: GameRarity;
+  price_coins: number;
+}
+
+export interface GameInventoryItem {
+  user_id: string;
+  item_id: string;
+  quantity: number;
+  source: "purchase" | "gift" | "starter";
+  item?: GameItem;
+}
+
+export interface GameAvatar {
+  user_id: string;
+  config: Record<string, string>;
+  updated_at?: string;
+}
+
+export interface DailyChallenge {
+  id: string;
+  challenge_key: string;
+  category: string;
+  title: string;
+  description: string;
+  value_cents: number;
+  points: number;
+  icon: string;
 }
