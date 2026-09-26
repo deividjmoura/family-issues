@@ -430,6 +430,40 @@ from auth.users u
 join public.game_items i on i.slug in ('pele-dourada','cachos','camiseta-azul','tenis-azul','sorriso','quarto-gamer')
 on conflict (user_id,item_id) do nothing;
 
+-- New signups also receive the starter avatar automatically.
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $
+begin
+  insert into public.profiles (id, full_name)
+  values (
+    new.id,
+    coalesce(new.raw_user_meta_data->>'full_name', split_part(new.email, '@', 1))
+  )
+  on conflict (id) do update
+    set full_name = coalesce(excluded.full_name, public.profiles.full_name),
+        updated_at = now();
+
+  insert into public.game_avatars (user_id, config)
+  values (
+    new.id,
+    '{"skin":"pele-dourada","hair":"cachos","outfit":"camiseta-azul","shoes":"tenis-azul","face":"sorriso","background":"quarto-gamer"}'::jsonb
+  )
+  on conflict (user_id) do nothing;
+
+  insert into public.game_inventory (user_id, item_id, quantity, source)
+  select new.id, i.id, 1, 'starter'
+  from public.game_items i
+  where i.slug in ('pele-dourada','cachos','camiseta-azul','tenis-azul','sorriso','quarto-gamer')
+  on conflict (user_id,item_id) do nothing;
+
+  return new;
+end;
+$;
+
 -- Purchase atomically checks the user's earned coins (10 coins per approved XP)
 -- against previous purchases, then updates inventory.
 create or replace function public.purchase_game_item(p_item_id uuid)
