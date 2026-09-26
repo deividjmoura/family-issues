@@ -8,6 +8,8 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
+const DISMISS_KEY = "fi-pwa-dismiss";
+
 export function InstallPrompt() {
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(
     null,
@@ -17,7 +19,7 @@ export function InstallPrompt() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
-      if (localStorage.getItem("ft-pwa-dismiss") === "1") return;
+      if (localStorage.getItem(DISMISS_KEY) === "1") return;
     } catch {
       /* ignore */
     }
@@ -56,7 +58,7 @@ export function InstallPrompt() {
           onClick={() => {
             setHidden(true);
             try {
-              localStorage.setItem("ft-pwa-dismiss", "1");
+              localStorage.setItem(DISMISS_KEY, "1");
             } catch {
               /* ignore */
             }
