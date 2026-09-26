@@ -98,7 +98,7 @@ export function TaskList({
         </p>
         {role === "executor" && (
           <p className="mt-3 text-[11px] font-semibold uppercase tracking-wider text-cyan-300/60">
-            Nova missão desbloqueada em breve
+            200+ desafios diários aguardando no painel abaixo
           </p>
         )}
       </div>
