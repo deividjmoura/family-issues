@@ -10,6 +10,8 @@ type FamilyProfile = {
   name: string;
   avatar: GameAvatar;
   inventoryCount: number;
+  xp: number;
+  coins: number;
   itemMap: Record<string, GameItem>;
 };
 
@@ -67,7 +69,7 @@ export function FamilyAvatars({
             <div className="mt-3 flex items-center justify-between gap-2">
               <div>
                 <p className="font-bold">{profile.name}</p>
-                <p className="text-xs text-muted-foreground">🎒 {profile.inventoryCount} itens</p>
+                <p className="text-xs text-muted-foreground">⭐ {profile.xp} XP · 🪙 {profile.coins} moedas</p><p className="text-xs text-muted-foreground">🎒 {profile.inventoryCount} itens · Nível {Math.floor(profile.xp / 100) + 1}</p>
               </div>
               <button type="button" onClick={() => setRecipient(profile)} className="rounded-lg bg-primary px-3 py-2 text-xs font-bold text-primary-foreground">
                 🎁 Presentear
