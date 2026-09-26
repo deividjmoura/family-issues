@@ -153,7 +153,7 @@ export async function getFamilyGameProfiles(familyId: string) {
   const ids = (members ?? []).map((m) => m.user_id);
   if (!ids.length) return [];
 
-  const [{ data: profiles }, { data: avatars }, { data: inventory }, { data: items }] =
+  const [{ data: profiles }, { data: avatars }, { data: inventory }, { data: items }, { data: tasks }, { data: purchases }] =
     await Promise.all([
       supabase.from("profiles").select("id, full_name").in("id", ids),
       supabase.from("game_avatars").select("*").in("user_id", ids),
