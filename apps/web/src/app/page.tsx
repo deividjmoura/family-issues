@@ -293,13 +293,13 @@ export default function HomePage() {
 
         <div className="coming-grid">
           {[
-            ["🎯", "Suba o nível da jornada", "Transforme consistência em novos níveis e objetivos.", "lilac"],
-            ["🛍️", "Use seus pontos", "Troque pontos por recompensas que façam sentido para você.", "green"],
-            ["🎁", "Compartilhe pontos", "Envie parte do seu progresso para quem está na família.", "pink"],
-            ["🤴", "Monte seu avatar", "Crie uma identidade para acompanhar sua jornada.", "blue"],
+            ["🎯", "Suba o nível da jornada", "Ganhe XP, mantenha sua sequência e desbloqueie novos níveis.", "lilac"],
+            ["🛍️", "Use suas moedas", "Compre itens, roupas, companheiros, auras e cenários para seu personagem.", "green"],
+            ["🎁", "Receba presentes", "O responsável pode acompanhar seu personagem e presentear você com novos itens.", "pink"],
+            ["🤴", "Monte seu avatar", "Personalize cabelo, roupa, rosto, acessórios, pet, aura e cenário.", "blue"],
           ].map(([emoji, title, description, color]) => (
             <article className={`coming-card ${color}`} key={title}>
-              <span className="coming-badge">Em breve</span>
+              <span className="coming-badge coming-badge--live">Na V3</span>
               <strong>{emoji}</strong>
               <h3>{title}</h3>
               <p>{description}</p>
