@@ -1,6 +1,6 @@
 /* Family Issues — service worker (cache de shell + push) */
-const CACHE = "fi-shell-v3";
-const SHELL = ["/", "/login", "/signup", "/icons/192", "/icons/512"];
+const CACHE = "fi-shell-v4";
+const SHELL = ["/", "/login", "/signup", "/politica", "/manifest.webmanifest", "/icons/icon.svg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -37,9 +37,7 @@ self.addEventListener("fetch", (event) => {
           caches.open(CACHE).then((c) => c.put(request, copy));
           return res;
         })
-        .catch(() =>
-          caches.match(request).then((r) => r || caches.match("/")),
-        ),
+        .catch(() => caches.match(request).then((r) => r || caches.match("/"))),
     );
   }
 });
@@ -54,8 +52,8 @@ self.addEventListener("push", (event) => {
   event.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
-      icon: "/icons/192",
-      badge: "/icons/192",
+      icon: "/icons/icon.svg",
+      badge: "/icons/icon.svg",
       data: { url: data.url || "/" },
     }),
   );
