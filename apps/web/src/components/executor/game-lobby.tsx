@@ -13,6 +13,8 @@ import { OPEN_CREATE_TASK_EVENT } from "@/components/tasks/create-task-fab";
 import { GAME_LEVEL_UP_EVENT } from "@/components/executor/game-feedback";
 import { formatBRL } from "@/lib/domain/money";
 import { sfx } from "@/lib/sounds";
+import { GameShop } from "@/components/game/game-shop";
+import type { GameAvatar, GameInventoryItem, GameItem } from "@/lib/domain/types";
 
 type PanelId =
   | "quests"
@@ -23,6 +25,7 @@ type PanelId =
   | "done"
   | "offers"
   | "achievements"
+  | "shop"
   | null;
 
 type Burst = {
@@ -57,6 +60,10 @@ export function GameLobby({
   taskMeta,
   awaitingConfirmCount,
   confirmCents,
+  gameItems,
+  gameInventory,
+  gameAvatar,
+  gameCoins,
 }: {
   familyName: string;
   familyId: string;
@@ -80,6 +87,10 @@ export function GameLobby({
   taskMeta: Record<string, { title: string; value_cents: number }>;
   awaitingConfirmCount: number;
   confirmCents: number;
+  gameItems: GameItem[];
+  gameInventory: GameInventoryItem[];
+  gameAvatar: GameAvatar;
+  gameCoins: number;
 }) {
   const [panel, setPanel] = useState<PanelId>(null);
   const [mounted, setMounted] = useState(false);
@@ -264,6 +275,13 @@ export function GameLobby({
       color: "tile-purple",
     },
     {
+      id: "shop",
+      icon: "🛍️",
+      label: "Loja",
+      sub: `${gameCoins} moedas`,
+      color: "tile-lime",
+    },
+    {
       id: "new",
       icon: "➕",
       label: "Nova",
@@ -301,6 +319,7 @@ export function GameLobby({
     done: "✅ Missões concluídas",
     offers: "📢 Ofertas pendentes",
     achievements: "🏅 Conquistas desbloqueáveis",
+    shop: "🛍️ Loja & personagem",
   };
 
   const panelBody =
@@ -405,6 +424,13 @@ export function GameLobby({
           Nenhuma oferta no momento.
         </p>
       )
+    ) : panel === "shop" ? (
+      <GameShop
+        items={gameItems}
+        inventory={gameInventory}
+        avatar={gameAvatar}
+        coins={gameCoins}
+      />
     ) : panel === "achievements" ? (
       <div className="game-achievements">
         <div className="game-streak">
@@ -497,6 +523,9 @@ export function GameLobby({
           </span>
           <span className="game-pill game-pill--xp" title={`${xp} XP`}>
             ⭐ {xp} XP
+          </span>
+          <span className="game-pill game-pill--gold" title={`${gameCoins} moedas para a loja`}>
+            🪙 {gameCoins}
           </span>
           <span className="game-pill game-pill--level" title={`Nível ${level}`}>
             LVL {level}
