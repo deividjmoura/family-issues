@@ -63,7 +63,7 @@ export function GameShop({
   }
 
   return (
-    <div className="space-y-5">
+    <div className="game-shop space-y-5">
       <div className="grid gap-4 md:grid-cols-[180px_1fr]">
         <div className="flex flex-col items-center justify-center rounded-2xl border border-cyan-400/20 bg-cyan-950/10 p-4">
           <Avatar config={avatar.config} items={items} size="md" />
