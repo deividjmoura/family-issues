@@ -420,9 +420,15 @@ on conflict (slug) do update set
 
 -- Starter avatar configuration.
 insert into public.game_avatars (user_id, config)
-select id, '{"skin":"#f2c9a5","hair":"🧑‍🦱","outfit":"👕","shoes":"👟","face":"😊","background":"#182337"}'::jsonb
+select id, '{"skin":"pele-dourada","hair":"cachos","outfit":"camiseta-azul","shoes":"tenis-azul","face":"sorriso","background":"quarto-gamer"}'::jsonb
 from auth.users
 on conflict (user_id) do nothing;
+
+insert into public.game_inventory (user_id, item_id, quantity, source)
+select u.id, i.id, 1, 'starter'
+from auth.users u
+join public.game_items i on i.slug in ('pele-dourada','cachos','camiseta-azul','tenis-azul','sorriso','quarto-gamer')
+on conflict (user_id,item_id) do nothing;
 
 -- Purchase atomically checks the user's earned coins (10 coins per approved XP)
 -- against previous purchases, then updates inventory.
