@@ -38,7 +38,7 @@ export default function SignupPage() {
       password,
       options: {
         data: { full_name: name },
-        emailRedirectTo: `${origin}/auth/callback?next=/login?confirmed=1`,
+        emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent("/login?confirmed=1")}`,
       },
     });
     setLoading(false);
@@ -147,7 +147,10 @@ export default function SignupPage() {
             </Button>
             <p className="text-center text-sm text-muted-foreground">
               Já tem conta?{" "}
-              <Link href="/login" className="font-medium text-primary underline">
+              <Link
+                href="/login"
+                className="font-medium text-primary underline"
+              >
                 Entrar
               </Link>
             </p>
