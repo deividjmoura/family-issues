@@ -20,6 +20,7 @@ App web para **delegar tarefas domésticas com recompensa em R$**, verificação
 | Web Push (VAPID, opcional) | ✅ |
 | PWA (manifest + service worker) | ✅ |
 | UI responsável (séria) / executor (game) | ✅ |
+| Mundo V3: personagem + loja + inventário + presentes | ✅ |
 
 ## Fluxo
 
