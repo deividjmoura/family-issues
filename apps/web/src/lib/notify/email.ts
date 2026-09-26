@@ -73,14 +73,15 @@ export async function sendEmailNotification(
 ): Promise<void> {
   const apiKey = process.env.RESEND_API_KEY;
   const from =
-    process.env.RESEND_FROM_EMAIL || "Family Tasks <onboarding@resend.dev>";
+    process.env.RESEND_FROM_EMAIL || "Family Issues <onboarding@resend.dev>";
   if (!apiKey || !toEmail) return;
 
   const tpl = LABELS[type];
   if (!tpl) return;
 
   const appUrl =
-    process.env.NEXT_PUBLIC_APP_URL || "https://family-tasks.vercel.app";
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
 
   try {
     const res = await fetch("https://api.resend.com/emails", {
@@ -92,14 +93,14 @@ export async function sendEmailNotification(
       body: JSON.stringify({
         from,
         to: [toEmail],
-        subject: `[Family Tasks] ${tpl.subject}`,
+        subject: `[Family Issues] ${tpl.subject}`,
         html: `
           <div style="font-family:system-ui,-apple-system,sans-serif;max-width:480px;margin:0 auto;padding:24px;color:#0f172a">
-            <div style="font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#64748b">Family Tasks</div>
+            <div style="font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#64748b">Family Issues</div>
             <h1 style="font-size:20px;margin:8px 0 16px;color:#1e3a5f">${tpl.subject}</h1>
             <p style="line-height:1.55;margin:0 0 24px">${tpl.body(payload)}</p>
             <a href="${appUrl}" style="display:inline-block;background:#1e3a5f;color:#fff;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:600;font-size:14px">Abrir o app</a>
-            <p style="margin-top:32px;font-size:12px;color:#94a3b8">Você recebeu este e-mail porque faz parte de uma família no Family Tasks.</p>
+            <p style="margin-top:32px;font-size:12px;color:#94a3b8">Você recebeu este e-mail porque faz parte de uma família no Family Issues.</p>
           </div>
         `,
       }),

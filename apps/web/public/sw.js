@@ -1,6 +1,6 @@
-/* Family Tasks — service worker (cache de shell + push) */
-const CACHE = "ft-shell-v2";
-const SHELL = ["/", "/login", "/signup", "/icons/192", "/icons/512"];
+/* Family Issues — service worker (cache de shell + push) */
+const CACHE = "fi-shell-v4";
+const SHELL = ["/", "/login", "/signup", "/politica", "/manifest.webmanifest", "/icons/icon.svg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -37,15 +37,13 @@ self.addEventListener("fetch", (event) => {
           caches.open(CACHE).then((c) => c.put(request, copy));
           return res;
         })
-        .catch(() =>
-          caches.match(request).then((r) => r || caches.match("/")),
-        ),
+        .catch(() => caches.match(request).then((r) => r || caches.match("/"))),
     );
   }
 });
 
 self.addEventListener("push", (event) => {
-  let data = { title: "Family Tasks", body: "Nova atualização", url: "/" };
+  let data = { title: "Family Issues", body: "Nova atualização", url: "/" };
   try {
     if (event.data) data = { ...data, ...event.data.json() };
   } catch {
@@ -54,8 +52,8 @@ self.addEventListener("push", (event) => {
   event.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
-      icon: "/icons/192",
-      badge: "/icons/192",
+      icon: "/icons/icon.svg",
+      badge: "/icons/icon.svg",
       data: { url: data.url || "/" },
     }),
   );

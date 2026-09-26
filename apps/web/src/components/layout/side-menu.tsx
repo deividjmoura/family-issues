@@ -277,7 +277,6 @@ export function SideMenu({
                         </Button>
                       </form>
                     </div>
-                  </div>
                 </div>
               </div>
             </aside>

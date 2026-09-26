@@ -32,7 +32,7 @@ export async function signUp(formData: FormData) {
     password,
     options: {
       data: { full_name: fullName },
-      emailRedirectTo: `${appOrigin()}/auth/callback?next=/login`,
+      emailRedirectTo: `${appOrigin()}/auth/callback?next=${encodeURIComponent("/login?confirmed=1")}`,
     },
   });
   if (error) {
