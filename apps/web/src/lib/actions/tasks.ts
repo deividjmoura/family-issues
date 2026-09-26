@@ -54,6 +54,8 @@ export async function createTask(input: {
   points?: number;
   paymentDueDate?: string;
   assigneeId?: string | null;
+  dailyChallengeId?: string | null;
+  dailyChallengeDate?: string | null;
 }): Promise<ActionResult> {
   const supabase = await createClient();
   const {
@@ -106,6 +108,8 @@ export async function createTask(input: {
       payment_due_date: input.paymentDueDate || null,
       assignee_id: assigneeId,
       status,
+      daily_challenge_id: input.dailyChallengeId?.trim() || null,
+      daily_challenge_date: input.dailyChallengeDate || null,
     })
     .select("*")
     .single();
