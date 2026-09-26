@@ -159,11 +159,18 @@ export async function getFamilyGameProfiles(familyId: string) {
       supabase.from("game_avatars").select("*").in("user_id", ids),
       supabase.from("game_inventory").select("*").in("user_id", ids),
       supabase.from("game_items").select("*"),
+      supabase.from("tasks").select("assignee_id, points").in("assignee_id", ids).in("status", ["aprovada", "paga", "confirmada"]),
+      supabase.from("game_purchases").select("user_id, price_coins").in("user_id", ids),
     ]);
 
   const names = new Map((profiles ?? []).map((p) => [p.id, p.full_name || "Executor"]));
   const avatarMap = new Map((avatars ?? []).map((a) => [a.user_id, a]));
   const itemMap = new Map(((items ?? []) as GameItem[]).map((item) => [item.slug, item]));
+
+  const earnedByUser = new Map<string, number>();
+  for (const task of tasks ?? []) earnedByUser.set(task.assignee_id, (earnedByUser.get(task.assignee_id) ?? 0) + Number(task.points ?? 0));
+  const spentByUser = new Map<string, number>();
+  for (const purchase of purchases ?? []) spentByUser.set(purchase.user_id, (spentByUser.get(purchase.user_id) ?? 0) + Number(purchase.price_coins ?? 0));
 
   return ids.map((id) => ({
     userId: id,
@@ -173,6 +180,8 @@ export async function getFamilyGameProfiles(familyId: string) {
       (sum, item) => sum + Number(item.quantity ?? 0),
       0,
     ),
+    xp: earnedByUser.get(id) ?? 0,
+    coins: Math.max(0, (earnedByUser.get(id) ?? 0) * 10 - (spentByUser.get(id) ?? 0)),
     itemMap: Object.fromEntries(itemMap),
   }));
 }
