@@ -42,9 +42,9 @@ export function DailyChallenges({
         <div>
           <p className="text-[10px] font-black uppercase tracking-[.2em] text-cyan-300">Desafios do dia</p>
           <h2 className="mt-1 text-xl font-black text-white">Escolha sua próxima missão</h2>
-          <p className="mt-1 text-xs text-white/55">Uma rotação de mais de 200 missões mantém a rotina sempre diferente.</p>
+          <p className="mt-1 text-xs text-white/55">Uma rotação de 200 missões mantém a rotina sempre diferente.</p>
         </div>
-        <span className="rounded-full border border-yellow-300/30 bg-yellow-300/10 px-2.5 py-1 text-[10px] font-black text-yellow-200">+200 MISSÕES</span>
+        <span className="rounded-full border border-yellow-300/30 bg-yellow-300/10 px-2.5 py-1 text-[10px] font-black text-yellow-200">200 MISSÕES</span>
       </div>
       <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {challenges.map((challenge) => {
