@@ -20,15 +20,13 @@ cp .env.example .env.local
 
 ## 3. Migrations (SQL Editor)
 
-Rode **nesta ordem**:
+Rode **todos os arquivos de `supabase/migrations/` em ordem lexicográfica**.
 
-1. `20260924000001_families.sql`
-2. `20260924000002_tasks.sql`
-3. `20260924000003_notifications.sql`
-4. `20260924000004_negotiations.sql`
-5. `20260924000005_profiles.sql`
-6. `20260924000006_task_proof.sql` — foto de prova + bucket
-7. `20260924000007_push_and_profile_email.sql` — e-mail no profile + push_subscriptions
+As migrations mais recentes adicionam, além do núcleo de tarefas:
+- pontos e quadro aberto;
+- negociação bilateral e proteção de concorrência;
+- **mundo V3** com 80 itens de personagem, inventário, compras, presentes e avatar;
+- **200 desafios rotativos do dia**.
 
 ## 4. Realtime
 
