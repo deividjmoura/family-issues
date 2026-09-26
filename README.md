@@ -36,7 +36,7 @@ Atribuída → Concluída (± foto) → Aguardando verificação
 
 ## Subir em 15 minutos
 
-1. **Supabase** — rode as migrations `01` → `07` em `supabase/migrations/`  
+1. **Supabase** — rode **todas** as migrations em `supabase/migrations/`, em ordem de nome (incluindo o mundo V3: loja, avatar, presentes e 200+ desafios diários)  
    Detalhes: [docs/setup-supabase.md](docs/setup-supabase.md)
 
 2. **Local**
