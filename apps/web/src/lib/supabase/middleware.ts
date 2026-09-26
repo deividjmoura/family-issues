@@ -1,45 +1,38 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC = ["/", "/login", "/signup", "/politica"];
+const PUBLIC = [
+  "/",
+  "/login",
+  "/signup",
+  "/politica",
+  "/sw.js",
+  "/manifest.webmanifest",
+];
 
 export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
-    request,
-  });
+  let supabaseResponse = NextResponse.next({ request });
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  if (!url || !key) {
-    return supabaseResponse;
-  }
+  if (!url || !key) return supabaseResponse;
 
   const supabase = createServerClient(url, key, {
     cookies: {
       getAll() {
         return request.cookies.getAll();
       },
-      setAll(
-        cookiesToSet: {
-          name: string;
-          value: string;
-          options?: Record<string, unknown>;
-        }[],
-      ) {
-        cookiesToSet.forEach((cookie) => {
-          request.cookies.set(cookie.name, cookie.value);
-        });
-        supabaseResponse = NextResponse.next({
-          request,
-        });
-        cookiesToSet.forEach((cookie) => {
+      setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
+        cookiesToSet.forEach((cookie) => request.cookies.set(cookie.name, cookie.value));
+        supabaseResponse = NextResponse.next({ request });
+        cookiesToSet.forEach((cookie) =>
           supabaseResponse.cookies.set(
             cookie.name,
             cookie.value,
             cookie.options as Parameters<typeof supabaseResponse.cookies.set>[2],
-          );
-        });
+          ),
+        );
       },
     },
   });
@@ -49,7 +42,10 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
-  const isPublic = PUBLIC.includes(path) || path.startsWith("/auth/");
+  const isPublic =
+    PUBLIC.includes(path) ||
+    path.startsWith("/auth/") ||
+    path.startsWith("/icons/");
 
   if (!user && !isPublic && path !== "/onboarding") {
     const redirectUrl = request.nextUrl.clone();
@@ -67,17 +63,12 @@ export async function updateSession(request: NextRequest) {
       .maybeSingle();
 
     const dest = request.nextUrl.clone();
-    if (!membership) {
-      dest.pathname = "/onboarding";
-    } else if (membership.role === "responsavel") {
-      dest.pathname = "/responsavel";
-    } else {
-      dest.pathname = "/executor";
-    }
+    if (!membership) dest.pathname = "/onboarding";
+    else if (membership.role === "responsavel") dest.pathname = "/responsavel";
+    else dest.pathname = "/executor";
     return NextResponse.redirect(dest);
   }
 
-  // Já tem família → não mostra onboarding
   if (user && path === "/onboarding") {
     const { data: membership } = await supabase
       .from("family_members")
@@ -94,10 +85,7 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
-  if (
-    user &&
-    (path.startsWith("/responsavel") || path.startsWith("/executor"))
-  ) {
+  if (user && (path.startsWith("/responsavel") || path.startsWith("/executor"))) {
     const { data: membership } = await supabase
       .from("family_members")
       .select("role")

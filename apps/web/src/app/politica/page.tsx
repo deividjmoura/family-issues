@@ -6,13 +6,13 @@ export default function PoliticaPage() {
       <Link href="/" className="text-primary underline">
         ← Voltar
       </Link>
-      <h1 className="text-2xl font-bold">Política de uso — Family Tasks</h1>
+      <h1 className="text-2xl font-bold">Política de uso — Family Issues</h1>
       <p className="text-muted-foreground">Última atualização: setembro de 2026</p>
 
       <section className="space-y-2">
         <h2 className="text-lg font-semibold">1. O que é o app</h2>
         <p>
-          O Family Tasks é uma ferramenta para famílias organizarem tarefas
+          O Family Issues é uma ferramenta para famílias organizarem tarefas
           domésticas com recompensas em valor (R$) e pontos, com verificação do
           responsável antes do pagamento.
         </p>

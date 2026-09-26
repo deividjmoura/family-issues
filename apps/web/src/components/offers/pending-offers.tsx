@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { respondOffer } from "@/lib/actions/offers";
-import { formatBRL } from "@/lib/domain/money";
+import { formatBRL, parseBRL } from "@/lib/domain/money";
 import type { TaskOffer } from "@/lib/domain/types";
 import { Button } from "@/components/ui/button";
 
@@ -100,14 +100,11 @@ export function PendingOffers({
                     size="sm"
                     disabled={pending}
                     onClick={() => {
-                      const n = Number(
-                        counterVal.replace(",", ".").replace(/[^\d.]/g, ""),
-                      );
-                      if (!n && n !== 0) {
-                        alert("Valor inválido");
+                      const cents = parseBRL(counterVal);
+                      if (cents === null) {
+                        alert("Valor inválido. Use, por exemplo, 11,00.");
                         return;
                       }
-                      const cents = Math.round(n * 100);
                       run(() =>
                         respondOffer(o.id, false, {
                           valueCents: cents,

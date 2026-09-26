@@ -12,10 +12,13 @@ const MAP: Record<string, string> = {
   "Email rate limit exceeded": "Muitas tentativas. Aguarde um minuto.",
   "For security purposes, you can only request this after":
     "Por segurança, aguarde um pouco antes de tentar de novo.",
+  "Provider google is not enabled":
+    "O login com Google ainda não está habilitado.",
 };
 
 export function translateAuthError(message: string): string {
   if (MAP[message]) return MAP[message];
+
   const lower = message.toLowerCase();
   if (lower.includes("invalid login")) return "E-mail ou senha incorretos.";
   if (lower.includes("not confirmed"))
@@ -27,5 +30,7 @@ export function translateAuthError(message: string): string {
   if (lower.includes("rate limit"))
     return "Muitas tentativas. Aguarde um minuto.";
   if (lower.includes("network")) return "Falha de rede. Tente de novo.";
-  return message || "Não foi possível autenticar.";
+  if (lower.includes("provider") && lower.includes("google"))
+    return "O login com Google não está disponível no momento.";
+  return "Não foi possível autenticar. Tente novamente.";
 }

@@ -8,6 +8,8 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
+const DISMISS_KEY = "fi-pwa-dismiss";
+
 export function InstallPrompt() {
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(
     null,
@@ -17,7 +19,7 @@ export function InstallPrompt() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
-      if (localStorage.getItem("ft-pwa-dismiss") === "1") return;
+      if (localStorage.getItem(DISMISS_KEY) === "1") return;
     } catch {
       /* ignore */
     }
@@ -35,7 +37,7 @@ export function InstallPrompt() {
 
   return (
     <div className="fixed bottom-4 left-4 right-4 z-40 mx-auto max-w-md rounded-xl border border-border bg-card p-4 shadow-lg">
-      <p className="text-sm font-medium">Instalar Family Tasks?</p>
+      <p className="text-sm font-medium">Instalar Family Issues?</p>
       <p className="mt-1 text-xs text-muted-foreground">
         Acesse como app na tela inicial — funciona offline o básico.
       </p>
@@ -56,7 +58,7 @@ export function InstallPrompt() {
           onClick={() => {
             setHidden(true);
             try {
-              localStorage.setItem("ft-pwa-dismiss", "1");
+              localStorage.setItem(DISMISS_KEY, "1");
             } catch {
               /* ignore */
             }
