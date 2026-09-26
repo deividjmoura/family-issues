@@ -17,6 +17,8 @@ import { getProfileNames } from "@/lib/actions/profiles";
 import { getOpenAdvancesByExecutor } from "@/lib/actions/wallet";
 import type { Task } from "@/lib/domain/types";
 import { formatBRL, balanceCents } from "@/lib/domain/money";
+import { getFamilyGameProfiles } from "@/lib/actions/game";
+import { FamilyAvatars } from "@/components/game/family-avatars";
 
 export default async function ResponsavelHomePage() {
   const supabase = await createClient();
@@ -78,6 +80,7 @@ export default async function ResponsavelHomePage() {
   }
 
   const advancesByExecutor = await getOpenAdvancesByExecutor(familyId);
+  const familyGameProfiles = await getFamilyGameProfiles(familyId);
 
   const toVerify = taskList.filter(
     (t) => t.status === "aguardando_verificacao",
@@ -168,6 +171,8 @@ export default async function ResponsavelHomePage() {
         title="Ranking da família"
         />
       </section>
+
+      <FamilyAvatars profiles={familyGameProfiles} />
 
       {(offers.length > 0 || pendingNegos.length > 0) && (
         <div className="responsavel-pending-grid">
