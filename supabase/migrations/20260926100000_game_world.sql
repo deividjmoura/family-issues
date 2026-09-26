@@ -436,7 +436,7 @@ returns trigger
 language plpgsql
 security definer
 set search_path = ''
-as $
+as $$
 begin
   insert into public.profiles (id, full_name)
   values (
@@ -462,7 +462,7 @@ begin
 
   return new;
 end;
-$;
+$$;
 
 -- Purchase atomically checks the user's earned coins (10 coins per approved XP)
 -- against previous purchases, then updates inventory.
