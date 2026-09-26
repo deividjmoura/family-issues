@@ -21,6 +21,7 @@ App web para **delegar tarefas domésticas com recompensa em R$**, verificação
 | PWA (manifest + service worker) | ✅ |
 | UI responsável (séria) / executor (game) | ✅ |
 | Mundo V3: personagem + loja + inventário + presentes | ✅ |
+| 200 desafios diários rotativos | ✅ |
 
 ## Fluxo
 
