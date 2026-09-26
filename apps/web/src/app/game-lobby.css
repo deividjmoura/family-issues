@@ -822,3 +822,24 @@
     transform: none;
   }
 }
+
+
+@media (min-width: 901px) {
+  .game-lobby {
+    max-width: none;
+    margin-inline: 0;
+    padding: 1.25rem clamp(1rem, 3vw, 3rem) 3rem;
+  }
+
+  .game-hud {
+    padding-inline: 0.25rem;
+  }
+
+  .game-hero {
+    padding: 1.5rem;
+  }
+
+  .game-grid {
+    gap: 0.9rem;
+  }
+}
