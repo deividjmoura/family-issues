@@ -10,6 +10,8 @@ import { getProfileNames } from "@/lib/actions/profiles";
 import type { Task } from "@/lib/domain/types";
 import { balanceCents, earnedCents } from "@/lib/domain/money";
 import { sumPoints } from "@/lib/domain/points";
+import { getGameState, getTodayChallenges } from "@/lib/actions/game";
+import { DailyChallenges } from "@/components/game/daily-challenges";
 
 export default async function ExecutorHomePage() {
   const supabase = await createClient();
@@ -46,6 +48,14 @@ export default async function ExecutorHomePage() {
   const saldo = balanceCents(myTasks);
   const ganhos = earnedCents(myTasks);
   const notifications = await listMyNotifications();
+  const gameState = await getGameState(user.id);
+  const allChallenges = await getTodayChallenges();
+  const today = new Date().toISOString().slice(0, 10);
+  const dayIndex = Math.floor(Date.parse(today + "T00:00:00Z") / 86400000);
+  const challengeStart = allChallenges.length ? (dayIndex * 6) % allChallenges.length : 0;
+  const dailyChallenges = allChallenges.length
+    ? Array.from({ length: Math.min(6, allChallenges.length) }, (_, index) => allChallenges[(challengeStart + index) % allChallenges.length])
+    : [];
 
   const active = myTasks.filter(
     (t) =>
@@ -115,7 +125,21 @@ export default async function ExecutorHomePage() {
         taskMeta={taskMeta}
         awaitingConfirmCount={awaitingConfirm.length}
         confirmCents={confirmCents}
+        gameItems={gameState.items}
+        gameInventory={gameState.inventory}
+        gameAvatar={gameState.avatar}
+        gameCoins={gameState.coins}
       />
+      <div className="mx-auto w-full max-w-6xl px-3 pb-6 sm:px-6">
+        <DailyChallenges
+          familyId={familyId}
+          challenges={dailyChallenges}
+          acceptedIds={myTasks
+            .filter((task) => task.daily_challenge_date === today && task.daily_challenge_id)
+            .map((task) => task.daily_challenge_id as string)}
+          date={today}
+        />
+      </div>
       <CreateTaskFab
         familyId={familyId}
         executors={[]}
