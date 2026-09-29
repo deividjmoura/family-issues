@@ -1,1 +1,87 @@
-PLACEHOLDER_WILL_REPLACE
+@import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;800&family=Share+Tech+Mono&display=swap");
+
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --border: #e2e8f0;
+  --ring: #2563eb;
+  --success: #16a34a;
+  --warning: #ea580c;
+  --destructive: #dc2626;
+  --coin: #ca8a04;
+  --xp: #7c3aed;
+  --radius: 0.75rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-scheme]) {
+    --background: #0d1422;
+    --foreground: #e8eef8;
+    --card: #131c2d;
+    --card-foreground: #e8eef8;
+    --primary: #60a5fa;
+    --primary-foreground: #0f172a;
+    --muted: #1a2639;
+    --muted-foreground: #aab6c8;
+    --border: #2d3d55;
+    --ring: #60a5fa;
+    --success: #4ade80;
+    --warning: #fb923c;
+    --destructive: #f87171;
+    --coin: #facc15;
+    --xp: #a78bfa;
+  }
+}
+
+html[data-scheme="light"] {
+  --background: #f3f5f8;
+  --foreground: #17213b;
+  --card: #fbfcfe;
+  --card-foreground: #17213b;
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --muted: #e9eef5;
+  --muted-foreground: #5f6b80;
+  --border: #d7e0ea;
+  --ring: #2563eb;
+  --success: #15803d;
+  --warning: #c2410c;
+  --destructive: #b91c1c;
+  --coin: #a16207;
+  --xp: #6d28d9;
+}
+
+html[data-scheme="dark"] {
+  --background: #0d1422;
+  --foreground: #e8eef8;
+  --card: #131c2d;
+  --card-foreground: #e8eef8;
+  --primary: #60a5fa;
+  --primary-foreground: #0f172a;
+  --muted: #1a2639;
+  --muted-foreground: #aab6c8;
+  --border: #2d3d55;
+  --ring: #60a5fa;
+  --success: #4ade80;
+  --warning: #fb923c;
+  --destructive: #f87171;
+  --coin: #facc15;
+  --xp: #a78bfa;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  min-height: 100dvh;
+}
+
+.theme-resp { min-height: 100dvh; background: var(--background); color: var(--foreground); }
+.theme-game { min-height: 100dvh; background: #0a0b10; color: #e8f4ff; }
+html[data-scheme="light"] .theme-game { background: #f0f9ff; color: #0f172a; }
