@@ -4,59 +4,107 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 const KEY = "ft-color-scheme";
-type Mode = "light" | "dark";
+type Preference = "system" | "light" | "dark";
+type Resolved = "light" | "dark";
 
-function readMode(): Mode {
+function systemMode(): Resolved {
   try {
-    const current = document.documentElement.dataset.scheme;
-    if (current === "light" || current === "dark") return current;
-
-    const stored = localStorage.getItem(KEY);
-    if (stored === "light" || stored === "dark") return stored;
-
     return window.matchMedia("(prefers-color-scheme: dark)").matches
       ? "dark"
       : "light";
   } catch {
-    return "dark";
+    return "light";
   }
 }
 
-function applyMode(mode: Mode) {
-  document.documentElement.dataset.scheme = mode;
+function readPreference(): Preference {
   try {
-    localStorage.setItem(KEY, mode);
+    const stored = localStorage.getItem(KEY);
+    if (stored === "light" || stored === "dark" || stored === "system") {
+      return stored;
+    }
+    // Legacy: older builds only stored light/dark. Treat missing as system.
+    return "system";
+  } catch {
+    return "system";
+  }
+}
+
+function resolve(pref: Preference): Resolved {
+  return pref === "system" ? systemMode() : pref;
+}
+
+function applyPreference(pref: Preference) {
+  const resolved = resolve(pref);
+  document.documentElement.dataset.scheme = resolved;
+  document.documentElement.dataset.themePref = pref;
+  try {
+    localStorage.setItem(KEY, pref);
   } catch {
     /* ignore */
   }
 }
 
 export function ThemeToggle() {
-  const [mode, setMode] = useState<Mode>("dark");
+  const [pref, setPref] = useState<Preference>("system");
+  const [resolved, setResolved] = useState<Resolved>("light");
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const initial = readMode();
-    setMode(initial);
-    document.documentElement.dataset.scheme = initial;
+    const initial = readPreference();
+    const next = resolve(initial);
+    setPref(initial);
+    setResolved(next);
+    document.documentElement.dataset.scheme = next;
+    document.documentElement.dataset.themePref = initial;
     setReady(true);
 
     function onStorage(event: StorageEvent) {
       if (event.key !== KEY) return;
-      const next = event.newValue;
-      if (next !== "light" && next !== "dark") return;
-      setMode(next);
-      document.documentElement.dataset.scheme = next;
+      const value = event.newValue;
+      if (value !== "light" && value !== "dark" && value !== "system") return;
+      setPref(value);
+      const r = resolve(value);
+      setResolved(r);
+      document.documentElement.dataset.scheme = r;
+      document.documentElement.dataset.themePref = value;
+    }
+
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    function onSystemChange() {
+      const current = readPreference();
+      if (current !== "system") return;
+      const r = systemMode();
+      setResolved(r);
+      document.documentElement.dataset.scheme = r;
     }
 
     window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+    if (typeof mq.addEventListener === "function") {
+      mq.addEventListener("change", onSystemChange);
+    } else {
+      mq.addListener(onSystemChange);
+    }
+
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      if (typeof mq.removeEventListener === "function") {
+        mq.removeEventListener("change", onSystemChange);
+      } else {
+        mq.removeListener(onSystemChange);
+      }
+    };
   }, []);
 
-  function toggle() {
-    const next: Mode = mode === "dark" ? "light" : "dark";
-    setMode(next);
-    applyMode(next);
+  function cycle() {
+    // system → light → dark → system
+    const order: Preference[] = ["system", "light", "dark"];
+    const idx = order.indexOf(pref);
+    const next = order[(idx + 1) % order.length];
+    setPref(next);
+    const r = resolve(next);
+    setResolved(r);
+    applyPreference(next);
   }
 
   if (!ready) {
@@ -67,16 +115,32 @@ export function ThemeToggle() {
     );
   }
 
+  const label =
+    pref === "system"
+      ? resolved === "dark"
+        ? "🖥️ Sistema (escuro)"
+        : "🖥️ Sistema (claro)"
+      : pref === "dark"
+        ? "🌙 Escuro"
+        : "☀️ Claro";
+
+  const aria =
+    pref === "system"
+      ? "Tema: seguir sistema. Toque para tema claro"
+      : pref === "light"
+        ? "Tema claro. Toque para tema escuro"
+        : "Tema escuro. Toque para seguir o sistema";
+
   return (
     <Button
       type="button"
       size="sm"
       variant="secondary"
-      onClick={toggle}
-      aria-label={mode === "dark" ? "Ativar tema claro" : "Ativar tema escuro"}
-      title="Alternar tema claro/escuro"
+      onClick={cycle}
+      aria-label={aria}
+      title="Alternar: Sistema → Claro → Escuro"
     >
-      {mode === "dark" ? "☀️ Claro" : "🌙 Escuro"}
+      {label}
     </Button>
   );
 }

@@ -31,9 +31,15 @@ export const viewport: Viewport = {
   width: "device-width", initialScale: 1, maximumScale: 1, userScalable: false, viewportFit: "cover",
 };
 
+/** Runs before paint so the app matches device theme (or saved preference). */
+const themeBootScript = `(function(){try{var k='ft-color-scheme';var s=localStorage.getItem(k);var mode;if(s==='light'||s==='dark'){mode=s;}else{mode=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.dataset.scheme=mode;if(s==='system'||s===null||s===undefined||s===''){document.documentElement.dataset.themePref='system';}else{document.documentElement.dataset.themePref=s;}}catch(e){}})();`;
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
+      </head>
       <body className={geistSans.variable + " " + geistMono.variable + " min-h-screen antialiased"}>
         {children}
         <PwaRegister />
